@@ -88,6 +88,52 @@ app.get('/products', async (req, res) => {
   }
 });
 
+// Add product for tenant
+app.post('/products', async (req, res) => {
+  try {
+    const tenant = String(req.tenant || '').trim();
+    if (!tenant) return res.status(400).json({ error: 'Missing x-tenant-id' });
+
+    const { name, price, imageUrl } = req.body || {};
+
+    const cleanName = String(name || '').trim();
+    const numericPrice = typeof price === 'number' ? price : Number(price);
+    const cleanImageUrl = imageUrl == null ? null : String(imageUrl).trim();
+
+    if (!cleanName) {
+      return res.status(400).json({ error: 'name is required' });
+    }
+
+    if (!Number.isFinite(numericPrice) || numericPrice < 0) {
+      return res.status(400).json({ error: 'price must be a non-negative number' });
+    }
+
+    const store = await prisma.store.findUnique({
+      where: { slug: tenant },
+      select: { id: true },
+    });
+
+    if (!store) {
+      return res.status(404).json({ error: `Store not found for tenant: ${tenant}` });
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        storeId: store.id,
+        name: cleanName,
+        price: numericPrice,
+        imageUrl: cleanImageUrl || null,
+      },
+      select: { id: true, name: true, price: true, imageUrl: true, storeId: true },
+    });
+
+    return res.status(201).json(product);
+  } catch (e) {
+    console.error('POST /products failed:', e);
+    return res.status(500).json({ error: 'Failed to add product', details: e?.message || String(e) });
+  }
+});
+
 app.post("/stores", async (req, res) => {
   try {
     const { slug, name, phone, themeColor } = req.body || {};
