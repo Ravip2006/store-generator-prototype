@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Store {
+  id         String    @id @default(cuid())
+  slug       String    @unique
+  name       String
+  phone      String
+  themeColor String    @default("#0A7C2F")
+  logoUrl    String?
+  createdAt  DateTime  @default(now())
+
+  products   Product[]
+  orders     Order[]
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  storeId   String
+  name      String
+  price     Float
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  store     Store    @relation(fields: [storeId], references: [id])
+  @@index([storeId])
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  storeId   String
+  total     Float
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+
+  store     Store    @relation(fields: [storeId], references: [id])
+  @@index([storeId])
+}
