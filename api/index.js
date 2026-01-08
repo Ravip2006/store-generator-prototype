@@ -1,5 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const { PrismaClient } = require("@prisma/client");
+const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
+
+const adapter = new PrismaBetterSqlite3({
+  url: process.env.DATABASE_URL || "file:./dev.db",
+});
+
+const prisma = new PrismaClient({ adapter });
 
 const app = express();
 app.use(cors());
@@ -32,15 +40,93 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => res.send('API is running'));
 
 // Get store info
-app.get('/store', (req, res) => {
-  const store = stores[req.tenant];
-  if (!store) return res.status(404).json({ error: 'Store not found' });
-  res.json(store);
+app.get('/store', async (req, res) => {
+  try {
+    const tenant = String(req.tenant || '').trim();
+    if (!tenant) return res.status(400).json({ error: 'Missing x-tenant-id' });
+
+    const storeFromDb = await prisma.store.findUnique({
+      where: { slug: tenant },
+      select: { name: true, phone: true, themeColor: true },
+    });
+
+    if (storeFromDb) return res.json(storeFromDb);
+
+    const storeFromMemory = stores[tenant];
+    if (!storeFromMemory) return res.status(404).json({ error: 'Store not found' });
+    return res.json(storeFromMemory);
+  } catch (e) {
+    console.error('GET /store failed:', e);
+    return res.status(500).json({ error: 'Failed to load store', details: e?.message || String(e) });
+  }
 });
 
 // Get products
-app.get('/products', (req, res) => {
-  res.json(products[req.tenant] || []);
+app.get('/products', async (req, res) => {
+  try {
+    const tenant = String(req.tenant || '').trim();
+    if (!tenant) return res.status(400).json({ error: 'Missing x-tenant-id' });
+
+    const store = await prisma.store.findUnique({
+      where: { slug: tenant },
+      select: { id: true },
+    });
+
+    if (store) {
+      const productsFromDb = await prisma.product.findMany({
+        where: { storeId: store.id },
+        select: { id: true, name: true, price: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      return res.json(productsFromDb);
+    }
+
+    return res.json(products[tenant] || []);
+  } catch (e) {
+    console.error('GET /products failed:', e);
+    return res.status(500).json({ error: 'Failed to load products', details: e?.message || String(e) });
+  }
+});
+
+app.post("/stores", async (req, res) => {
+  try {
+    const { slug, name, phone, themeColor } = req.body || {};
+
+    if (!slug || !name || !phone) {
+      return res.status(400).json({ error: "slug, name, phone are required" });
+    }
+
+    const cleanSlug = String(slug).trim().toLowerCase();
+
+    const store = await prisma.store.upsert({
+      where: { slug: cleanSlug },
+      update: {
+        name: String(name).trim(),
+        phone: String(phone).trim(),
+        themeColor: String(themeColor || "#0A7C2F").trim(),
+      },
+      create: {
+        slug: cleanSlug,
+        name: String(name).trim(),
+        phone: String(phone).trim(),
+        themeColor: String(themeColor || "#0A7C2F").trim(),
+      },
+    });
+
+    return res.status(200).json(store);
+  } catch (e) {
+    console.error("POST /stores failed:", e);
+
+    // Prisma known error handling
+    if (e?.code === "P2002") {
+      return res.status(409).json({ error: "Unique constraint violation", meta: e.meta });
+    }
+
+    return res.status(500).json({
+      error: "Failed to create/update store",
+      details: e?.message || String(e),
+    });
+  }
 });
 
 const PORT = 3001;

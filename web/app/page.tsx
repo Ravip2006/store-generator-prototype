@@ -16,20 +16,40 @@ export default async function Page() {
   const h = await headers();
   const tenant = h.get("x-tenant-id") || "green-mart";
 
-  const apiBase = process.env.API_BASE_URL || "http://localhost:3001";
+  const apiBase = process.env.API_BASE_URL || "http://127.0.0.1:3001";
 
-  const storeRes = await fetch(`${apiBase}/store`, {
-    headers: { "x-tenant-id": tenant },
-    cache: "no-store",
-  });
+  let store: Store | null = null;
+  let products: Product[] = [];
+  let apiError: string | null = null;
 
-  const productsRes = await fetch(`${apiBase}/products`, {
-    headers: { "x-tenant-id": tenant },
-    cache: "no-store",
-  });
+  try {
+    const [storeRes, productsRes] = await Promise.all([
+      fetch(`${apiBase}/store`, {
+        headers: { "x-tenant-id": tenant },
+        cache: "no-store",
+      }),
+      fetch(`${apiBase}/products`, {
+        headers: { "x-tenant-id": tenant },
+        cache: "no-store",
+      }),
+    ]);
 
-  const store: Store | null = storeRes.ok ? await storeRes.json() : null;
-  const products: Product[] = productsRes.ok ? await productsRes.json() : [];
+    store = storeRes.ok ? await storeRes.json() : null;
+    products = productsRes.ok ? await productsRes.json() : [];
+  } catch (e) {
+    apiError = e instanceof Error ? e.message : String(e);
+  }
+
+  if (apiError) {
+    return (
+      <div style={{ padding: 20, fontFamily: "Arial" }}>
+        <h1 style={{ marginBottom: 8 }}>API unreachable</h1>
+        <p style={{ marginTop: 0, opacity: 0.7 }}>Tried: {apiBase}</p>
+        <p style={{ marginTop: 0, opacity: 0.7 }}>Tenant: {tenant}</p>
+        <pre style={{ whiteSpace: "pre-wrap" }}>{apiError}</pre>
+      </div>
+    );
+  }
 
   if (!store) {
     return <h1 style={{ padding: 20 }}>Store not found</h1>;

@@ -14,7 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.2.0",
+    "@prisma/adapter-better-sqlite3": "^6.16.0",
     "@prisma/client": "^7.2.0",
     "cors": "^2.8.5",
     "express": "^5.2.1",
