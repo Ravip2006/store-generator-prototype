@@ -9,6 +9,10 @@ type CreateStorePayload = {
   themeColor?: string;
 };
 
+type CreateStoreResult = {
+  slug?: string;
+} & Record<string, unknown>;
+
 export default function CreateStorePage() {
   const [name, setName] = useState("New Store");
   const [slug, setSlug] = useState("new-store");
@@ -16,7 +20,7 @@ export default function CreateStorePage() {
   const [themeColor, setThemeColor] = useState("#0A7C2F");
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<CreateStoreResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Auto-generate a slug from name (optional convenience)
@@ -58,14 +62,18 @@ export default function CreateStorePage() {
       }
 
       setResult(data);
-    } catch (err: any) {
-      setError(err?.message || "Network error");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error");
     } finally {
       setLoading(false);
     }
   }
 
-  const localStoreUrl = result?.slug
+  const storePath = result?.slug
+    ? `/s/${encodeURIComponent(String(result.slug))}`
+    : null;
+
+  const localSubdomainUrl = result?.slug
     ? `http://${result.slug}.localhost:3000`
     : null;
 
@@ -73,7 +81,7 @@ export default function CreateStorePage() {
     <div style={{ maxWidth: 640, margin: "24px auto", padding: 16, fontFamily: "Arial" }}>
       <h1 style={{ marginBottom: 6 }}>Create Store</h1>
       <p style={{ marginTop: 0, opacity: 0.7 }}>
-        Prototype onboarding: creates a tenant store in the API (SQLite via Prisma).
+        Prototype onboarding: creates a tenant store in the API (Supabase Postgres via Prisma).
       </p>
 
       <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, marginTop: 16 }}>
@@ -153,11 +161,21 @@ export default function CreateStorePage() {
           <b>✅ Store created:</b>
           <pre style={{ overflow: "auto" }}>{JSON.stringify(result, null, 2)}</pre>
 
-          {localStoreUrl && (
+          <p style={{ marginTop: 8 }}>
+            View all stores: <a href="/admin/stores">/admin/stores</a>
+          </p>
+
+          {storePath && (
             <p style={{ marginTop: 8 }}>
-              Open store site:{" "}
-              <a href={localStoreUrl} target="_blank" rel="noreferrer">
-                {localStoreUrl}
+              Open store site: <a href={storePath}>{storePath}</a>
+            </p>
+          )}
+
+          {localSubdomainUrl && (
+            <p style={{ marginTop: 8 }}>
+              Local subdomain (optional):{" "}
+              <a href={localSubdomainUrl} target="_blank" rel="noreferrer">
+                {localSubdomainUrl}
               </a>
             </p>
           )}

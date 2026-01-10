@@ -1,95 +1,84 @@
-import { headers } from "next/headers";
+"use client";
 
-type Store = {
-  name: string;
-  phone: string;
-  themeColor: string;
-};
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
-type Product = {
-  id: number | string;
-  name: string;
-  price: number;
-};
+export default function HomePage() {
+  const [slug, setSlug] = useState("green-mart");
 
-export default async function Page() {
-  const h = await headers();
-  const tenant = h.get("x-tenant-id") || "green-mart";
-
-  const apiBase = process.env.API_BASE_URL || "http://127.0.0.1:3001";
-
-  let store: Store | null = null;
-  let products: Product[] = [];
-  let apiError: string | null = null;
-
-  try {
-    const [storeRes, productsRes] = await Promise.all([
-      fetch(`${apiBase}/store`, {
-        headers: { "x-tenant-id": tenant },
-        cache: "no-store",
-      }),
-      fetch(`${apiBase}/products`, {
-        headers: { "x-tenant-id": tenant },
-        cache: "no-store",
-      }),
-    ]);
-
-    store = storeRes.ok ? await storeRes.json() : null;
-    products = productsRes.ok ? await productsRes.json() : [];
-  } catch (e) {
-    apiError = e instanceof Error ? e.message : String(e);
-  }
-
-  if (apiError) {
-    return (
-      <div style={{ padding: 20, fontFamily: "Arial" }}>
-        <h1 style={{ marginBottom: 8 }}>API unreachable</h1>
-        <p style={{ marginTop: 0, opacity: 0.7 }}>Tried: {apiBase}</p>
-        <p style={{ marginTop: 0, opacity: 0.7 }}>Tenant: {tenant}</p>
-        <pre style={{ whiteSpace: "pre-wrap" }}>{apiError}</pre>
-      </div>
-    );
-  }
-
-  if (!store) {
-    return <h1 style={{ padding: 20 }}>Store not found</h1>;
-  }
+  const previewHref = useMemo(() => {
+    const clean = slug.trim().toLowerCase();
+    return clean ? `/s/${encodeURIComponent(clean)}` : "/";
+  }, [slug]);
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
-      <h1 style={{ marginBottom: 8 }}>{store.name}</h1>
-      <p style={{ marginTop: 0, opacity: 0.7 }}>Tenant: {tenant}</p>
+    <main className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto flex min-h-screen w-full max-w-3xl items-center justify-center p-6">
+        <div className="w-full rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
+          <div className="space-y-3">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+              Store Generator Prototype
+            </h1>
+            <p className="max-w-prose text-sm text-foreground/70 sm:text-base">
+              A lightweight storefront preview. Enter a store slug to browse products,
+              add to cart, and place a test order.
+            </p>
+          </div>
 
-      <div style={{ marginTop: 24 }}>
-        {products.length === 0 ? (
-          <p>No products yet.</p>
-        ) : (
-          products.map((p) => (
-            <div
-              key={p.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 8,
-                padding: 12,
-                marginBottom: 12,
-              }}
-            >
-              <h3 style={{ margin: 0 }}>{p.name}</h3>
-              <p style={{ margin: "6px 0" }}>₹{p.price}</p>
-
-              <a
-                href={`https://wa.me/${store.phone}?text=${encodeURIComponent(
-                  `Hi ${store.name}, I want to order: ${p.name} (₹${p.price})`
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Order on WhatsApp
-              </a>
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-foreground/10 p-4">
+              <div className="text-sm font-semibold">Browse</div>
+              <p className="mt-1 text-sm text-foreground/70">
+                View categories and products for a tenant.
+              </p>
             </div>
-          ))
-        )}
+            <div className="rounded-2xl border border-foreground/10 p-4">
+              <div className="text-sm font-semibold">Cart</div>
+              <p className="mt-1 text-sm text-foreground/70">
+                Cart is stored locally per store slug.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-foreground/10 p-4">
+              <div className="text-sm font-semibold">Checkout</div>
+              <p className="mt-1 text-sm text-foreground/70">
+                Place an order and view confirmation.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-foreground/10 p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold">Open a storefront</h2>
+                <p className="mt-1 text-sm text-foreground/70">
+                  Example URL: <span className="font-mono">/s/green-mart</span>
+                </p>
+              </div>
+              <Link
+                href={previewHref}
+                className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-2 text-sm font-medium hover:bg-foreground/10"
+              >
+                Open preview
+              </Link>
+            </div>
+
+            <label className="mt-4 block">
+              <span className="text-sm text-foreground/70">Store slug</span>
+              <input
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                placeholder="e.g. green-mart"
+                className="mt-2 w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                inputMode="text"
+              />
+              <p className="mt-2 text-xs text-foreground/60">
+                Tip: if you’re using local subdomains, you can also try{' '}
+                <span className="font-mono">http://&lt;slug&gt;.localhost:3000</span>.
+              </p>
+            </label>
+          </div>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

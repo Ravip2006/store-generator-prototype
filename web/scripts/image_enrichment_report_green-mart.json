@@ -1,0 +1,100 @@
+{
+  "tenant": "green-mart",
+  "apiBase": "http://127.0.0.1:3001",
+  "bucket": "product-images",
+  "source": "auto",
+  "force": false,
+  "dryRun": false,
+  "processed": [
+    {
+      "id": "cmk7pqxm600166rx3p95zfvkw",
+      "name": "Sunflower Oil 1L",
+      "hadImage": false,
+      "chosen": {
+        "source": "openfoodfacts",
+        "localPath": "/var/folders/wd/w1jmsj2j7g7frff23bykdf6c0000gp/T/storegen-images-b2qyxvi3/cmk7pqxm600166rx3p95zfvkw-sunflower-oil-1l.jpg",
+        "meta": {
+          "url": "https://images.openfoodfacts.org/images/products/642/030/900/0817/front_ro.27.400.jpg",
+          "contentType": "image/jpeg",
+          "product_name": "Surâsul soarelui",
+          "code": "6420309000817",
+          "image_front_url": "https://images.openfoodfacts.org/images/products/642/030/900/0817/front_ro.27.400.jpg",
+          "image_url": "https://images.openfoodfacts.org/images/products/642/030/900/0817/front_ro.27.400.jpg",
+          "link": "https://world.openfoodfacts.org/product/6420309000817/surasul-soarelui"
+        }
+      },
+      "uploadedUrl": "https://yiuhqthvxeaeoevtlmxc.supabase.co/storage/v1/object/public/product-images/tenants/green-mart/products/cmk7pqxm600166rx3p95zfvkw-sunflower-oil-1l-cmk7pqxm600166rx3p95zfvkw-sunflower-oil-1l.jpg",
+      "patched": true,
+      "error": null
+    },
+    {
+      "id": "cmk7pqxf800126rx3uyqkkkq7",
+      "name": "Red Chilli Powder 200g",
+      "hadImage": false,
+      "chosen": {
+        "source": "openfoodfacts",
+        "localPath": "/var/folders/wd/w1jmsj2j7g7frff23bykdf6c0000gp/T/storegen-images-b2qyxvi3/cmk7pqxf800126rx3uyqkkkq7-red-chilli-powder-200g.jpg",
+        "meta": {
+          "url": "https://images.openfoodfacts.org/images/products/490/483/994/9256/front_en.3.400.jpg",
+          "contentType": "image/jpeg",
+          "product_name": "Independence red chilli powder 200g",
+          "code": "4904839949256",
+          "image_front_url": "https://images.openfoodfacts.org/images/products/490/483/994/9256/front_en.3.400.jpg",
+          "image_url": "https://images.openfoodfacts.org/images/products/490/483/994/9256/front_en.3.400.jpg",
+          "link": "https://world.openfoodfacts.org/product/4904839949256/independence-red-chilli-powder-200g"
+        }
+      },
+      "uploadedUrl": "https://yiuhqthvxeaeoevtlmxc.supabase.co/storage/v1/object/public/product-images/tenants/green-mart/products/cmk7pqxf800126rx3uyqkkkq7-red-chilli-powder-200g-cmk7pqxf800126rx3uyqkkkq7-red-chilli-powder-200g.jpg",
+      "patched": true,
+      "error": null
+    },
+    {
+      "id": "cmk7pqx43000u6rx30i7ac1gp",
+      "name": "Chana Dal 1kg",
+      "hadImage": false,
+      "chosen": {
+        "source": "openfoodfacts",
+        "localPath": "/var/folders/wd/w1jmsj2j7g7frff23bykdf6c0000gp/T/storegen-images-b2qyxvi3/cmk7pqx43000u6rx30i7ac1gp-chana-dal-1kg.jpg",
+        "meta": {
+          "url": "https://images.openfoodfacts.org/images/products/890/550/700/2248/front_en.3.400.jpg",
+          "contentType": "image/jpeg",
+          "product_name": "Chana dal 1kg",
+          "code": "8905507002248",
+          "image_front_url": "https://images.openfoodfacts.org/images/products/890/550/700/2248/front_en.3.400.jpg",
+          "image_url": "https://images.openfoodfacts.org/images/products/890/550/700/2248/front_en.3.400.jpg",
+          "link": "https://world.openfoodfacts.org/product/8905507002248/chana-dal-1kg"
+        }
+      },
+      "uploadedUrl": "https://yiuhqthvxeaeoevtlmxc.supabase.co/storage/v1/object/public/product-images/tenants/green-mart/products/cmk7pqx43000u6rx30i7ac1gp-chana-dal-1kg-cmk7pqx43000u6rx30i7ac1gp-chana-dal-1kg.jpg",
+      "patched": true,
+      "error": null
+    },
+    {
+      "id": "cmk7pqwrd000m6rx32twe7t3t",
+      "name": "Besan (Gram Flour) 1kg",
+      "hadImage": false,
+      "chosen": {
+        "source": "ai",
+        "localPath": "/var/folders/wd/w1jmsj2j7g7frff23bykdf6c0000gp/T/storegen-images-b2qyxvi3/cmk7pqwrd000m6rx32twe7t3t-besan-gram-flour-1kg.jpg",
+        "meta": {}
+      },
+      "uploadedUrl": "https://yiuhqthvxeaeoevtlmxc.supabase.co/storage/v1/object/public/product-images/tenants/green-mart/products/cmk7pqwrd000m6rx32twe7t3t-besan-gram-flour-1kg-cmk7pqwrd000m6rx32twe7t3t-besan-gram-flour-1kg.jpg",
+      "patched": true,
+      "error": null
+    },
+    {
+      "id": "cmk7pqwox000k6rx37h7nuaim",
+      "name": "Whole Wheat Atta 10kg",
+      "hadImage": false,
+      "chosen": {
+        "source": "ai",
+        "localPath": "/var/folders/wd/w1jmsj2j7g7frff23bykdf6c0000gp/T/storegen-images-b2qyxvi3/cmk7pqwox000k6rx37h7nuaim-whole-wheat-atta-10kg.jpg",
+        "meta": {}
+      },
+      "uploadedUrl": "https://yiuhqthvxeaeoevtlmxc.supabase.co/storage/v1/object/public/product-images/tenants/green-mart/products/cmk7pqwox000k6rx37h7nuaim-whole-wheat-atta-10kg-cmk7pqwox000k6rx37h7nuaim-whole-wheat-atta-10kg.jpg",
+      "patched": true,
+      "error": null
+    }
+  ],
+  "skipped": 16
+}

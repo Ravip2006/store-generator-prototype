@@ -34,3 +34,31 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Product images (auto-enrichment)
+
+This repo includes a helper script to populate missing product images so your storefront looks more like a retail catalog.
+
+It will:
+- Fetch products from your API (`GET /products`)
+- For products missing `imageUrl`, try to download a candidate image from OpenFoodFacts
+- If no web image is found, fall back to AI image generation (Hugging Face)
+- Upload the image to Supabase Storage
+- Patch the product via your API (`PATCH /products/:id` with `imageUrl`)
+
+Prereqs (env vars):
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_SUPABASE_PRODUCT_IMAGES_BUCKET` (optional; defaults to `product-images`)
+- `HUGGINGFACE_API_TOKEN` (required for AI fallback)
+- `NEXT_PUBLIC_API_BASE_URL` (optional; defaults to `http://127.0.0.1:3001`)
+
+Run:
+- `cd web`
+- `python3 scripts/enrich_product_images.py --tenant green-mart --limit 50`
+
+Dry run (no upload/patch):
+- `python3 scripts/enrich_product_images.py --tenant green-mart --dry-run`
+
+Notes:
+- For web-downloaded images, ensure your usage complies with the source’s license/terms.

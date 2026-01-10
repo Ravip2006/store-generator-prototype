@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "rls": "node supabase/apply_rls.js",
+    "app-user": "node supabase/create_app_user.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -14,10 +16,12 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^6.16.0",
+    "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^5.2.1",
+    "pg": "^8.16.3",
     "prisma": "^7.2.0"
   }
 }

@@ -18,30 +18,136 @@ model Store {
   logoUrl    String?
   createdAt  DateTime  @default(now())
 
-  products   Product[]
+  categories Category[]
+  customers  Customer[]
+  ownedCatalogProducts CatalogProduct[]
+  productOverrides StoreProductOverride[]
   orders     Order[]
 }
 
-model Product {
+model MasterCategory {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  storeCategories Category[]
+  catalogProducts CatalogProduct[]
+}
+
+model Category {
   id        String   @id @default(cuid())
   storeId   String
+  masterCategoryId String?
   name      String
-  price     Float
-  imageUrl  String?
+  sortOrder Int      @default(0)
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
   store     Store    @relation(fields: [storeId], references: [id])
+  masterCategory MasterCategory? @relation(fields: [masterCategoryId], references: [id])
+  productOverrides StoreProductOverride[]
+
+  @@unique([storeId, masterCategoryId])
   @@index([storeId])
+  @@index([masterCategoryId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  storeId   String
+  name      String
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+
+  store     Store    @relation(fields: [storeId], references: [id])
+  orders    Order[]
+
+  @@index([storeId])
+}
+
+model CatalogProduct {
+  id           String   @id @default(cuid())
+  name         String
+  basePrice    Float
+  imageUrl     String?
+  description  String?
+  masterCategoryId String?
+  stock        Int      @default(0)
+  isActive     Boolean  @default(true)
+  isGlobal     Boolean  @default(true)
+  ownerStoreId String?
+  createdAt    DateTime @default(now())
+  ownerStore   Store?   @relation(fields: [ownerStoreId], references: [id])
+  masterCategory MasterCategory? @relation(fields: [masterCategoryId], references: [id])
+  overrides    StoreProductOverride[]
+  orderItems   OrderItem[]
+
+  @@index([isGlobal])
+  @@index([masterCategoryId])
+  @@index([ownerStoreId])
+}
+
+model StoreProductOverride {
+  id               String   @id @default(cuid())
+  storeId          String
+  productId        String
+  categoryId       String?
+  nameOverride     String?
+  priceOverride    Float?
+  imageUrlOverride String?
+  stock            Int?     @default(0)
+  isActiveOverride Boolean?
+  createdAt        DateTime @default(now())
+
+  store     Store          @relation(fields: [storeId], references: [id])
+  product   CatalogProduct @relation(fields: [productId], references: [id])
+  category  Category?      @relation(fields: [categoryId], references: [id])
+
+  @@unique([storeId, productId])
+  @@index([storeId])
+  @@index([productId])
+  @@index([categoryId])
 }
 
 model Order {
   id        String   @id @default(cuid())
   storeId   String
+  customerId String?
+
+  customerName  String?
+  customerPhone String?
+  addressLine1  String?
+  addressLine2  String?
+  city          String?
+  state         String?
+  postalCode    String?
+  country       String?
+  deliverySlot  String?
+
   total     Float
   status    String   @default("NEW")
   createdAt DateTime @default(now())
 
   store     Store    @relation(fields: [storeId], references: [id])
+  customer  Customer? @relation(fields: [customerId], references: [id])
+  items     OrderItem[]
   @@index([storeId])
+  @@index([customerId])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  productId  String
+  quantity   Int
+  unitPrice  Float
+  createdAt  DateTime @default(now())
+
+  order      Order    @relation(fields: [orderId], references: [id])
+  product    CatalogProduct  @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
 }
