@@ -191,6 +191,47 @@ app.use((req, res, next) => {
 // Health check
 app.get('/', (req, res) => res.send('API is running'));
 
+// Debug: Check database status
+app.get('/debug/stores', async (req, res) => {
+  try {
+    const stores = await prisma.store.findMany({
+      select: { id: true, slug: true, name: true },
+    });
+    return res.json({ totalStores: stores.length, stores });
+  } catch (e) {
+    return res.status(500).json({ error: String(e) });
+  }
+});
+
+// Admin stats endpoint
+app.get('/admin/stats', async (req, res) => {
+  try {
+    const [stores, products, orders, customers] = await Promise.all([
+      prisma.store.count(),
+      prisma.product.count(),
+      prisma.order.count(),
+      prisma.customer.count(),
+    ]);
+
+    return res.json({
+      stores,
+      products,
+      orders,
+      customers,
+    });
+  } catch (e) {
+    console.error('GET /admin/stats failed:', e);
+    return res.status(500).json({ 
+      error: 'Failed to load stats', 
+      details: e?.message || String(e),
+      stores: 0,
+      products: 0,
+      orders: 0,
+      customers: 0,
+    });
+  }
+});
+
 // Get store info
 app.get('/store', async (req, res) => {
   try {
@@ -253,6 +294,8 @@ app.get('/products', async (req, res) => {
               categoryId: true,
               nameOverride: true,
               priceOverride: true,
+              discountPercent: true,
+              discountPrice: true,
               imageUrlOverride: true,
               stock: true,
               isActiveOverride: true,
@@ -267,10 +310,21 @@ app.get('/products', async (req, res) => {
           .map((p) => {
             const o = overrideByProductId.get(p.id);
             const effectiveIsActive = (o?.isActiveOverride ?? p.isActive) !== false;
+
+            const regularPrice = o?.priceOverride ?? p.basePrice;
+            const discount = computeDiscount({
+              regularPrice,
+              discountPrice: o?.discountPrice ?? null,
+              discountPercent: o?.discountPercent ?? null,
+            });
+
             return {
               id: p.id,
               name: o?.nameOverride ?? p.name,
-              price: o?.priceOverride ?? p.basePrice,
+              price: discount.effectivePrice,
+              regularPrice: discount.regularPrice,
+              discountPercent: discount.discountPercent,
+              discountPrice: discount.discountPrice,
               imageUrl: o?.imageUrlOverride ?? p.imageUrl,
               description: typeof p.description === 'string' ? p.description : '',
               stock: typeof o?.stock === 'number' ? o.stock : (typeof p.stock === 'number' ? p.stock : null),
@@ -312,6 +366,80 @@ app.get('/products', async (req, res) => {
     if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
     if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
     return res.status(500).json({ error: 'Failed to load products', details: e?.message || String(e) });
+  }
+});
+
+// Bulk onboard all visible catalog products for this store.
+// Creates StoreProductOverride rows (idempotent via skipDuplicates) so the store can manage 100s of items at once.
+// POST /catalog/onboard
+// Body: { defaultStock?: number, activate?: boolean }
+app.post('/catalog/onboard', async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const rawDefaultStock = req.body?.defaultStock;
+    const defaultStock = rawDefaultStock == null ? 0 : (typeof rawDefaultStock === 'number' ? rawDefaultStock : Number(rawDefaultStock));
+    if (!Number.isInteger(defaultStock) || defaultStock < 0) {
+      return res.status(400).json({ error: 'defaultStock must be a non-negative integer' });
+    }
+
+    const activate = req.body?.activate === undefined ? true : Boolean(req.body?.activate);
+
+    // Ensure baseline categories exist so bootstrapping can map masterCategoryId -> store category.
+    await ensureStoreCategoriesFromMaster(store.id);
+
+    const uncategorized = await ensureUncategorizedCategory(store.id);
+    const categories = await withTenantDb(store.id, (db) =>
+      db.category.findMany({
+        where: { storeId: store.id },
+        select: { id: true, masterCategoryId: true },
+      })
+    );
+
+    const categoryIdByMasterId = new Map(
+      categories
+        .filter((c) => typeof c.masterCategoryId === 'string' && c.masterCategoryId.length > 0)
+        .map((c) => [c.masterCategoryId, c.id])
+    );
+
+    const products = await withTenantDb(store.id, (db) =>
+      db.catalogProduct.findMany({
+        where: {
+          isActive: true,
+          OR: [{ isGlobal: true }, { ownerStoreId: store.id }],
+        },
+        select: { id: true, basePrice: true, masterCategoryId: true },
+      })
+    );
+
+    if (!products.length) return res.json({ onboarded: 0 });
+
+    const result = await withTenantDb(store.id, (db) =>
+      db.storeProductOverride.createMany({
+        data: products.map((p) => ({
+          storeId: store.id,
+          productId: p.id,
+          categoryId:
+            typeof p.masterCategoryId === 'string' && categoryIdByMasterId.has(p.masterCategoryId)
+              ? categoryIdByMasterId.get(p.masterCategoryId)
+              : uncategorized.id,
+          stock: defaultStock,
+          isActiveOverride: activate,
+          // Default discount values: stored as both fields, but 0% means no discount.
+          discountPercent: 0,
+          discountPrice: roundMoney(typeof p.basePrice === 'number' ? p.basePrice : Number(p.basePrice)),
+        })),
+        skipDuplicates: true,
+      })
+    );
+
+    return res.json({ onboarded: result?.count ?? 0 });
+  } catch (e) {
+    console.error('POST /catalog/onboard failed:', e);
+    if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
+    if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
+    return res.status(500).json({ error: 'Failed to onboard catalog', details: e?.message || String(e) });
   }
 });
 
@@ -614,6 +742,36 @@ app.patch("/products/:id", async (req, res) => {
     const cleanCategoryId = categoryId == null ? null : String(categoryId).trim();
     const cleanImageUrl = imageUrl == null ? null : String(imageUrl).trim();
 
+    const rawDiscountPercent = req.body?.discountPercent;
+    const hasDiscountPercent = rawDiscountPercent !== undefined;
+    const cleanDiscountPercent =
+      rawDiscountPercent === null
+        ? null
+        : (hasDiscountPercent
+            ? (typeof rawDiscountPercent === 'number' ? rawDiscountPercent : Number(rawDiscountPercent))
+            : null);
+    if (
+      hasDiscountPercent &&
+      cleanDiscountPercent !== null &&
+      (!Number.isFinite(cleanDiscountPercent) || cleanDiscountPercent < 0 || cleanDiscountPercent > 100)
+    ) {
+      return res
+        .status(400)
+        .json({ error: 'discountPercent must be a number between 0 and 100 (or null)' });
+    }
+
+    const rawDiscountPrice = req.body?.discountPrice;
+    const hasDiscountPrice = rawDiscountPrice !== undefined;
+    const cleanDiscountPrice =
+      rawDiscountPrice === null
+        ? null
+        : (hasDiscountPrice
+            ? (typeof rawDiscountPrice === 'number' ? rawDiscountPrice : Number(rawDiscountPrice))
+            : null);
+    if (hasDiscountPrice && cleanDiscountPrice !== null && (!Number.isFinite(cleanDiscountPrice) || cleanDiscountPrice < 0)) {
+      return res.status(400).json({ error: 'discountPrice must be a non-negative number (or null)' });
+    }
+
     const rawPrice = req.body?.price;
     const hasPrice = rawPrice !== undefined;
     const cleanPrice = hasPrice ? (typeof rawPrice === 'number' ? rawPrice : Number(rawPrice)) : null;
@@ -648,6 +806,39 @@ app.patch("/products/:id", async (req, res) => {
         throw err;
       }
 
+      const existingOverride = await db.storeProductOverride.findUnique({
+        where: { storeId_productId: { storeId: store.id, productId } },
+        select: { priceOverride: true, discountPercent: true, discountPrice: true },
+      });
+
+      const regularPriceForDiscount = hasPrice ? cleanPrice : (existingOverride?.priceOverride ?? product.basePrice);
+
+      let nextDiscountPercent = existingOverride?.discountPercent ?? null;
+      let nextDiscountPrice = existingOverride?.discountPrice ?? null;
+      if (hasDiscountPercent || hasDiscountPrice) {
+        // If either discount field is provided, set both so they remain consistent.
+        if (cleanDiscountPercent === null && cleanDiscountPrice === null) {
+          nextDiscountPercent = null;
+          nextDiscountPrice = null;
+        } else {
+          if (hasDiscountPrice && cleanDiscountPrice !== null && cleanDiscountPrice > regularPriceForDiscount) {
+            const err = new Error('discountPrice must be <= regular price');
+            err.statusCode = 400;
+            throw err;
+          }
+
+          const computed = computeDiscount({
+            regularPrice: regularPriceForDiscount,
+            discountPrice: hasDiscountPrice ? cleanDiscountPrice : null,
+            // If discountPrice is provided, it wins; otherwise use discountPercent.
+            discountPercent: hasDiscountPrice ? null : (hasDiscountPercent ? cleanDiscountPercent : null),
+          });
+
+          nextDiscountPercent = computed.discountPercent;
+          nextDiscountPrice = computed.discountPrice;
+        }
+      }
+
       // If a product is global (shared across stores), updating imageUrl should update
       // the base catalog imageUrl so all stores see it. This requires bypassing RLS.
       if (cleanImageUrl !== null && product.isGlobal === true && prismaAdmin) {
@@ -663,24 +854,38 @@ app.patch("/products/:id", async (req, res) => {
           update: {
             categoryId: cleanCategoryId || null,
             ...(hasPrice ? { priceOverride: cleanPrice } : {}),
+            ...(hasDiscountPercent || hasDiscountPrice ? { discountPercent: nextDiscountPercent, discountPrice: nextDiscountPrice } : {}),
           },
           create: {
             storeId: store.id,
             productId,
             categoryId: cleanCategoryId || null,
             ...(hasPrice ? { priceOverride: cleanPrice } : {}),
+            ...(hasDiscountPercent || hasDiscountPrice ? { discountPercent: nextDiscountPercent, discountPrice: nextDiscountPrice } : {}),
           },
           select: {
             categoryId: true,
             priceOverride: true,
+            discountPercent: true,
+            discountPrice: true,
             category: { select: { id: true, name: true } },
           },
+        });
+
+        const regularPrice = override?.priceOverride ?? updatedProduct.basePrice;
+        const discount = computeDiscount({
+          regularPrice,
+          discountPrice: override?.discountPrice ?? null,
+          discountPercent: override?.discountPercent ?? null,
         });
 
         return {
           id: updatedProduct.id,
           name: updatedProduct.name,
-          price: override?.priceOverride ?? updatedProduct.basePrice,
+          price: discount.effectivePrice,
+          regularPrice: discount.regularPrice,
+          discountPercent: discount.discountPercent,
+          discountPrice: discount.discountPrice,
           imageUrl: updatedProduct.imageUrl,
           categoryId: override.categoryId,
           category: override.category,
@@ -693,6 +898,7 @@ app.patch("/products/:id", async (req, res) => {
           categoryId: cleanCategoryId || null,
           imageUrlOverride: cleanImageUrl || null,
           ...(hasPrice ? { priceOverride: cleanPrice } : {}),
+          ...(hasDiscountPercent || hasDiscountPrice ? { discountPercent: nextDiscountPercent, discountPrice: nextDiscountPrice } : {}),
         },
         create: {
           storeId: store.id,
@@ -700,19 +906,32 @@ app.patch("/products/:id", async (req, res) => {
           categoryId: cleanCategoryId || null,
           imageUrlOverride: cleanImageUrl || null,
           ...(hasPrice ? { priceOverride: cleanPrice } : {}),
+          ...(hasDiscountPercent || hasDiscountPrice ? { discountPercent: nextDiscountPercent, discountPrice: nextDiscountPrice } : {}),
         },
         select: {
           categoryId: true,
           priceOverride: true,
           category: { select: { id: true, name: true } },
           imageUrlOverride: true,
+          discountPercent: true,
+          discountPrice: true,
         },
+      });
+
+      const regularPrice = override?.priceOverride ?? product.basePrice;
+      const discount = computeDiscount({
+        regularPrice,
+        discountPrice: override?.discountPrice ?? null,
+        discountPercent: override?.discountPercent ?? null,
       });
 
       return {
         id: product.id,
         name: product.name,
-        price: override?.priceOverride ?? product.basePrice,
+        price: discount.effectivePrice,
+        regularPrice: discount.regularPrice,
+        discountPercent: discount.discountPercent,
+        discountPrice: discount.discountPrice,
         imageUrl: override.imageUrlOverride ?? product.imageUrl,
         categoryId: override.categoryId,
         category: override.category,
@@ -1062,6 +1281,56 @@ app.get("/stores", async (req, res) => {
 
 const isPostgres = true;
 
+function roundMoney(value) {
+  if (!Number.isFinite(value)) return value;
+  return Math.round(value * 100) / 100;
+}
+
+function computeDiscount({ regularPrice, discountPrice, discountPercent }) {
+  const cleanRegular = typeof regularPrice === "number" ? regularPrice : Number(regularPrice);
+  const cleanDiscountPrice =
+    discountPrice == null ? null : (typeof discountPrice === "number" ? discountPrice : Number(discountPrice));
+  const cleanDiscountPercent =
+    discountPercent == null ? null : (typeof discountPercent === "number" ? discountPercent : Number(discountPercent));
+
+  if (!Number.isFinite(cleanRegular) || cleanRegular < 0) {
+    return { regularPrice: cleanRegular, discountPrice: null, discountPercent: null, effectivePrice: cleanRegular };
+  }
+
+  // If discountPrice is set, treat it as the source of truth.
+  if (cleanDiscountPrice !== null) {
+    if (!Number.isFinite(cleanDiscountPrice) || cleanDiscountPrice < 0) {
+      return { regularPrice: cleanRegular, discountPrice: null, discountPercent: null, effectivePrice: cleanRegular };
+    }
+
+    const clamped = Math.min(cleanDiscountPrice, cleanRegular);
+    const pct = cleanRegular > 0 ? roundMoney(((cleanRegular - clamped) / cleanRegular) * 100) : 0;
+    return {
+      regularPrice: cleanRegular,
+      discountPrice: roundMoney(clamped),
+      discountPercent: pct,
+      effectivePrice: roundMoney(clamped),
+    };
+  }
+
+  // Else use discountPercent if provided.
+  if (cleanDiscountPercent !== null) {
+    if (!Number.isFinite(cleanDiscountPercent) || cleanDiscountPercent < 0 || cleanDiscountPercent > 100) {
+      return { regularPrice: cleanRegular, discountPrice: null, discountPercent: null, effectivePrice: cleanRegular };
+    }
+
+    const effective = roundMoney(cleanRegular * (1 - cleanDiscountPercent / 100));
+    return {
+      regularPrice: cleanRegular,
+      discountPrice: effective,
+      discountPercent: roundMoney(cleanDiscountPercent),
+      effectivePrice: effective,
+    };
+  }
+
+  return { regularPrice: cleanRegular, discountPrice: null, discountPercent: null, effectivePrice: cleanRegular };
+}
+
 async function withTenantDb(storeId, fn) {
   return prisma.$transaction(async (tx) => {
     await tx.$executeRaw`select set_config('app.store_id', ${storeId}, true);`;
@@ -1168,7 +1437,7 @@ async function bootstrapStoreCatalogAdmin(storeId) {
       isActive: true,
       OR: [{ isGlobal: true }, { ownerStoreId: storeId }],
     },
-    select: { id: true, stock: true, masterCategoryId: true },
+    select: { id: true, basePrice: true, stock: true, masterCategoryId: true },
   });
 
   if (!products.length) return { bootstrapped: 0 };
@@ -1183,6 +1452,8 @@ async function bootstrapStoreCatalogAdmin(storeId) {
           : uncategorized.id,
       stock: 0,
       isActiveOverride: true,
+      discountPercent: 0,
+      discountPrice: roundMoney(typeof p.basePrice === 'number' ? p.basePrice : Number(p.basePrice)),
     })),
     skipDuplicates: true,
   });
@@ -1210,7 +1481,7 @@ async function bootstrapStoreCatalog(storeId) {
         isActive: true,
         OR: [{ isGlobal: true }, { ownerStoreId: storeId }],
       },
-      select: { id: true, stock: true, masterCategoryId: true },
+      select: { id: true, basePrice: true, stock: true, masterCategoryId: true },
     })
   );
 
@@ -1227,6 +1498,8 @@ async function bootstrapStoreCatalog(storeId) {
             : uncategorized.id,
         stock: 0,
         isActiveOverride: true,
+        discountPercent: 0,
+        discountPrice: roundMoney(typeof p.basePrice === 'number' ? p.basePrice : Number(p.basePrice)),
       })),
       skipDuplicates: true,
     })
@@ -1287,7 +1560,7 @@ async function assignAllVisibleProductsToCategoryAdmin(storeId, categoryId) {
       isActive: true,
       OR: [{ isGlobal: true }, { ownerStoreId: storeId }],
     },
-    select: { id: true },
+    select: { id: true, basePrice: true },
   });
 
   if (!products.length) return { assigned: 0 };
@@ -1299,6 +1572,8 @@ async function assignAllVisibleProductsToCategoryAdmin(storeId, categoryId) {
       categoryId,
       isActiveOverride: true,
       stock: null,
+      discountPercent: 0,
+      discountPrice: roundMoney(typeof p.basePrice === 'number' ? p.basePrice : Number(p.basePrice)),
     })),
     skipDuplicates: true,
   });
@@ -1313,7 +1588,7 @@ async function assignAllVisibleProductsToCategory(storeId, categoryId) {
         isActive: true,
         OR: [{ isGlobal: true }, { ownerStoreId: storeId }],
       },
-      select: { id: true },
+      select: { id: true, basePrice: true },
     })
   );
 
@@ -1327,6 +1602,8 @@ async function assignAllVisibleProductsToCategory(storeId, categoryId) {
         categoryId,
         isActiveOverride: true,
         stock: null,
+        discountPercent: 0,
+        discountPrice: roundMoney(typeof p.basePrice === 'number' ? p.basePrice : Number(p.basePrice)),
       })),
       skipDuplicates: true,
     })
@@ -1667,7 +1944,7 @@ app.post("/orders", async (req, res) => {
         }),
         db.storeProductOverride.findMany({
           where: { storeId: store.id, productId: { in: uniqueProductIds } },
-          select: { productId: true, priceOverride: true, isActiveOverride: true, stock: true },
+          select: { productId: true, priceOverride: true, discountPercent: true, discountPrice: true, isActiveOverride: true, stock: true },
         }),
       ]);
 
@@ -1701,10 +1978,18 @@ app.post("/orders", async (req, res) => {
       const productId = it.productId;
       const p = productById.get(productId);
       const o = overrideByProductId.get(productId);
+
+      const regularPrice = o?.priceOverride ?? p.basePrice;
+      const discount = computeDiscount({
+        regularPrice,
+        discountPrice: o?.discountPrice ?? null,
+        discountPercent: o?.discountPercent ?? null,
+      });
+
       return {
         productId,
         quantity: it.quantity,
-        unitPrice: o?.priceOverride ?? p.basePrice,
+        unitPrice: discount.effectivePrice,
       };
     });
 

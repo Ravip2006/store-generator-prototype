@@ -13,6 +13,9 @@ type Product = {
   id: string | number;
   name: string;
   price: number;
+  regularPrice?: number;
+  discountPercent?: number | null;
+  discountPrice?: number | null;
   imageUrl?: string | null;
   description?: string | null;
   brand?: string | null;
@@ -169,9 +172,6 @@ export default function ProductPageClient({
   const [description, setDescription] = useState<string>(
     String(product.description || "").trim()
   );
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [didAutoTry, setDidAutoTry] = useState(false);
 
   const accent = store.themeColor || undefined;
   const logoText = initialsFromName(store.name);
@@ -192,60 +192,6 @@ export default function ProductPageClient({
       .map((p) => p.trim())
       .filter(Boolean);
   }, [description]);
-
-  async function generateDescription(force: boolean) {
-    setAiLoading(true);
-    setAiError(null);
-    try {
-      const res = await fetch(
-        `${apiBase}/products/${encodeURIComponent(productId)}/ai-description`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-tenant-id": tenant,
-          },
-          body: JSON.stringify({ force }),
-        }
-      );
-
-      const rawText = await res.text().catch(() => "");
-      const data = (() => {
-        try {
-          return rawText ? (JSON.parse(rawText) as unknown) : ({} as unknown);
-        } catch {
-          return {} as unknown;
-        }
-      })();
-      const dataRecord =
-        data && typeof data === "object" ? (data as Record<string, unknown>) : ({} as Record<string, unknown>);
-      if (!res.ok) {
-        const fallback = rawText
-          ? rawText.slice(0, 180).replace(/\s+/g, " ").trim()
-          : null;
-        setAiError(
-          (typeof dataRecord.error === "string" ? dataRecord.error : null) ||
-            (fallback ? `${fallback} (${res.status})` : `Failed to generate description (${res.status})`)
-        );
-        return;
-      }
-      const text = typeof dataRecord.description === "string" ? dataRecord.description.trim() : "";
-      if (text) setDescription(text);
-    } catch (e) {
-      setAiError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setAiLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    // Friendly UX: if a product has no description yet, generate one once.
-    if (didAutoTry) return;
-    if (String(product.description || "").trim()) return;
-    setDidAutoTry(true);
-    void generateDescription(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId, tenant]);
 
   const similarProducts = useMemo(() => {
     const currentCategoryId = product.categoryId ?? null;
@@ -389,33 +335,13 @@ export default function ProductPageClient({
             <div className="p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm font-semibold">Product description</div>
-                <button
-                  type="button"
-                  onClick={() => generateDescription(true)}
-                  disabled={aiLoading}
-                  className="inline-flex items-center gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-xs font-semibold hover:bg-foreground/5 disabled:opacity-60"
-                  style={accent ? { borderColor: accent, color: accent } : undefined}
-                >
-                  <SparkleIcon className="h-4 w-4" />
-                  {aiLoading ? "Writing..." : "Improve with AI"}
-                </button>
               </div>
 
-              {aiError ? (
-                <div className="mt-3 rounded-xl border border-foreground/15 bg-foreground/5 p-3 text-xs">
-                  <b>Error:</b> {aiError}
-                </div>
-              ) : null}
-
               <div className="mt-2 space-y-3 text-sm text-foreground/70">
-                {aiLoading && descriptionParagraphs.length === 0 ? (
-                  <p>Writing a better description…</p>
-                ) : descriptionParagraphs.length > 0 ? (
+                {descriptionParagraphs.length > 0 ? (
                   descriptionParagraphs.map((p, idx) => <p key={idx}>{p}</p>)
                 ) : (
-                  <p>
-                    Description is not available yet. Tap “Improve with AI” to generate one.
-                  </p>
+                  <p>No description available yet.</p>
                 )}
               </div>
 
@@ -473,8 +399,22 @@ export default function ProductPageClient({
 
               <div className="mt-3 flex items-end justify-between gap-3">
                 <div>
-                  <div className="text-2xl font-semibold">₹{product.price}</div>
-                  <div className="text-xs text-foreground/60">Inclusive of all taxes</div>
+                  {typeof product.regularPrice === "number" && product.regularPrice !== product.price ? (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <div className="text-2xl font-semibold text-green-600">₹{product.price.toFixed(2)}</div>
+                        {typeof product.discountPercent === "number" && product.discountPercent > 0 ? (
+                          <div className="rounded-lg bg-red-100 px-2 py-1 text-xs font-semibold text-red-700">
+                            {product.discountPercent.toFixed(0)}% OFF
+                          </div>
+                        ) : null}
+                      </div>
+                      <div className="text-sm text-foreground/60 line-through">₹{product.regularPrice.toFixed(2)}</div>
+                    </div>
+                  ) : (
+                    <div className="text-2xl font-semibold">₹{product.price.toFixed(2)}</div>
+                  )}
+                  <div className="text-xs text-foreground/60 mt-1">Inclusive of all taxes</div>
                 </div>
               </div>
 

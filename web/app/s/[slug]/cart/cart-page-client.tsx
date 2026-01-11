@@ -8,6 +8,9 @@ type Product = {
   id: string;
   name: string;
   price: number;
+  regularPrice?: number;
+  discountPercent?: number | null;
+  discountPrice?: number | null;
   imageUrl?: string | null;
 };
 
@@ -456,9 +459,19 @@ export default function CartPageClient({ slug }: { slug: string }) {
                         </div>
                         <div className="min-w-0">
                           <div className="truncate text-sm font-medium">{l.product.name}</div>
-                          <div className="text-xs text-foreground/70">
-                            ₹{l.product.price} each
-                          </div>
+                          {typeof l.product.regularPrice === "number" && l.product.regularPrice !== l.product.price ? (
+                            <div className="mt-1 flex items-center gap-2">
+                              <div className="text-sm font-semibold text-green-600">₹{l.product.price.toFixed(2)}</div>
+                              {typeof l.product.discountPercent === "number" && l.product.discountPercent > 0 ? (
+                                <span className="text-xs font-semibold text-red-600">{l.product.discountPercent.toFixed(0)}% OFF</span>
+                              ) : null}
+                              <span className="text-xs text-foreground/60 line-through">₹{l.product.regularPrice.toFixed(2)}</span>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-foreground/70">
+                              ₹{l.product.price.toFixed(2)} each
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -631,8 +644,25 @@ export default function CartPageClient({ slug }: { slug: string }) {
                 <div className="mt-3 grid gap-2 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-foreground/70">Subtotal</span>
-                    <span className="font-semibold">₹{cartTotal}</span>
+                    <span className="font-semibold">
+                      ₹{cartLines.reduce((sum, l) => {
+                        const regularPrice = typeof l.product.regularPrice === "number" ? l.product.regularPrice : l.product.price;
+                        return sum + (regularPrice * l.quantity);
+                      }, 0).toFixed(2)}
+                    </span>
                   </div>
+                  {(() => {
+                    const totalSavings = cartLines.reduce((sum, l) => {
+                      const regularPrice = typeof l.product.regularPrice === "number" ? l.product.regularPrice : l.product.price;
+                      return sum + ((regularPrice - l.product.price) * l.quantity);
+                    }, 0);
+                    return totalSavings > 0 ? (
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-foreground/70">Discount</span>
+                        <span className="font-semibold text-green-600">-₹{totalSavings.toFixed(2)}</span>
+                      </div>
+                    ) : null;
+                  })()}
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-foreground/70">Estimated delivery</span>
                     <span className="font-semibold">₹0</span>

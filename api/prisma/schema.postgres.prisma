@@ -96,6 +96,8 @@ model StoreProductOverride {
   categoryId       String?
   nameOverride     String?
   priceOverride    Float?
+  discountPercent  Float?
+  discountPrice    Float?
   imageUrlOverride String?
   stock            Int?     @default(0)
   isActiveOverride Boolean?
