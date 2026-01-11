@@ -155,7 +155,8 @@ export default function StoreFront({ slug }: { slug: string }) {
   const filteredProducts = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
-      const matchesCategory = !categoryId || p.categoryId === categoryId;
+      // Show product if: no category selected, OR product's categoryId matches selected, OR product has no category (null)
+      const matchesCategory = !categoryId || p.categoryId === categoryId || p.categoryId === null;
       const matchesQuery = !q || p.name.toLowerCase().includes(q);
       return matchesCategory && matchesQuery;
     });

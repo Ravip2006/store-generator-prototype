@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminHeader from "@/components/AdminHeader";
 
 interface DashboardStats {
   stores: number;
@@ -151,13 +152,13 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-6 py-10">
-        {/* Welcome Section */}
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold text-foreground">Welcome back! 👋</h1>
-          <p className="mt-2 text-lg text-foreground/60">
-            Here's your store management overview
-          </p>
-        </div>
+        {/* Admin Header */}
+        <AdminHeader
+          title="Dashboard"
+          description="Monitor your store operations and performance"
+          icon="📊"
+          action={{ label: "✨ Create Store", href: "/admin/create-store" }}
+        />
 
         {/* Stats Grid */}
         <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -189,7 +190,7 @@ export default function AdminDashboard() {
           <div className="lg:col-span-2 space-y-8">
             {/* Quick Management Section */}
             <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-8 shadow-sm">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Quick Management</h2>
+              <h2 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">⚡ Quick Management</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {menuItems.slice(0, 4).map((item) => (
                   <Link
@@ -215,7 +216,7 @@ export default function AdminDashboard() {
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Platform Features */}
               <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-lg font-bold text-foreground mb-4">
+                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
                   <span>⚡</span> Features
                 </h3>
                 <ul className="space-y-2 text-xs text-foreground/70">
@@ -240,7 +241,7 @@ export default function AdminDashboard() {
 
               {/* API Integration */}
               <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-lg font-bold text-foreground mb-4">
+                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
                   <span>🔌</span> API
                 </h3>
                 <div className="space-y-2 text-xs">
@@ -265,10 +266,10 @@ export default function AdminDashboard() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="space-y-6">
+          <div className="sticky top-24 self-start space-y-6">
             {/* Quick Links */}
-            <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm sticky top-24">
-              <h3 className="font-bold text-foreground mb-4">Navigation</h3>
+            <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
+              <h3 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">🧭 Navigation</h3>
               <div className="space-y-2">
                 {menuItems.map((item) => (
                   <Link
@@ -277,7 +278,7 @@ export default function AdminDashboard() {
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-slate-100 dark:hover:bg-foreground/10 hover:text-foreground"
                   >
                     <span className="text-lg">{item.icon}</span>
-                    {item.title}
+                    <span className="font-bold text-foreground hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all">{item.title}</span>
                   </Link>
                 ))}
               </div>
@@ -287,7 +288,7 @@ export default function AdminDashboard() {
             <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-600/20 dark:to-emerald-600/5 backdrop-blur-sm p-6 shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
-                <span className="text-sm font-semibold text-foreground">System Status</span>
+                <span className="text-lg font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">✅ System Status</span>
               </div>
               <p className="text-xs text-foreground/70">All systems operational</p>
             </div>

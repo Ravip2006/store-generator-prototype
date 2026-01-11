@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { canUseSupabaseStorage, uploadProductImage } from "@/lib/supabaseStorage";
+import AdminHeader from "@/components/AdminHeader";
 
 type Category = {
   id: string;
@@ -19,6 +20,10 @@ type Product = {
   description?: string | null;
   categoryId: string | null;
   category?: { id: string; name: string } | null;
+  // GS1 fields for branded FMCG
+  gtin?: string | null;
+  brand?: string | null;
+  isBrandedFMCG?: boolean;
 };
 
 export default function AdminProductsPage() {
@@ -26,7 +31,9 @@ export default function AdminProductsPage() {
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const imageBucket = process.env.NEXT_PUBLIC_SUPABASE_PRODUCT_IMAGES_BUCKET || "product-images";
 
+  const [stores, setStores] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [slug, setSlug] = useState("green-mart");
+  const [loadingStores, setLoadingStores] = useState(false);
 
   const [name, setName] = useState("New Product");
   const [price, setPrice] = useState("10");
@@ -47,6 +54,11 @@ export default function AdminProductsPage() {
   const [newCategoryName, setNewCategoryName] = useState("");
   const [creatingCategory, setCreatingCategory] = useState(false);
 
+  // GS1 state for branded FMCG lookup
+  const [gs1GtinDraftById, setGs1GtinDraftById] = useState<Record<string, string>>({});
+  const [lookingUpGs1ProductId, setLookingUpGs1ProductId] = useState<string | null>(null);
+  const [gs1ApiAvailable, setGs1ApiAvailable] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [importingCsv, setImportingCsv] = useState(false);
@@ -61,6 +73,25 @@ export default function AdminProductsPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
+
+  // Fetch available stores on component mount
+  useEffect(() => {
+    const fetchStores = async () => {
+      setLoadingStores(true);
+      try {
+        const res = await fetch(`${apiBase}/debug/stores`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setStores(Array.isArray(data.stores) ? data.stores : []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch stores:", e);
+      } finally {
+        setLoadingStores(false);
+      }
+    };
+    fetchStores();
+  }, [apiBase]);
 
   // Helper: Calculate sale price from discount percentage
   function calculateSalePrice(regularPrice: number, discountPercent: number | string): number | null {
@@ -664,6 +695,64 @@ export default function AdminProductsPage() {
     }
   }
 
+  // GS1 India lookup for branded FMCG products
+  async function onLookupGs1(productId: string) {
+    const gtin = gs1GtinDraftById[productId]?.trim();
+    if (!gtin) {
+      setError("Please enter a GTIN/barcode");
+      return;
+    }
+
+    setLookingUpGs1ProductId(productId);
+    setError(null);
+    setNotice(null);
+
+    try {
+      // First, verify GS1 is available
+      const checkRes = await fetch(`${apiBase}/gs1/search/gtin?gtin=${encodeURIComponent(gtin)}`);
+      
+      if (checkRes.status === 501) {
+        setError("GS1 lookup not configured (missing GS1_API_KEY in server)");
+        return;
+      }
+
+      if (!checkRes.ok) {
+        const errData = await checkRes.json().catch(() => ({}));
+        setError(errData.error || "Product not found in GS1 database");
+        return;
+      }
+
+      // Now link the product to GS1
+      const linkRes = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/gs1-lookup`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-tenant-id": tenant,
+        },
+        body: JSON.stringify({ gtin: gtin }),
+      });
+
+      if (!linkRes.ok) {
+        const errData = await linkRes.json().catch(() => ({}));
+        setError(errData.error || "Failed to link product to GS1");
+        return;
+      }
+
+      const data = await linkRes.json().catch(() => ({}));
+      
+      // Update product in list
+      if (data.product) {
+        setProducts((prev) => prev.map((p) => (p.id === productId ? data.product : p)));
+        setGs1GtinDraftById((prev) => ({ ...prev, [productId]: "" }));
+        setNotice(`✓ Linked to GS1! Brand: ${data.product.brand}, Image updated.`);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLookingUpGs1ProductId(null);
+    }
+  }
+
   async function onOnboardCatalog() {
     setOnboarding(true);
     setError(null);
@@ -704,23 +793,46 @@ export default function AdminProductsPage() {
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto w-full max-w-5xl p-6">
         <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
+          <AdminHeader
+            title="Products"
+            description="Create, edit, and manage products with pricing, inventory, and GS1 integration"
+            icon="📦"
+            breadcrumbs={[{ label: "Products" }]}
+          />
+
+          <div className="mt-6 space-y-2">
             <p className="text-sm text-foreground/70">
               Create products and assign them to categories for a tenant store.
             </p>
           </div>
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
-            <label className="grid gap-2">
-              <span className="text-sm text-foreground/70">Store slug</span>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g. green-mart"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
-              />
-            </label>
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-200/30 dark:border-blue-500/20">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-blue-600/20 text-blue-600 dark:bg-blue-500/30 dark:text-blue-400">
+                  {slug ? "Active" : "Required"}
+                </span>
+              </div>
+              {stores.length > 0 ? (
+                <select
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="w-full rounded-xl border-2 border-blue-300/50 dark:border-blue-500/40 bg-gradient-to-r from-background to-blue-500/5 hover:from-blue-500/10 hover:to-blue-500/10 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/10"
+                >
+                  <option value="">-- Choose a store --</option>
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.slug}>
+                      {store.name} ({store.slug})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="rounded-xl border-2 border-orange-300/50 dark:border-orange-500/30 bg-gradient-to-r from-orange-500/10 to-amber-500/10 px-4 py-3 text-sm font-semibold text-orange-600 dark:text-orange-400">
+                  {loadingStores ? "⏳ Loading stores..." : "⚠️ No stores found. Create a store first."}
+                </div>
+              )}
+            </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="grid gap-2">
@@ -848,7 +960,7 @@ export default function AdminProductsPage() {
           )}
 
           <div className="mt-8 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Product list</h2>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">📦 Product list</h2>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <label className="relative inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 cursor-pointer disabled:opacity-60">
@@ -1055,6 +1167,45 @@ export default function AdminProductsPage() {
                     >
                       {savingDescriptionProductId === p.id ? "Saving..." : "Save Description"}
                     </button>
+                  </div>
+
+                  {/* GS1 Branded FMCG Lookup Section */}
+                  <div className="mb-4 space-y-2 rounded-lg bg-purple-50 dark:bg-purple-600/10 border border-purple-200 dark:border-purple-600/30 p-3">
+                    <label className="block text-xs font-semibold text-purple-900 dark:text-purple-200">
+                      🔍 GS1 Lookup (Branded FMCG)
+                    </label>
+                    <p className="text-xs text-purple-800 dark:text-purple-300 mb-2">
+                      Link to official brand images from GS1 India database (Maggi, Amul, Surf Excel, etc.)
+                    </p>
+                    {p.isBrandedFMCG ? (
+                      <div className="space-y-2">
+                        <div className="rounded-lg bg-white dark:bg-background/50 p-2 text-xs space-y-1">
+                          {p.brand && <p>✓ Brand: <span className="font-semibold text-green-700 dark:text-green-400">{p.brand}</span></p>}
+                          {p.gtin && <p>✓ GTIN: <span className="font-mono text-foreground/70">{p.gtin}</span></p>}
+                          {p.imageUrl && <p>✓ Image from GS1</p>}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <input
+                          value={gs1GtinDraftById[p.id] ?? ""}
+                          onChange={(e) =>
+                            setGs1GtinDraftById((prev) => ({ ...prev, [p.id]: e.target.value }))
+                          }
+                          disabled={lookingUpGs1ProductId === p.id}
+                          placeholder="Enter EAN/GTIN (e.g., 8901001001234)"
+                          className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60 font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => onLookupGs1(p.id)}
+                          disabled={lookingUpGs1ProductId === p.id}
+                          className="w-full px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-purple-700 text-white text-xs font-medium hover:shadow-lg disabled:opacity-60 transition-shadow"
+                        >
+                          {lookingUpGs1ProductId === p.id ? "Searching GS1..." : "🔍 Lookup on GS1"}
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Actions */}

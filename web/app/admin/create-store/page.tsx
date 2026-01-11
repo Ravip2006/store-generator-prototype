@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AdminHeader from "@/components/AdminHeader";
 
 type CreateStorePayload = {
   name: string;
@@ -78,15 +79,19 @@ export default function CreateStorePage() {
     : null;
 
   return (
-    <div style={{ maxWidth: 640, margin: "24px auto", padding: 16, fontFamily: "Arial" }}>
-      <h1 style={{ marginBottom: 6 }}>Create Store</h1>
-      <p style={{ marginTop: 0, opacity: 0.7 }}>
-        Prototype onboarding: creates a tenant store in the API (Supabase Postgres via Prisma).
-      </p>
+    <main className="min-h-screen bg-background text-foreground">
+      <AdminHeader
+        title="Create Store"
+        description="Onboard a new tenant store to the platform"
+        icon="✨"
+        breadcrumbs={[{ label: "Create Store" }]}
+      />
 
-      <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, marginTop: 16 }}>
-        <label style={{ display: "grid", gap: 6 }}>
-          Store name
+      <div className="mx-auto w-full max-w-2xl p-6">
+        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
+      <form onSubmit={onSubmit} className="grid gap-4">
+        <label className="grid gap-2">
+          <span className="text-sm text-foreground/70">Store name</span>
           <input
             value={name}
             onChange={(e) => {
@@ -94,98 +99,93 @@ export default function CreateStorePage() {
               // Keep slug in sync until user edits it
               setSlug(suggestedSlug);
             }}
-            style={{ padding: 10, border: "1px solid #ccc", borderRadius: 8 }}
+            className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
           />
         </label>
 
-        <label style={{ display: "grid", gap: 6 }}>
-          Slug (used as subdomain)
+        <label className="grid gap-2">
+          <span className="text-sm text-foreground/70">Slug (used as subdomain)</span>
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             placeholder="e.g. green-mart"
-            style={{ padding: 10, border: "1px solid #ccc", borderRadius: 8 }}
+            className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
           />
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
+          <span className="text-xs text-foreground/60">
             Example URL: <code>http://{slug || "your-slug"}.localhost:3000</code>
           </span>
         </label>
 
-        <label style={{ display: "grid", gap: 6 }}>
-          WhatsApp phone (international format)
+        <label className="grid gap-2">
+          <span className="text-sm text-foreground/70">WhatsApp phone (international format)</span>
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             placeholder="e.g. 61400111222 or 919999999999"
-            style={{ padding: 10, border: "1px solid #ccc", borderRadius: 8 }}
+            className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
           />
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
+          <span className="text-xs text-foreground/60">
             No + sign. Used for <code>wa.me</code> links.
           </span>
         </label>
 
-        <label style={{ display: "grid", gap: 6 }}>
-          Theme color
+        <label className="grid gap-2">
+          <span className="text-sm text-foreground/70">Theme color</span>
           <input
             value={themeColor}
             onChange={(e) => setThemeColor(e.target.value)}
             placeholder="#0A7C2F"
-            style={{ padding: 10, border: "1px solid #ccc", borderRadius: 8 }}
+            className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
           />
         </label>
 
         <button
           type="submit"
           disabled={loading}
-          style={{
-            padding: 12,
-            borderRadius: 10,
-            border: "1px solid #111",
-            background: loading ? "#eee" : "#111",
-            color: loading ? "#111" : "#fff",
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
+          className="mt-4 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-sm font-semibold text-white hover:from-blue-700 hover:to-blue-800 transition-all hover:shadow-lg hover:shadow-blue-500/20 disabled:opacity-60"
         >
-          {loading ? "Creating..." : "Create store"}
+          {loading ? "Creating..." : "✨ Create store"}
         </button>
       </form>
 
       {error && (
-        <div style={{ marginTop: 16, padding: 12, border: "1px solid #f99", borderRadius: 8 }}>
+        <div className="mt-6 rounded-xl border border-red-300/50 bg-red-500/10 p-4 text-sm text-red-600">
           <b>Error:</b> {error}
         </div>
       )}
 
       {result && (
-        <div style={{ marginTop: 16, padding: 12, border: "1px solid #9f9", borderRadius: 8 }}>
+        <div className="mt-6 rounded-xl border border-green-300/50 bg-green-500/10 p-4 text-sm text-green-600">
           <b>✅ Store created:</b>
-          <pre style={{ overflow: "auto" }}>{JSON.stringify(result, null, 2)}</pre>
+          <pre className="mt-4 rounded-xl border border-foreground/10 bg-foreground/5 p-4 overflow-auto text-xs">{JSON.stringify(result, null, 2)}</pre>
 
-          <p style={{ marginTop: 8 }}>
-            View all stores: <a href="/admin/stores">/admin/stores</a>
+          <p className="mt-4 text-sm">
+            View all stores: <a href="/admin/stores" className="font-semibold text-blue-600 hover:text-blue-700">/admin/stores</a>
           </p>
 
           {storePath && (
-            <p style={{ marginTop: 8 }}>
-              Open store site: <a href={storePath}>{storePath}</a>
+            <p className="mt-3 text-sm">
+              Open store site: <a href={storePath} className="font-semibold text-blue-600 hover:text-blue-700">{storePath}</a>
             </p>
           )}
 
           {localSubdomainUrl && (
-            <p style={{ marginTop: 8 }}>
+            <p className="mt-3 text-sm">
               Local subdomain (optional):{" "}
-              <a href={localSubdomainUrl} target="_blank" rel="noreferrer">
+              <a href={localSubdomainUrl} target="_blank" rel="noreferrer" className="font-semibold text-blue-600 hover:text-blue-700">
                 {localSubdomainUrl}
               </a>
             </p>
           )}
 
-          <p style={{ marginTop: 0, fontSize: 12, opacity: 0.7 }}>
+          <p className="mt-3 text-xs text-foreground/60">
             Note: For local subdomains, ensure <code>/etc/hosts</code> maps{" "}
             <code>{result.slug}.localhost</code> → 127.0.0.1.
           </p>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    </main>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import AdminHeader from "@/components/AdminHeader";
 
 type Store = {
   id: string;
@@ -117,14 +118,16 @@ export default function StoresPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <AdminHeader
+        title="Stores"
+        description="View and edit all onboarded stores"
+        icon="🏬"
+        breadcrumbs={[{ label: "Stores" }]}
+        action={{ label: "✨ Create Store", href: "/admin/create-store" }}
+      />
+
       <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Stores</h1>
-            <p className="text-sm text-foreground/70">
-              View and edit all onboarded stores
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm">
 
           {error && (
             <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
@@ -133,7 +136,7 @@ export default function StoresPage() {
           )}
 
           <div className="mt-6 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Store list</h2>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Store list</h2>
             <button
               onClick={loadStores}
               disabled={loading}

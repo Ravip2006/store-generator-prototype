@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import AdminHeader from "@/components/AdminHeader";
 
 type OrderItem = {
   id: string;
@@ -130,14 +131,15 @@ export default function AdminOrdersPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <AdminHeader
+        title="Orders"
+        description="Create and manage customer orders"
+        icon="📋"
+        breadcrumbs={[{ label: "Orders" }]}
+      />
+
       <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Orders</h1>
-            <p className="text-sm text-foreground/70">
-              Create and list orders for a tenant store.
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
             <label className="grid gap-2">
@@ -246,7 +248,7 @@ export default function AdminOrdersPage() {
           )}
 
           <div className="mt-8 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Order list</h2>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">📋 Order list</h2>
             <button
               type="button"
               onClick={load}

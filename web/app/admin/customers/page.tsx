@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import AdminHeader from "@/components/AdminHeader";
 
 type Customer = {
   id: string;
@@ -104,14 +105,15 @@ export default function AdminCustomersPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <AdminHeader
+        title="Customers"
+        description="Create and manage customer profiles"
+        icon="👥"
+        breadcrumbs={[{ label: "Customers" }]}
+      />
+
       <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Customers</h1>
-            <p className="text-sm text-foreground/70">
-              Create and list customers for a tenant store.
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
             <label className="grid gap-2">

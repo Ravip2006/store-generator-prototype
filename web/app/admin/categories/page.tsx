@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import AdminHeader from "@/components/AdminHeader";
 
 type Category = {
   id: string;
@@ -12,7 +13,9 @@ export default function AdminCategoriesPage() {
   const apiBase =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
 
+  const [stores, setStores] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [slug, setSlug] = useState("green-mart");
+  const [loadingStores, setLoadingStores] = useState(false);
   const [name, setName] = useState("Snacks");
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -21,6 +24,25 @@ export default function AdminCategoriesPage() {
   const [error, setError] = useState<string | null>(null);
 
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
+
+  // Fetch available stores on component mount
+  useEffect(() => {
+    const fetchStores = async () => {
+      setLoadingStores(true);
+      try {
+        const res = await fetch(`${apiBase}/debug/stores`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setStores(Array.isArray(data.stores) ? data.stores : []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch stores:", e);
+      } finally {
+        setLoadingStores(false);
+      }
+    };
+    fetchStores();
+  }, [apiBase]);
 
   async function load() {
     setLoading(true);
@@ -92,25 +114,44 @@ export default function AdminCategoriesPage() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      <AdminHeader
+        title="Categories"
+        description="Manage store categories and organize products"
+        icon="🏷️"
+        breadcrumbs={[{ label: "Categories" }]}
+      />
+
       <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">Categories</h1>
-            <p className="text-sm text-foreground/70">
-              List store categories (seeded from master taxonomy) and create custom ones.
-            </p>
-          </div>
+        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
-            <label className="grid gap-2">
-              <span className="text-sm text-foreground/70">Store slug</span>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g. green-mart"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
-              />
-            </label>
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-200/30">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-blue-600/20 text-blue-600">
+                  {slug ? "Active" : "Required"}
+                </span>
+              </div>
+              {loadingStores ? (
+                <div className="text-sm text-foreground/60">⏳ Loading stores...</div>
+              ) : stores.length === 0 ? (
+                <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
+                  📦 No stores found. <a href="/admin/create-store" className="underline font-semibold">Create one here</a>.
+                </div>
+              ) : (
+                <select
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="w-full rounded-xl border-2 border-blue-200/50 bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/50 hover:border-blue-300/70 transition-all"
+                >
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.slug}>
+                      {store.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
 
             <label className="grid gap-2">
               <span className="text-sm text-foreground/70">Category name</span>
@@ -125,7 +166,7 @@ export default function AdminCategoriesPage() {
             <button
               type="submit"
               disabled={creating}
-              className="mt-1 inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
+              className="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-sm font-bold text-white hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 transition-all"
             >
               {creating ? "Creating..." : "Create category"}
             </button>
