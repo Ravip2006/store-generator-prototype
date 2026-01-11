@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 interface AdminHeaderProps {
   title: string;
@@ -12,6 +13,8 @@ interface AdminHeaderProps {
     href: string;
     icon?: string;
   };
+  onSearch?: (query: string) => void;
+  showSearch?: boolean;
 }
 
 export default function AdminHeader({
@@ -20,7 +23,16 @@ export default function AdminHeader({
   icon,
   breadcrumbs,
   action,
+  onSearch,
+  showSearch = true,
 }: AdminHeaderProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    onSearch?.(value);
+  };
+
   return (
     <div className="border-b border-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 bg-gradient-to-br from-background via-background/95 to-background/90 shadow-lg shadow-blue-500/5">
       <div className="mx-auto w-full max-w-6xl px-6 py-6">
@@ -61,16 +73,44 @@ export default function AdminHeader({
             )}
           </div>
 
-          {/* Action Button */}
-          {action && (
-            <Link
-              href={action.href}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 transition-all hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 whitespace-nowrap mt-2 border border-white/20 backdrop-blur-sm"
-            >
-              {action.icon && <span>{action.icon}</span>}
-              {action.label}
-            </Link>
-          )}
+          <div className="flex items-start gap-3 flex-col">
+            {/* Search Bar */}
+            {showSearch && (
+              <div className="flex gap-3 w-80">
+                <div className="flex-1 relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-lg text-foreground/40">🔍</span>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    className="w-full rounded-xl border-2 border-blue-200/50 dark:border-blue-500/30 bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 px-4 py-2 pl-12 text-sm font-medium text-slate-900 dark:text-white outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/50 dark:focus:ring-blue-500/50 hover:border-blue-300/70 transition-all"
+                  />
+                </div>
+                {searchQuery && (
+                  <button
+                    onClick={() => handleSearchChange("")}
+                    className="px-3 py-2 rounded-xl border border-foreground/20 hover:bg-foreground/10 transition-all font-medium text-sm"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Action Button */}
+            {action && (
+              <Link
+                href={action.href}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 px-6 py-3 text-sm font-bold text-white hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 transition-all hover:shadow-xl hover:shadow-purple-500/30 hover:scale-105 whitespace-nowrap border border-white/20 backdrop-blur-sm"
+              >
+                {action.icon && <span>{action.icon}</span>}
+                {action.label}
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Decorative elements */}

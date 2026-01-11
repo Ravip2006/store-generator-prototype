@@ -21,9 +21,11 @@ export default function AdminCustomersPage() {
   const [email, setEmail] = useState("test@example.com");
 
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
 
@@ -44,7 +46,9 @@ export default function AdminCustomersPage() {
         return;
       }
 
-      setCustomers(Array.isArray(data) ? data : []);
+      const customersList = Array.isArray(data) ? data : [];
+      setCustomers(customersList);
+      setFilteredCustomers(customersList);
     } catch (e) {
       setCustomers([]);
       setError(e instanceof Error ? e.message : String(e));
@@ -52,6 +56,16 @@ export default function AdminCustomersPage() {
       setLoading(false);
     }
   }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filtered = customers.filter((customer) =>
+      customer.name.toLowerCase().includes(query.toLowerCase()) ||
+      customer.phone?.toLowerCase().includes(query.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredCustomers(filtered);
+  };
 
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -104,16 +118,18 @@ export default function AdminCustomersPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
       <AdminHeader
         title="Customers"
         description="Create and manage customer profiles"
         icon="👥"
         breadcrumbs={[{ label: "Customers" }]}
+        onSearch={handleSearch}
+        showSearch={true}
       />
 
       <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
             <label className="grid gap-2">
@@ -187,6 +203,8 @@ export default function AdminCustomersPage() {
 
           {customers.length === 0 ? (
             <p className="mt-4 text-sm text-foreground/80">No customers yet.</p>
+          ) : filteredCustomers.length === 0 ? (
+            <p className="mt-4 text-sm text-foreground/80">No customers match your search.</p>
           ) : (
             <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
               <table className="w-full border-collapse text-left text-sm">
@@ -199,7 +217,7 @@ export default function AdminCustomersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.map((c) => (
+                  {filteredCustomers.map((c) => (
                     <tr key={c.id} className="border-t border-foreground/10">
                       <td className="px-4 py-3">{c.name}</td>
                       <td className="px-4 py-3 text-foreground/70">{c.phone || "—"}</td>

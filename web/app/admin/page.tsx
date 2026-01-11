@@ -165,18 +165,18 @@ export default function AdminDashboard() {
           {statCards.map((card) => (
             <div
               key={card.title}
-              className={`group relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-gradient-to-br ${card.color} backdrop-blur-sm p-6 transition-all hover:shadow-lg hover:border-slate-300 dark:hover:border-foreground/20`}
+              className={`group relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-gradient-to-br ${card.color} backdrop-blur-sm p-6 transition-all hover:shadow-2xl hover:shadow-blue-500/20 hover:border-slate-400 dark:hover:border-foreground/30 hover:-translate-y-2`}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="relative z-10">
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-medium text-foreground/60">{card.title}</p>
-                    <div className={`mt-2 text-4xl font-bold ${card.textColor}`}>
+                    <div className={`mt-2 text-4xl font-bold ${card.textColor} group-hover:scale-110 transition-transform`}>
                       {loading ? "—" : card.value}
                     </div>
                   </div>
-                  <div className="text-2xl">{card.icon}</div>
+                  <div className="text-3xl group-hover:scale-125 group-hover:rotate-6 transition-transform">{card.icon}</div>
                 </div>
                 <p className="mt-4 text-xs text-foreground/50">{card.trend}</p>
               </div>
@@ -196,16 +196,16 @@ export default function AdminDashboard() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-foreground/10 bg-gradient-to-br from-slate-50 to-white dark:from-foreground/5 dark:to-background p-4 transition-all hover:border-slate-300 dark:hover:border-foreground/20 hover:shadow-md"
+                    className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-foreground/10 bg-gradient-to-br from-slate-50 to-white dark:from-foreground/5 dark:to-background p-4 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-2 dark:hover:bg-background"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-foreground/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative z-10 flex items-start justify-between">
                       <div>
-                        <div className="text-2xl mb-2">{item.icon}</div>
+                        <div className="text-3xl mb-2 group-hover:scale-125 transition-transform group-hover:-rotate-6">{item.icon}</div>
                         <h3 className="font-semibold text-foreground">{item.title}</h3>
                         <p className="text-xs text-foreground/60 mt-1">{item.description}</p>
                       </div>
-                      <div className="text-foreground/30 group-hover:translate-x-1 transition-transform">→</div>
+                      <div className="text-xl text-foreground/30 group-hover:text-blue-600 group-hover:translate-x-2 transition-all">→</div>
                     </div>
                   </Link>
                 ))}
@@ -275,9 +275,9 @@ export default function AdminDashboard() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-slate-100 dark:hover:bg-foreground/10 hover:text-foreground"
+                    className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-600/30 dark:hover:to-purple-600/30 hover:text-foreground hover:shadow-md hover:-translate-x-1 border border-transparent hover:border-blue-300/50 dark:hover:border-blue-500/30"
                   >
-                    <span className="text-lg">{item.icon}</span>
+                    <span className="text-xl group-hover:scale-110 group-hover:rotate-6 transition-transform">{item.icon}</span>
                     <span className="font-bold text-foreground hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all">{item.title}</span>
                   </Link>
                 ))}

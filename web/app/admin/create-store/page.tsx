@@ -79,7 +79,7 @@ export default function CreateStorePage() {
     : null;
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
       <AdminHeader
         title="Create Store"
         description="Onboard a new tenant store to the platform"
@@ -88,7 +88,7 @@ export default function CreateStorePage() {
       />
 
       <div className="mx-auto w-full max-w-2xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
       <form onSubmit={onSubmit} className="grid gap-4">
         <label className="grid gap-2">
           <span className="text-sm text-foreground/70">Store name</span>

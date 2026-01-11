@@ -24,11 +24,13 @@ export default function StoresPage() {
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
 
   const [stores, setStores] = useState<Store[]>([]);
+  const [filteredStores, setFilteredStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editData, setEditData] = useState<EditingStore | null>(null);
   const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   async function loadStores() {
     setLoading(true);
@@ -37,14 +39,27 @@ export default function StoresPage() {
       const res = await fetch(`${apiBase}/stores`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to load stores (${res.status})`);
       const data = await res.json();
-      setStores(Array.isArray(data) ? data : []);
+      const storesList = Array.isArray(data) ? data : [];
+      setStores(storesList);
+      setFilteredStores(storesList);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load stores");
       setStores([]);
+      setFilteredStores([]);
     } finally {
       setLoading(false);
     }
   }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filtered = stores.filter((store) =>
+      store.name.toLowerCase().includes(query.toLowerCase()) ||
+      store.slug.toLowerCase().includes(query.toLowerCase()) ||
+      store.phone.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredStores(filtered);
+  };
 
   useEffect(() => {
     void loadStores();
@@ -117,17 +132,19 @@ export default function StoresPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
       <AdminHeader
         title="Stores"
         description="View and edit all onboarded stores"
         icon="🏬"
         breadcrumbs={[{ label: "Stores" }]}
         action={{ label: "✨ Create Store", href: "/admin/create-store" }}
+        onSearch={handleSearch}
+        showSearch={true}
       />
 
       <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20">
 
           {error && (
             <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
@@ -150,6 +167,10 @@ export default function StoresPage() {
             <p className="mt-4 text-sm text-foreground/80">
               {loading ? "Loading stores..." : "No stores yet."}
             </p>
+          ) : filteredStores.length === 0 ? (
+            <p className="mt-4 text-sm text-foreground/80">
+              No stores match your search.
+            </p>
           ) : (
             <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
               <table className="w-full border-collapse text-left text-sm">
@@ -163,7 +184,7 @@ export default function StoresPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stores.map((store) =>
+                  {filteredStores.map((store) =>
                     editingId === store.id && editData ? (
                       <tr key={store.id} className="border-t border-foreground/10 bg-foreground/5">
                         <td className="px-4 py-3">

@@ -42,9 +42,11 @@ export default function AdminOrdersPage() {
   const [country, setCountry] = useState("IN");
 
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
 
@@ -65,7 +67,9 @@ export default function AdminOrdersPage() {
         return;
       }
 
-      setOrders(Array.isArray(data) ? data : []);
+      const ordersList = Array.isArray(data) ? data : [];
+      setOrders(ordersList);
+      setFilteredOrders(ordersList);
     } catch (e) {
       setOrders([]);
       setError(e instanceof Error ? e.message : String(e));
@@ -73,6 +77,17 @@ export default function AdminOrdersPage() {
       setLoading(false);
     }
   }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filtered = orders.filter((order) =>
+      order.id.toLowerCase().includes(query.toLowerCase()) ||
+      order.customerName?.toLowerCase().includes(query.toLowerCase()) ||
+      order.customerPhone?.toLowerCase().includes(query.toLowerCase()) ||
+      order.city?.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredOrders(filtered);
+  };
 
   async function onCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -130,16 +145,18 @@ export default function AdminOrdersPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
       <AdminHeader
         title="Orders"
         description="Create and manage customer orders"
         icon="📋"
         breadcrumbs={[{ label: "Orders" }]}
+        onSearch={handleSearch}
+        showSearch={true}
       />
 
       <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
             <label className="grid gap-2">
@@ -261,6 +278,8 @@ export default function AdminOrdersPage() {
 
           {orders.length === 0 ? (
             <p className="mt-4 text-sm text-foreground/80">No orders yet.</p>
+          ) : filteredOrders.length === 0 ? (
+            <p className="mt-4 text-sm text-foreground/80">No orders match your search.</p>
           ) : (
             <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
               <table className="w-full border-collapse text-left text-sm">
@@ -275,7 +294,7 @@ export default function AdminOrdersPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((o) => (
+                  {filteredOrders.map((o) => (
                     <tr key={o.id} className="border-t border-foreground/10 align-top">
                       <td className="px-4 py-3 font-mono text-xs">{o.id}</td>
                       <td className="px-4 py-3">

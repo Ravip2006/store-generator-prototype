@@ -154,7 +154,7 @@ export default function AddProductPage() {
   const previewUrl = `http://localhost:3000/s/${tenant}`;
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
       <AdminHeader
         title="Add Product"
         description="Create a new product in your store"
@@ -163,7 +163,7 @@ export default function AddProductPage() {
       />
 
       <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background shadow-sm p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
           <form onSubmit={onSubmit} className="grid gap-4">
             <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-200/30">
               <div className="flex items-center gap-2">

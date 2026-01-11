@@ -45,11 +45,13 @@ export default function AdminProductsPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [stockDraftById, setStockDraftById] = useState<Record<string, string>>({});
   const [priceDraftById, setPriceDraftById] = useState<Record<string, string>>({});
   const [discountPercentDraftById, setDiscountPercentDraftById] = useState<Record<string, string>>({});
   const [discountPriceDraftById, setDiscountPriceDraftById] = useState<Record<string, string>>({});
   const [descriptionDraftById, setDescriptionDraftById] = useState<Record<string, string>>({});
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [newCategoryName, setNewCategoryName] = useState("");
   const [creatingCategory, setCreatingCategory] = useState(false);
@@ -141,6 +143,7 @@ export default function AdminProductsPage() {
       } else {
         const nextProducts = Array.isArray(prodData) ? (prodData as Product[]) : [];
         setProducts(nextProducts);
+        setFilteredProducts(nextProducts);
         setStockDraftById((prev) => {
           const next: Record<string, string> = { ...prev };
           for (const p of nextProducts) {
@@ -235,15 +238,24 @@ export default function AdminProductsPage() {
       setPrice("10");
       setCreateCategoryId("");
       setImageUrl("");
-      setImageFile(null);
-      setUploadError(null);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(e instanceof Error ? e.message : "Network error");
     } finally {
       setCreating(false);
     }
   }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const filtered = products.filter((product) =>
+      product.name.toLowerCase().includes(query.toLowerCase()) ||
+      product.id.toLowerCase().includes(query.toLowerCase()) ||
+      product.brand?.toLowerCase().includes(query.toLowerCase()) ||
+      product.gtin?.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  };
 
   async function onUploadImage() {
     setUploadError(null);
@@ -790,16 +802,18 @@ export default function AdminProductsPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-          <AdminHeader
-            title="Products"
-            description="Create, edit, and manage products with pricing, inventory, and GS1 integration"
-            icon="📦"
-            breadcrumbs={[{ label: "Products" }]}
-          />
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+      <AdminHeader
+        title="Products"
+        description="Create, edit, and manage products with pricing, inventory, and GS1 integration"
+        icon="📦"
+        breadcrumbs={[{ label: "Products" }]}
+        onSearch={handleSearch}
+        showSearch={true}
+      />
 
+      <div className="mx-auto w-full max-w-5xl p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
           <div className="mt-6 space-y-2">
             <p className="text-sm text-foreground/70">
               Create products and assign them to categories for a tenant store.
@@ -1004,9 +1018,11 @@ export default function AdminProductsPage() {
 
           {products.length === 0 ? (
             <p className="mt-4 text-sm text-foreground/80">No products yet.</p>
+          ) : filteredProducts.length === 0 ? (
+            <p className="mt-4 text-sm text-foreground/80">No products match your search.</p>
           ) : (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((p) => (
+              {filteredProducts.map((p) => (
                 <div key={p.id} className="rounded-xl border border-foreground/10 bg-white dark:bg-background/50 p-5 shadow-sm hover:shadow-md transition-shadow">
                   {/* Product Name & ID */}
                   <div className="mb-4">
