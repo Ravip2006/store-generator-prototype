@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/authContext";
+import { AuthModal } from "@/components/AuthModal";
 
 type Product = {
   id: string;
@@ -58,36 +60,15 @@ function TrolleyIcon({ className }: { className?: string }) {
   );
 }
 
-// Currency formatter based on currency code
-function formatPrice(price: number, currency: string = "AUD"): string {
-  const currencySymbols: Record<string, string> = {
-    AUD: "$",
-    USD: "$",
-    INR: "₹",
-    GBP: "£",
-    EUR: "€",
-  };
-  const symbol = currencySymbols[currency] || "$";
-  return `${symbol}${price.toFixed(2)}`;
-}
-
-function getCurrencyForCountry(country: string): string {
-  const countryToCurrency: Record<string, string> = {
-    AU: "AUD",
-    IN: "INR",
-    US: "USD",
-    GB: "GBP",
-    EU: "EUR",
-  };
-  return countryToCurrency[country?.toUpperCase() || "AU"] || "AUD";
-}
-
 export default function CartPageClient({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
 
-  type Store = { name?: string | null; phone?: string | null; themeColor?: string | null; currency?: string; country?: string };
+  type Store = { name?: string | null; phone?: string | null; themeColor?: string | null };
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   function cartStorageKey(currentTenant: string) {
     return `storegen:cart:${currentTenant}`;
@@ -144,12 +125,13 @@ export default function CartPageClient({ slug }: { slug: string }) {
   const [addressLine1, setAddressLine1] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [store, setStore] = useState<Store | null>(null);
-  const [country, setCountry] = useState<string | null>(null);
+  const [country, setCountry] = useState("IN");
   const [deliverySlot, setDeliverySlot] = useState("Today 6-8pm");
+
   const [placing, setPlacing] = useState(false);
   const [placingWhatsApp, setPlacingWhatsApp] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [store, setStore] = useState<Store | null>(null);
 
   const accent = store?.themeColor || undefined;
   const storeName = store?.name || "Cart";
@@ -165,16 +147,22 @@ export default function CartPageClient({ slug }: { slug: string }) {
     [cartLines]
   );
 
+  // Pre-fill customer details from authenticated user
+  useEffect(() => {
+    if (user) {
+      setCustomerName((prev) => prev || user.name || user.email?.split("@")[0] || "");
+      setCustomerPhone((prev) => prev || user.phone || "");
+    }
+  }, [user]);
+
   const checkoutIssues = useMemo(() => {
     const issues: string[] = [];
     if (cartLines.length === 0) issues.push("Add at least 1 item");
     if (!customerName.trim()) issues.push("Enter your name");
     if (!customerPhone.trim()) issues.push("Enter your phone");
     if (!addressLine1.trim()) issues.push("Enter your address");
-    if (!postalCode.trim()) issues.push("Enter postal code");
-    if (!country) issues.push("Select country");
     return issues;
-  }, [cartLines.length, customerName, customerPhone, addressLine1, postalCode, country]);
+  }, [cartLines.length, customerName, customerPhone, addressLine1]);
 
   const canProceedToPay = checkoutIssues.length === 0 && !placing && !placingWhatsApp;
 
@@ -186,16 +174,15 @@ export default function CartPageClient({ slug }: { slug: string }) {
 
   function buildWhatsAppText(id?: string) {
     const lines: string[] = [];
-    const currency = getCurrencyForCountry(country || "AU");
     lines.push(`New order${id ? ` ${id}` : ""}`);
     lines.push("");
 
     for (const l of cartLines) {
-      lines.push(`${l.product.name} x ${l.quantity} (${formatPrice(l.product.price, currency)})`);
+      lines.push(`${l.product.name} x ${l.quantity} (₹${l.product.price})`);
     }
 
     lines.push("");
-    lines.push(`Total: ${formatPrice(cartTotal, currency)}`);
+    lines.push(`Total: ₹${cartTotal}`);
     if (deliverySlot.trim()) lines.push(`Delivery slot: ${deliverySlot.trim()}`);
 
     const cleanName = customerName.trim();
@@ -204,7 +191,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
     if (cleanName) lines.push(`Name: ${cleanName}`);
     if (cleanPhone) lines.push(`Phone: ${cleanPhone}`);
     if (cleanAddress) lines.push(`Address: ${cleanAddress}`);
-    const tail = [city.trim(), postalCode.trim(), country?.trim()].filter(Boolean).join(", ");
+    const tail = [city.trim(), postalCode.trim(), country.trim()].filter(Boolean).join(", ");
     if (tail) lines.push(tail);
 
     return lines.join("\n");
@@ -268,26 +255,17 @@ export default function CartPageClient({ slug }: { slug: string }) {
       const primaryKey = cartStorageKey(tenant);
       const legacyKey = legacyCartStorageKey(tenant);
 
-      console.log(`[CartPage] Initial load: checking for cart key="${primaryKey}"`);
       const primaryRaw = localStorage.getItem(primaryKey);
       const legacyRaw = primaryRaw ? null : localStorage.getItem(legacyKey);
 
       const raw = primaryRaw ?? legacyRaw;
-      console.log(`[CartPage] Initial load: found data=${!!raw}`);
-      if (raw) {
-        console.log(`[CartPage] Initial load: raw data=`, raw);
-      }
-      
       if (!raw) {
-        console.log(`[CartPage] Initial load: no cart data found, setting empty`);
         setCart({});
-        setLoadingCart(false);
         return;
       }
 
       const parsed = JSON.parse(raw);
       const normalized = coerceCartRecord(parsed);
-      console.log(`[CartPage] Initial load: loaded cart with ${Object.keys(normalized).length} items`);
       setCart(normalized);
 
       // If we loaded legacy data, migrate it to the canonical key.
@@ -299,8 +277,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
           // ignore
         }
       }
-    } catch (e) {
-      console.error(`[CartPage] Initial load error:`, e);
+    } catch {
       setCart({});
     } finally {
       setLoadingCart(false);
@@ -327,24 +304,6 @@ export default function CartPageClient({ slug }: { slug: string }) {
     };
   }, [apiBase, tenant]);
 
-  useEffect(() => {
-    if (store?.country && !country) {
-      setCountry(store.country);
-    }
-  }, [store?.country, country]);
-
-  // Persist cart to localStorage whenever it changes (but not during initial load)
-  useEffect(() => {
-    if (loadingCart) {
-      return;
-    }
-    try {
-      localStorage.setItem(cartStorageKey(tenant), JSON.stringify(cart));
-    } catch {
-      // ignore
-    }
-  }, [tenant, cart, loadingCart]);
-
   async function placeOrder(sendOnWhatsApp: boolean) {
     setError(null);
 
@@ -366,6 +325,28 @@ export default function CartPageClient({ slug }: { slug: string }) {
     else setPlacing(true);
 
     try {
+      // If user is authenticated, link them as a customer
+      if (isAuthenticated && user?.email) {
+        try {
+          await fetch(`${apiBase}/customers/link`, {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-tenant-id": tenant,
+            },
+            body: JSON.stringify({
+              authUserId: user.id,
+              email: user.email,
+              name: cleanName,
+              phone: cleanPhone,
+            }),
+          });
+        } catch (e) {
+          console.warn("Failed to link customer:", e);
+          // Continue with order placement even if linking fails
+        }
+      }
+
       const res = await fetch(`${apiBase}/orders`, {
         method: "POST",
         headers: {
@@ -379,7 +360,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
           addressLine1: cleanAddress,
           city: city.trim() || undefined,
           postalCode: postalCode.trim() || undefined,
-          country: country?.trim() || undefined,
+          country: country.trim() || undefined,
           deliverySlot: deliverySlot.trim() || undefined,
           items: cartLines.map((l) => ({
             productId: l.product.id,
@@ -429,38 +410,47 @@ export default function CartPageClient({ slug }: { slug: string }) {
   const directWhatsAppHref = whatsappHref();
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-foreground/10 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-6 py-4">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
-                style={{ backgroundColor: accent }}
-              >
-                <span className="text-background">{logoText}</span>
-              </div>
-              <div className="min-w-0">
-                <div className="truncate text-lg font-semibold tracking-tight sm:text-xl">{storeName}</div>
-                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-                  <span>🛒 Shopping Cart</span>
-                </div>
+    <main className="min-h-screen bg-gray-50 text-foreground">
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          // User is now authenticated, pre-fill form
+          if (user) {
+            setCustomerName((prev) => prev || user.name || user.email?.split("@")[0] || "");
+            setCustomerPhone((prev) => prev || user.phone || "");
+          }
+        }}
+        tenant={tenant}
+      />
+      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold tracking-tight"
+              style={{ backgroundColor: accent, borderColor: accent }}
+            >
+              <span className="text-white">{logoText}</span>
+            </div>
+            <div className="min-w-0">
+              <div className="text-lg font-bold tracking-tight text-gray-900">{storeName}</div>
+              <div className="text-xs text-gray-500 flex items-center gap-1.5">
+                <TrolleyIcon className="h-3 w-3" />
+                Shopping Cart
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-xs font-bold text-white shadow-md shadow-purple-500/30 border border-white/20">
-              <span>✨</span>
-              <span>{cartItemCount}</span>
-              <span className="text-white/90">{cartItemCount === 1 ? "item" : "items"}</span>
-            </span>
-            <button
-              type="button"
-              onClick={() => router.push(`/s/${encodeURIComponent(tenant)}`)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 transition-colors"
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-sm font-semibold text-gray-900">{cartItemCount} items</div>
+              <div className="text-xs text-gray-500">₹{cartTotal.toFixed(2)}</div>
+            </div>
+            <Link
+              href={`/s/${encodeURIComponent(tenant)}`}
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              ← Continue Shopping
-            </button>
+              Continue Shopping
+            </Link>
           </div>
         </div>
       </header>
@@ -475,7 +465,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
             </div>
 
             {error && (
-              <div className="mt-6 rounded-xl border border-red-500/50 bg-red-50/50 p-4 text-sm text-red-700">
+              <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
                 <b>Error:</b> {error}
               </div>
             )}
@@ -517,15 +507,15 @@ export default function CartPageClient({ slug }: { slug: string }) {
                           <div className="truncate text-sm font-medium">{l.product.name}</div>
                           {typeof l.product.regularPrice === "number" && l.product.regularPrice !== l.product.price ? (
                             <div className="mt-1 flex items-center gap-2">
-                              <div className="text-sm font-semibold text-green-600">{formatPrice(l.product.price, getCurrencyForCountry(country || "AU"))}</div>
+                              <div className="text-sm font-semibold text-green-600">₹{l.product.price.toFixed(2)}</div>
                               {typeof l.product.discountPercent === "number" && l.product.discountPercent > 0 ? (
                                 <span className="text-xs font-semibold text-red-600">{l.product.discountPercent.toFixed(0)}% OFF</span>
                               ) : null}
-                              <span className="text-xs text-foreground/60 line-through">{formatPrice(l.product.regularPrice, getCurrencyForCountry(country || "AU"))}</span>
+                              <span className="text-xs text-foreground/60 line-through">₹{l.product.regularPrice.toFixed(2)}</span>
                             </div>
                           ) : (
                             <div className="text-xs text-foreground/70">
-                              {formatPrice(l.product.price, getCurrencyForCountry(country || "AU"))} each
+                              ₹{l.product.price.toFixed(2)} each
                             </div>
                           )}
                         </div>
@@ -593,23 +583,17 @@ export default function CartPageClient({ slug }: { slug: string }) {
                       <input
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
-                        placeholder="Postal code (required)"
-                        required
+                        placeholder="Postal code"
                         className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
                       />
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
-                      <select
-                        value={country || ""}
+                      <input
+                        value={country}
                         onChange={(e) => setCountry(e.target.value)}
+                        placeholder="Country"
                         className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
-                      >
-                        <option value="">Select country</option>
-                        <option value="AU">🇦🇺 Australia</option>
-                        <option value="IN">🇮🇳 India</option>
-                        <option value="US">🇺🇸 United States</option>
-                        <option value="GB">🇬🇧 United Kingdom</option>
-                      </select>
+                      />
                       <input
                         value={deliverySlot}
                         onChange={(e) => setDeliverySlot(e.target.value)}
@@ -639,7 +623,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                     {cartItemCount} item{cartItemCount === 1 ? "" : "s"}
                   </div>
                 </div>
-                <div className="text-sm font-semibold">{formatPrice(cartTotal, getCurrencyForCountry(country || "AU"))}</div>
+                <div className="text-sm font-semibold">₹{cartTotal}</div>
               </div>
 
               {cartLines.length > 1 ? (
@@ -654,7 +638,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                           <div className="truncate text-sm font-medium">{l.product.name}</div>
                           <div className="text-xs text-foreground/60">Qty {l.quantity}</div>
                         </div>
-                        <div className="shrink-0 text-sm font-semibold">{formatPrice(l.product.price * l.quantity, getCurrencyForCountry(country || "AU"))}</div>
+                        <div className="shrink-0 text-sm font-semibold">₹{l.product.price * l.quantity}</div>
                       </div>
                     ))}
                     {cartLines.length > 6 ? (
@@ -665,6 +649,36 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   </div>
                 </div>
               ) : null}
+
+              {/* Authentication section */}
+              {!isAuthenticated && (
+                <div className="mt-4 rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-purple-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-gray-900">Faster checkout?</div>
+                      <p className="mt-1 text-xs text-gray-700">
+                        Sign in to skip entering details on next order and track your purchases.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowAuthModal(true)}
+                        className="mt-2 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-1.5 text-xs font-semibold text-white hover:from-blue-700 hover:to-purple-700 transition-all"
+                      >
+                        Sign in or create account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isAuthenticated && (
+                <div className="mt-4 rounded-2xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-sm font-semibold text-green-900">✓ Signed in</div>
+                    <p className="text-xs text-green-700">Welcome back! Your details are pre-filled.</p>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-4 grid gap-2">
                 <button
@@ -707,10 +721,10 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-foreground/70">Subtotal</span>
                     <span className="font-semibold">
-                      {formatPrice(cartLines.reduce((sum, l) => {
+                      ₹{cartLines.reduce((sum, l) => {
                         const regularPrice = typeof l.product.regularPrice === "number" ? l.product.regularPrice : l.product.price;
                         return sum + (regularPrice * l.quantity);
-                      }, 0), getCurrencyForCountry(country || "AU"))}
+                      }, 0).toFixed(2)}
                     </span>
                   </div>
                   {(() => {
@@ -721,17 +735,17 @@ export default function CartPageClient({ slug }: { slug: string }) {
                     return totalSavings > 0 ? (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-foreground/70">Discount</span>
-                        <span className="font-semibold text-green-600">-{formatPrice(totalSavings, getCurrencyForCountry(country || "AU"))}</span>
+                        <span className="font-semibold text-green-600">-₹{totalSavings.toFixed(2)}</span>
                       </div>
                     ) : null;
                   })()}
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-foreground/70">Estimated delivery</span>
-                    <span className="font-semibold">{formatPrice(0, getCurrencyForCountry(country || "AU"))}</span>
+                    <span className="font-semibold">₹0</span>
                   </div>
                   <div className="flex items-center justify-between gap-3 border-t border-foreground/10 pt-2">
                     <span className="font-semibold">Total</span>
-                    <span className="text-base font-semibold">{formatPrice(cartTotal, getCurrencyForCountry(country || "AU"))}</span>
+                    <span className="text-base font-semibold">₹{cartTotal}</span>
                   </div>
                 </div>
                 <div className="mt-2 text-xs text-foreground/60">

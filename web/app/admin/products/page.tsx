@@ -349,8 +349,12 @@ export default function AdminProductsPage() {
         return;
       }
 
+      const updatedProduct = data as Product;
       setProducts((prev) =>
-        prev.map((p) => (p.id === productId ? (data as Product) : p))
+        prev.map((p) => (p.id === productId ? updatedProduct : p))
+      );
+      setFilteredProducts((prev) =>
+        prev.map((p) => (p.id === productId ? updatedProduct : p))
       );
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -477,7 +481,9 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setProducts((prev) => prev.map((p) => (p.id === productId ? (data as Product) : p)));
+      const updatedProduct = data as Product;
+      setProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
+      setFilteredProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -532,7 +538,9 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setProducts((prev) => prev.map((p) => (p.id === productId ? (data as Product) : p)));
+      const updatedProduct = data as Product;
+      setProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
+      setFilteredProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
       setNotice("Saved discount.");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -563,7 +571,9 @@ export default function AdminProductsPage() {
         return;
       }
 
-      setProducts((prev) => prev.map((p) => (p.id === productId ? (data as Product) : p)));
+      const updatedProduct = data as Product;
+      setProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
+      setFilteredProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
       setNotice("Description saved.");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -689,7 +699,9 @@ export default function AdminProductsPage() {
 
           if (res.ok) {
             const data = await res.json().catch(() => ({}));
-            setProducts((prev) => prev.map((p) => (p.id === productId ? (data as Product) : p)));
+            const updatedProduct = data as Product;
+            setProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
+            setFilteredProducts((prev) => prev.map((p) => (p.id === productId ? updatedProduct : p)));
             successCount++;
           } else {
             skipCount++;
@@ -755,6 +767,7 @@ export default function AdminProductsPage() {
       // Update product in list
       if (data.product) {
         setProducts((prev) => prev.map((p) => (p.id === productId ? data.product : p)));
+        setFilteredProducts((prev) => prev.map((p) => (p.id === productId ? data.product : p)));
         setGs1GtinDraftById((prev) => ({ ...prev, [productId]: "" }));
         setNotice(`✓ Linked to GS1! Brand: ${data.product.brand}, Image updated.`);
       }
@@ -945,9 +958,9 @@ export default function AdminProductsPage() {
                   type="button"
                   onClick={() => onCreateCategory()}
                   disabled={creatingCategory}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-3 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
                 >
-                  {creatingCategory ? "Adding..." : "Add"}
+                  <span>{creatingCategory ? "Adding..." : "✨ Add Category"}</span>
                 </button>
               </div>
             </div>
@@ -1136,7 +1149,12 @@ export default function AdminProductsPage() {
 
                   {/* Category Section */}
                   <div className="mb-4 space-y-2">
-                    <label className="block text-xs font-semibold text-foreground/70">Category</label>
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="block text-xs font-semibold text-foreground/70">Category</label>
+                      {savingProductId === p.id ? (
+                        <span className="text-xs text-blue-600 font-medium animate-pulse">Saving...</span>
+                      ) : null}
+                    </div>
                     <select
                       value={p.categoryId || ""}
                       onChange={(e) => onChangeCategory(p.id, e.target.value)}

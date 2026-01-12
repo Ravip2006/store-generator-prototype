@@ -58,7 +58,7 @@ export default function AdminHeader({
         )}
 
         {/* Header Content */}
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-3">
               {icon && <span className="text-4xl drop-shadow-lg">{icon}</span>}
@@ -73,10 +73,10 @@ export default function AdminHeader({
             )}
           </div>
 
-          <div className="flex items-start gap-3 flex-col">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
             {/* Search Bar */}
             {showSearch && (
-              <div className="flex gap-3 w-80">
+              <div className="flex gap-3 w-full sm:w-80">
                 <div className="flex-1 relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span className="text-lg text-foreground/40">🔍</span>

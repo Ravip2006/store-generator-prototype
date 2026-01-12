@@ -23,6 +23,7 @@ const cors = require('cors');
 const { Pool } = require("pg");
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
+const GS1Service = require("./services/gs1Service");
 
 async function callOpenAiForDescription({ apiKey, model, prompt }) {
   if (!apiKey) {
@@ -123,6 +124,12 @@ const prismaAdmin = adminDbUrl
     })
   : null;
 
+// Initialize GS1 Service for branded FMCG product lookup
+const gs1Service = new GS1Service(
+  process.env.GS1_API_KEY,
+  process.env.GS1_API_ENDPOINT
+);
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -208,7 +215,7 @@ app.get('/admin/stats', async (req, res) => {
   try {
     const [stores, products, orders, customers] = await Promise.all([
       prisma.store.count(),
-      prisma.product.count(),
+      prisma.catalogProduct.count(),
       prisma.order.count(),
       prisma.customer.count(),
     ]);
@@ -1055,6 +1062,145 @@ app.post("/products/:id/ai-description", async (req, res) => {
   }
 });
 
+// GET /gs1/search/gtin - Search GS1 database by barcode
+// Returns packshot image and product metadata for branded FMCG
+app.get('/gs1/search/gtin', async (req, res) => {
+  try {
+    const { gtin } = req.query;
+
+    if (!gtin) {
+      return res.status(400).json({ error: "gtin is required" });
+    }
+
+    if (!process.env.GS1_API_KEY) {
+      return res.status(501).json({ error: "GS1 lookup not configured (missing GS1_API_KEY)" });
+    }
+
+    // Validate GTIN format
+    if (!gs1Service.validateGTIN(gtin)) {
+      return res.status(400).json({ error: "Invalid GTIN format. Expected 8, 12, 13, or 14 digits." });
+    }
+
+    const productData = await gs1Service.searchByGTIN(gtin);
+    
+    if (!productData) {
+      return res.status(404).json({ error: "Product not found in GS1 database" });
+    }
+
+    return res.json({
+      success: true,
+      product: productData
+    });
+  } catch (e) {
+    console.error("GET /gs1/search/gtin failed:", e);
+    return res.status(500).json({ error: "Failed to search GS1 database", details: e?.message || String(e) });
+  }
+});
+
+// GET /gs1/search/brand - Search GS1 database by brand and product name
+app.get('/gs1/search/brand', async (req, res) => {
+  try {
+    const { productName, brand } = req.query;
+
+    if (!productName || !brand) {
+      return res.status(400).json({ error: "productName and brand are required" });
+    }
+
+    if (!process.env.GS1_API_KEY) {
+      return res.status(501).json({ error: "GS1 lookup not configured (missing GS1_API_KEY)" });
+    }
+
+    const products = await gs1Service.searchByBrand(productName, brand);
+    
+    return res.json({
+      success: true,
+      count: products.length,
+      products: products
+    });
+  } catch (e) {
+    console.error("GET /gs1/search/brand failed:", e);
+    return res.status(500).json({ error: "Failed to search GS1 database by brand", details: e?.message || String(e) });
+  }
+});
+
+// GET /gs1/brands - Get common Indian FMCG brands for autocomplete
+app.get('/gs1/brands', (req, res) => {
+  try {
+    const brands = gs1Service.getCommonBrands();
+    return res.json({
+      success: true,
+      brands: brands
+    });
+  } catch (e) {
+    console.error("GET /gs1/brands failed:", e);
+    return res.status(500).json({ error: "Failed to fetch brands" });
+  }
+});
+
+// POST /products/:id/gs1-lookup - Link a product to GS1 database
+// Fetches packshot image and metadata, updates product with GTIN, brand, and image
+app.post('/products/:id/gs1-lookup', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { gtin } = req.body || {};
+
+    if (!gtin) {
+      return res.status(400).json({ error: "gtin is required" });
+    }
+
+    if (!process.env.GS1_API_KEY) {
+      return res.status(501).json({ error: "GS1 lookup not configured (missing GS1_API_KEY)" });
+    }
+
+    // Validate GTIN
+    if (!gs1Service.validateGTIN(gtin)) {
+      return res.status(400).json({ error: "Invalid GTIN format" });
+    }
+
+    // Fetch data from GS1
+    const gs1Data = await gs1Service.searchByGTIN(gtin);
+    if (!gs1Data) {
+      return res.status(404).json({ error: "Product not found in GS1 database" });
+    }
+
+    // Update product with GS1 data
+    const updated = await (prismaAdmin || prisma).catalogProduct.update({
+      where: { id },
+      data: {
+        gtin: gs1Data.gtin,
+        brand: gs1Data.brand,
+        gs1SKU: gs1Data.gs1SKU,
+        imageUrl: gs1Data.imageUrl || undefined, // Only update if we have an image
+        isBrandedFMCG: true,
+        // Optionally update description if we have one
+        ...(gs1Data.description && { description: gs1Data.description })
+      },
+      select: {
+        id: true,
+        name: true,
+        basePrice: true,
+        imageUrl: true,
+        gtin: true,
+        brand: true,
+        isBrandedFMCG: true,
+        description: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      product: updated,
+      gs1Data: gs1Data
+    });
+  } catch (e) {
+    if (e?.code === 'P2025') {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    console.error("POST /products/:id/gs1-lookup failed:", e);
+    return res.status(500).json({ error: "Failed to lookup product in GS1 database", details: e?.message || String(e) });
+  }
+});
+
 // Promote a product to global (shared across all stores)
 app.post("/products/:id/make-global", async (req, res) => {
   try {
@@ -1185,7 +1331,7 @@ app.post("/products/:id/set-active", async (req, res) => {
 
 app.post("/stores", async (req, res) => {
   try {
-    const { slug, name, phone, themeColor } = req.body || {};
+    const { slug, name, phone, themeColor, currency, country } = req.body || {};
 
     if (!slug || !name || !phone) {
       return res.status(400).json({ error: "slug, name, phone are required" });
@@ -1200,13 +1346,17 @@ app.post("/stores", async (req, res) => {
       update: {
         name: String(name).trim(),
         phone: String(phone).trim(),
-        themeColor: String(themeColor || "#0A7C2F").trim(),
+        themeColor: String(themeColor || "#D4AF37").trim(),
+        currency: String(currency || "AUD").toUpperCase().trim(),
+        country: String(country || "AU").toUpperCase().trim(),
       },
       create: {
         slug: cleanSlug,
         name: String(name).trim(),
         phone: String(phone).trim(),
-        themeColor: String(themeColor || "#0A7C2F").trim(),
+        themeColor: String(themeColor || "#D4AF37").trim(),
+        currency: String(currency || "AUD").toUpperCase().trim(),
+        country: String(country || "AU").toUpperCase().trim(),
       },
     });
 
@@ -1734,7 +1884,566 @@ app.post("/customers", async (req, res) => {
   }
 });
 
+// Get or create customer from Supabase auth user
+// POST /customers/link
+// Body: { authUserId: string, email: string, name?: string, phone?: string }
+app.post("/customers/link", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const { authUserId, email, name, phone } = req.body || {};
+
+    if (!authUserId || !email) {
+      return res.status(400).json({ error: "authUserId and email are required" });
+    }
+
+    const cleanName = String(name || email.split("@")[0] || "Customer").trim();
+    const cleanPhone = phone == null ? null : String(phone).trim();
+    const cleanEmail = String(email).trim();
+
+    // Check if customer with this email already exists
+    const existingCustomer = await withTenantDb(store.id, (db) =>
+      db.customer.findFirst({
+        where: { storeId: store.id, email: cleanEmail },
+        select: { id: true, name: true, phone: true, email: true, createdAt: true },
+      })
+    );
+
+    if (existingCustomer) {
+      // Update customer with new data if provided
+      const updated = await withTenantDb(store.id, (db) =>
+        db.customer.update({
+          where: { id: existingCustomer.id },
+          data: {
+            name: cleanName,
+            phone: cleanPhone || existingCustomer.phone,
+          },
+          select: { id: true, name: true, phone: true, email: true, createdAt: true },
+        })
+      );
+      return res.json(updated);
+    }
+
+    // Create new customer
+    const newCustomer = await withTenantDb(store.id, (db) =>
+      db.customer.create({
+        data: {
+          storeId: store.id,
+          name: cleanName,
+          phone: cleanPhone || null,
+          email: cleanEmail,
+        },
+        select: { id: true, name: true, phone: true, email: true, createdAt: true },
+      })
+    );
+
+    return res.status(201).json(newCustomer);
+  } catch (e) {
+    console.error("POST /customers/link failed:", e);
+    return res.status(500).json({ error: "Failed to link customer", details: e?.message || String(e) });
+  }
+});
+
+// --- Customer Addresses
+// GET /customers/:customerId/addresses
+app.get("/customers/:customerId/addresses", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const { customerId } = req.params;
+    if (!customerId) {
+      return res.status(400).json({ error: "customerId is required" });
+    }
+
+    const addresses = await withTenantDb(store.id, (db) =>
+      db.customerAddress.findMany({
+        where: { customerId, storeId: store.id },
+        orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
+        select: { id: true, label: true, addressLine1: true, addressLine2: true, city: true, postalCode: true, state: true, country: true, isDefault: true, createdAt: true },
+      })
+    );
+
+    return res.json(addresses);
+  } catch (e) {
+    console.error("GET /customers/:customerId/addresses failed:", e);
+    return res.status(500).json({ error: "Failed to load addresses", details: e?.message || String(e) });
+  }
+});
+
+// POST /customers/:customerId/addresses
+app.post("/customers/:customerId/addresses", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const { customerId } = req.params;
+    const { addressLine1, addressLine2, city, postalCode, state, country, label } = req.body || {};
+
+    if (!customerId || !addressLine1 || !city || !postalCode) {
+      return res.status(400).json({ error: "customerId, addressLine1, city, postalCode are required" });
+    }
+
+    const address = await withTenantDb(store.id, async (db) => {
+      return db.customerAddress.create({
+        data: {
+          customerId,
+          storeId: store.id,
+          addressLine1: String(addressLine1).trim(),
+          addressLine2: addressLine2 ? String(addressLine2).trim() : null,
+          city: String(city).trim(),
+          postalCode: String(postalCode).trim(),
+          state: state ? String(state).trim() : null,
+          country: String(country || "IN").trim(),
+          label: label ? String(label).trim() : "Home",
+        },
+        select: { id: true, label: true, addressLine1: true, addressLine2: true, city: true, postalCode: true, state: true, country: true, isDefault: true, createdAt: true },
+      });
+    });
+
+    return res.status(201).json(address);
+  } catch (e) {
+    console.error("POST /customers/:customerId/addresses failed:", e);
+    return res.status(500).json({ error: "Failed to create address", details: e?.message || String(e) });
+  }
+});
+
+// PUT /customers/:customerId/addresses/:addressId
+app.put("/customers/:customerId/addresses/:addressId", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const { customerId, addressId } = req.params;
+    const { addressLine1, addressLine2, city, postalCode, state, country, label, isDefault } = req.body || {};
+
+    if (!customerId || !addressId) {
+      return res.status(400).json({ error: "customerId and addressId are required" });
+    }
+
+    const address = await withTenantDb(store.id, async (db) => {
+      // If setting as default, unset other defaults
+      if (isDefault === true) {
+        await db.customerAddress.updateMany({
+          where: { customerId, storeId: store.id, id: { not: addressId } },
+          data: { isDefault: false },
+        });
+      }
+
+      return db.customerAddress.update({
+        where: { id: addressId },
+        data: {
+          ...(addressLine1 && { addressLine1: String(addressLine1).trim() }),
+          ...(addressLine2 !== undefined && { addressLine2: addressLine2 ? String(addressLine2).trim() : null }),
+          ...(city && { city: String(city).trim() }),
+          ...(postalCode && { postalCode: String(postalCode).trim() }),
+          ...(state !== undefined && { state: state ? String(state).trim() : null }),
+          ...(country && { country: String(country).trim() }),
+          ...(label && { label: String(label).trim() }),
+          ...(isDefault !== undefined && { isDefault }),
+        },
+        select: { id: true, label: true, addressLine1: true, addressLine2: true, city: true, postalCode: true, state: true, country: true, isDefault: true, createdAt: true },
+      });
+    });
+
+    return res.json(address);
+  } catch (e) {
+    console.error("PUT /customers/:customerId/addresses/:addressId failed:", e);
+    return res.status(500).json({ error: "Failed to update address", details: e?.message || String(e) });
+  }
+});
+
+// DELETE /customers/:customerId/addresses/:addressId
+app.delete("/customers/:customerId/addresses/:addressId", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const { customerId, addressId } = req.params;
+
+    if (!customerId || !addressId) {
+      return res.status(400).json({ error: "customerId and addressId are required" });
+    }
+
+    await withTenantDb(store.id, (db) =>
+      db.customerAddress.delete({
+        where: { id: addressId },
+      })
+    );
+
+    return res.json({ success: true, message: "Address deleted" });
+  } catch (e) {
+    console.error("DELETE /customers/:customerId/addresses/:addressId failed:", e);
+    return res.status(500).json({ error: "Failed to delete address", details: e?.message || String(e) });
+  }
+});
+
+// Get all orders for a specific customer email
+// GET /customers/by-email/:email/orders
+app.get("/customers/by-email/:email/orders", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const email = String(req.params.email || "").trim().toLowerCase();
+    if (!email) return res.status(400).json({ error: "Missing email" });
+
+    const orders = await withTenantDb(store.id, async (db) => {
+      const customer = await db.customer.findFirst({
+        where: { storeId: store.id, email },
+        select: { id: true },
+      });
+
+      if (!customer) {
+        return [];
+      }
+
+      const customerOrders = await db.order.findMany({
+        where: { storeId: store.id, customerId: customer.id },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          total: true,
+          status: true,
+          createdAt: true,
+          customerName: true,
+          customerPhone: true,
+          addressLine1: true,
+          city: true,
+          deliverySlot: true,
+          items: {
+            select: {
+              id: true,
+              productId: true,
+              quantity: true,
+              unitPrice: true,
+              product: { select: { name: true } },
+            },
+          },
+        },
+      });
+
+      const productIds = Array.from(
+        new Set(
+          customerOrders
+            .flatMap((o) => o.items)
+            .map((it) => String(it.productId))
+            .filter(Boolean)
+        )
+      );
+
+      if (productIds.length === 0) return customerOrders;
+
+      const overrides = await db.storeProductOverride.findMany({
+        where: { storeId: store.id, productId: { in: productIds } },
+        select: { productId: true, nameOverride: true },
+      });
+
+      const nameOverrideById = new Map(overrides.map((o) => [o.productId, o.nameOverride]));
+
+      return customerOrders.map((o) => ({
+        ...o,
+        items: o.items.map((it) => {
+          const overrideName = nameOverrideById.get(String(it.productId));
+          if (!overrideName) return it;
+          return {
+            ...it,
+            product: it.product ? { ...it.product, name: overrideName } : { name: overrideName },
+          };
+        }),
+      }));
+    });
+
+    return res.json(orders);
+  } catch (e) {
+    console.error("GET /customers/by-email/:email/orders failed:", e);
+    return res.status(500).json({ error: "Failed to load customer orders", details: e?.message || String(e) });
+  }
+});
+
+// --- Customer Addresses (Address Book)
+
+// GET /customers/:customerId/addresses - Get all saved addresses for a customer
+app.get("/customers/:customerId/addresses", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const customerId = String(req.params.customerId || "").trim();
+    if (!customerId) return res.status(400).json({ error: "Missing customerId" });
+
+    // Verify customer exists and belongs to this store
+    const customer = await withTenantDb(store.id, (db) =>
+      db.customer.findFirst({
+        where: { id: customerId, storeId: store.id },
+        select: { id: true },
+      })
+    );
+
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+
+    const addresses = await withTenantDb(store.id, (db) =>
+      db.customerAddress.findMany({
+        where: { customerId, storeId: store.id },
+        orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
+        select: {
+          id: true,
+          addressLine1: true,
+          addressLine2: true,
+          city: true,
+          postalCode: true,
+          state: true,
+          country: true,
+          isDefault: true,
+          label: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+    );
+
+    return res.json(addresses);
+  } catch (e) {
+    console.error("GET /customers/:customerId/addresses failed:", e);
+    return res.status(500).json({ error: "Failed to load addresses", details: e?.message || String(e) });
+  }
+});
+
+// POST /customers/:customerId/addresses - Save a new address
+app.post("/customers/:customerId/addresses", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const customerId = String(req.params.customerId || "").trim();
+    if (!customerId) return res.status(400).json({ error: "Missing customerId" });
+
+    const { addressLine1, addressLine2, city, postalCode, state, country, label, isDefault } = req.body || {};
+
+    const cleanAddress1 = String(addressLine1 || "").trim();
+    const cleanAddress2 = addressLine2 ? String(addressLine2).trim() : null;
+    const cleanCity = String(city || "").trim();
+    const cleanPostal = String(postalCode || "").trim();
+    const cleanState = state ? String(state).trim() : null;
+    const cleanCountry = String(country || "IN").trim();
+    const cleanLabel = label ? String(label).trim() : "Home";
+    const shouldSetDefault = Boolean(isDefault);
+
+    if (!cleanAddress1 || !cleanCity || !cleanPostal) {
+      return res.status(400).json({ error: "addressLine1, city, and postalCode are required" });
+    }
+
+    // Verify customer exists
+    const customer = await withTenantDb(store.id, (db) =>
+      db.customer.findFirst({
+        where: { id: customerId, storeId: store.id },
+        select: { id: true },
+      })
+    );
+
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+
+    // If setting as default, unset other defaults
+    if (shouldSetDefault) {
+      await withTenantDb(store.id, (db) =>
+        db.customerAddress.updateMany({
+          where: { customerId, storeId: store.id },
+          data: { isDefault: false },
+        })
+      );
+    }
+
+    const address = await withTenantDb(store.id, (db) =>
+      db.customerAddress.create({
+        data: {
+          customerId,
+          storeId: store.id,
+          addressLine1: cleanAddress1,
+          addressLine2: cleanAddress2,
+          city: cleanCity,
+          postalCode: cleanPostal,
+          state: cleanState,
+          country: cleanCountry,
+          label: cleanLabel,
+          isDefault: shouldSetDefault,
+        },
+        select: {
+          id: true,
+          addressLine1: true,
+          addressLine2: true,
+          city: true,
+          postalCode: true,
+          state: true,
+          country: true,
+          isDefault: true,
+          label: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+    );
+
+    return res.status(201).json(address);
+  } catch (e) {
+    console.error("POST /customers/:customerId/addresses failed:", e);
+    return res.status(500).json({ error: "Failed to save address", details: e?.message || String(e) });
+  }
+});
+
+// PATCH /customers/:customerId/addresses/:addressId - Update an address
+app.patch("/customers/:customerId/addresses/:addressId", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const customerId = String(req.params.customerId || "").trim();
+    const addressId = String(req.params.addressId || "").trim();
+
+    if (!customerId || !addressId) {
+      return res.status(400).json({ error: "Missing customerId or addressId" });
+    }
+
+    const { addressLine1, addressLine2, city, postalCode, state, country, label, isDefault } = req.body || {};
+
+    const updateData = {};
+    if (addressLine1 !== undefined) updateData.addressLine1 = String(addressLine1).trim();
+    if (addressLine2 !== undefined) updateData.addressLine2 = addressLine2 ? String(addressLine2).trim() : null;
+    if (city !== undefined) updateData.city = String(city).trim();
+    if (postalCode !== undefined) updateData.postalCode = String(postalCode).trim();
+    if (state !== undefined) updateData.state = state ? String(state).trim() : null;
+    if (country !== undefined) updateData.country = String(country).trim();
+    if (label !== undefined) updateData.label = label ? String(label).trim() : "Home";
+
+    // Verify customer exists
+    const customer = await withTenantDb(store.id, (db) =>
+      db.customer.findFirst({
+        where: { id: customerId, storeId: store.id },
+        select: { id: true },
+      })
+    );
+
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+
+    // Verify address belongs to customer
+    const existingAddress = await withTenantDb(store.id, (db) =>
+      db.customerAddress.findFirst({
+        where: { id: addressId, customerId, storeId: store.id },
+        select: { id: true },
+      })
+    );
+
+    if (!existingAddress) return res.status(404).json({ error: "Address not found" });
+
+    // If setting as default, unset others
+    if (isDefault === true) {
+      await withTenantDb(store.id, (db) =>
+        db.customerAddress.updateMany({
+          where: { customerId, storeId: store.id, id: { not: addressId } },
+          data: { isDefault: false },
+        })
+      );
+      updateData.isDefault = true;
+    } else if (isDefault === false) {
+      updateData.isDefault = false;
+    }
+
+    const updated = await withTenantDb(store.id, (db) =>
+      db.customerAddress.update({
+        where: { id: addressId },
+        data: updateData,
+        select: {
+          id: true,
+          addressLine1: true,
+          addressLine2: true,
+          city: true,
+          postalCode: true,
+          state: true,
+          country: true,
+          isDefault: true,
+          label: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+    );
+
+    return res.json(updated);
+  } catch (e) {
+    console.error("PATCH /customers/:customerId/addresses/:addressId failed:", e);
+    return res.status(500).json({ error: "Failed to update address", details: e?.message || String(e) });
+  }
+});
+
+// DELETE /customers/:customerId/addresses/:addressId - Delete an address
+app.delete("/customers/:customerId/addresses/:addressId", async (req, res) => {
+  try {
+    const store = await requireTenantStore(req, res);
+    if (!store) return;
+
+    const customerId = String(req.params.customerId || "").trim();
+    const addressId = String(req.params.addressId || "").trim();
+
+    if (!customerId || !addressId) {
+      return res.status(400).json({ error: "Missing customerId or addressId" });
+    }
+
+    // Verify customer exists
+    const customer = await withTenantDb(store.id, (db) =>
+      db.customer.findFirst({
+        where: { id: customerId, storeId: store.id },
+        select: { id: true },
+      })
+    );
+
+    if (!customer) return res.status(404).json({ error: "Customer not found" });
+
+    // Verify address belongs to customer
+    const existingAddress = await withTenantDb(store.id, (db) =>
+      db.customerAddress.findFirst({
+        where: { id: addressId, customerId, storeId: store.id },
+        select: { id: true, isDefault: true },
+      })
+    );
+
+    if (!existingAddress) return res.status(404).json({ error: "Address not found" });
+
+    // Delete the address
+    await withTenantDb(store.id, (db) =>
+      db.customerAddress.delete({
+        where: { id: addressId },
+      })
+    );
+
+    // If deleted address was default, set another as default
+    if (existingAddress.isDefault) {
+      const nextAddress = await withTenantDb(store.id, (db) =>
+        db.customerAddress.findFirst({
+          where: { customerId, storeId: store.id },
+          orderBy: { createdAt: "asc" },
+          select: { id: true },
+        })
+      );
+
+      if (nextAddress) {
+        await withTenantDb(store.id, (db) =>
+          db.customerAddress.update({
+            where: { id: nextAddress.id },
+            data: { isDefault: true },
+          })
+        );
+      }
+    }
+
+    return res.status(204).send();
+  } catch (e) {
+    console.error("DELETE /customers/:customerId/addresses/:addressId failed:", e);
+    return res.status(500).json({ error: "Failed to delete address", details: e?.message || String(e) });
+  }
+});
+
 // --- Orders
+
 app.get("/orders", async (req, res) => {
   try {
     const store = await requireTenantStore(req, res);

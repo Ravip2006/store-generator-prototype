@@ -14,12 +14,15 @@ model Store {
   slug       String    @unique
   name       String
   phone      String
-  themeColor String    @default("#0A7C2F")
+  themeColor String    @default("#D4AF37")
+  currency   String    @default("AUD")
+  country    String    @default("AU")
   logoUrl    String?
   createdAt  DateTime  @default(now())
 
   categories Category[]
   customers  Customer[]
+  addresses  CustomerAddress[]
   ownedCatalogProducts CatalogProduct[]
   productOverrides StoreProductOverride[]
   orders     Order[]
@@ -63,8 +66,32 @@ model Customer {
 
   store     Store    @relation(fields: [storeId], references: [id])
   orders    Order[]
+  addresses CustomerAddress[]
 
   @@index([storeId])
+}
+
+model CustomerAddress {
+  id          String   @id @default(cuid())
+  customerId  String
+  storeId     String
+  addressLine1 String
+  addressLine2 String?
+  city        String
+  postalCode  String
+  state       String?
+  country     String  @default("IN")
+  isDefault   Boolean @default(false)
+  label       String? @default("Home") // "Home", "Work", "Other"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  store       Store    @relation(fields: [storeId], references: [id])
+
+  @@index([customerId])
+  @@index([storeId])
+  @@unique([customerId, id])
 }
 
 model CatalogProduct {
@@ -78,6 +105,13 @@ model CatalogProduct {
   isActive     Boolean  @default(true)
   isGlobal     Boolean  @default(true)
   ownerStoreId String?
+  
+  // Branded FMCG fields
+  gtin         String?   @unique  // EAN/UPC barcode (e.g., 8901001001234)
+  brand        String?            // Brand name (e.g., "Maggi", "Amul")
+  gs1SKU       String?            // GS1 database SKU reference
+  isBrandedFMCG Boolean  @default(false)
+  
   createdAt    DateTime @default(now())
   ownerStore   Store?   @relation(fields: [ownerStoreId], references: [id])
   masterCategory MasterCategory? @relation(fields: [masterCategoryId], references: [id])
@@ -87,6 +121,9 @@ model CatalogProduct {
   @@index([isGlobal])
   @@index([masterCategoryId])
   @@index([ownerStoreId])
+  @@index([gtin])
+  @@index([brand])
+  @@index([isBrandedFMCG])
 }
 
 model StoreProductOverride {

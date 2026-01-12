@@ -157,8 +157,11 @@ export default function StoresPage() {
             <button
               onClick={loadStores}
               disabled={loading}
-              className="text-sm font-medium underline underline-offset-4 hover:text-foreground/80 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2.5 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
             >
+              <span className={`inline-block text-lg ${loading ? "animate-spin" : ""}`}>
+                {loading ? "↻" : "↻"}
+              </span>
               {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>

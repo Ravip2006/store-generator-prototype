@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminHeader from "@/components/AdminHeader";
 
+type Store = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 type OrderItem = {
   id: string;
   productId: string;
@@ -29,6 +35,7 @@ export default function AdminOrdersPage() {
   const apiBase =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
 
+  const [stores, setStores] = useState<Store[]>([]);
   const [slug, setSlug] = useState("green-mart");
 
   const [productId, setProductId] = useState("");
@@ -44,11 +51,43 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingStores, setLoadingStores] = useState(true);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
+
+  // Load stores on mount
+  useEffect(() => {
+    loadStores();
+  }, []);
+
+  // Load orders when slug changes
+  useEffect(() => {
+    if (tenant) {
+      load();
+    }
+  }, [tenant]);
+
+  async function loadStores() {
+    setLoadingStores(true);
+    try {
+      const res = await fetch(`${apiBase}/stores`, { cache: "no-store" });
+      const data = await res.json().catch(() => []);
+      if (res.ok && Array.isArray(data)) {
+        setStores(data);
+        // Set to first store if available
+        if (data.length > 0 && !slug) {
+          setSlug(data[0].slug);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load stores:", e);
+    } finally {
+      setLoadingStores(false);
+    }
+  }
 
   async function load() {
     setLoading(true);
@@ -158,16 +197,30 @@ export default function AdminOrdersPage() {
       <div className="mx-auto w-full max-w-5xl p-6">
         <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
 
-          <form onSubmit={onCreate} className="mt-6 grid gap-3">
-            <label className="grid gap-2">
-              <span className="text-sm text-foreground/70">Store slug</span>
-              <input
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="e.g. green-mart"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
-              />
-            </label>
+          <div className="mb-6">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">📝 Create New Order</h3>
+            <form onSubmit={onCreate} className="grid gap-3">
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-foreground/70">Select Store</span>
+                <select
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  disabled={loadingStores}
+                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/50 disabled:opacity-60"
+                >
+                  {loadingStores ? (
+                    <option>Loading stores...</option>
+                  ) : stores.length === 0 ? (
+                    <option>No stores available</option>
+                  ) : (
+                    stores.map((store) => (
+                      <option key={store.id} value={store.slug}>
+                        {store.name} ({store.slug})
+                      </option>
+                    ))
+                  )}
+                </select>
+              </label>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="grid gap-2">
@@ -252,11 +305,12 @@ export default function AdminOrdersPage() {
             <button
               type="submit"
               disabled={creating}
-              className="mt-1 inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3 text-sm font-bold text-white hover:from-green-600 hover:to-emerald-600 transition-all hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
             >
-              {creating ? "Creating..." : "Create order"}
+              <span>{creating ? "Creating..." : "➕ Create order"}</span>
             </button>
-          </form>
+            </form>
+          </div>
 
           {error && (
             <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
@@ -270,8 +324,11 @@ export default function AdminOrdersPage() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="text-sm font-medium underline underline-offset-4 hover:text-foreground/80 disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2.5 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
             >
+              <span className={`inline-block text-lg ${loading ? "animate-spin" : ""}`}>
+                {loading ? "↻" : "↻"}
+              </span>
               {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>

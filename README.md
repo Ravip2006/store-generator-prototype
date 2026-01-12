@@ -8,6 +8,20 @@ Monorepo with:
 
 Tenant is selected via `x-tenant-id` header (use the store slug, e.g. `green-mart`).
 
+## Environment Management
+
+📚 **Quick Reference:**
+- **Current Setup:** Using production Supabase project for development
+- **Best Practice:** Separate dev and production projects
+- **Quick Start:** See [ENV_QUICK_START.md](ENV_QUICK_START.md)
+- **Detailed Guide:** See [ENV_MANAGEMENT.md](ENV_MANAGEMENT.md)
+
+**Switch Environments:**
+```bash
+./scripts/switch-env.sh development    # Switch to development
+./scripts/switch-env.sh production     # Switch to production
+```
+
 ## Supabase (Postgres + RLS)
 
 1) Create a Supabase project.
