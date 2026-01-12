@@ -1,4 +1,28 @@
 import Link from "next/link";
+import { PostPurchaseAuthPrompt } from "@/components/PostPurchaseAuthPrompt";
+
+function formatPrice(price: number, currency: string = "AUD"): string {
+  const currencySymbols: Record<string, string> = {
+    AUD: "$",
+    USD: "$",
+    INR: "₹",
+    GBP: "£",
+    EUR: "€",
+  };
+  const symbol = currencySymbols[currency] || "$";
+  return `${symbol}${price.toFixed(2)}`;
+}
+
+function getCurrencyForCountry(country: string): string {
+  const countryToCurrency: Record<string, string> = {
+    AU: "AUD",
+    IN: "INR",
+    US: "USD",
+    GB: "GBP",
+    EU: "EUR",
+  };
+  return countryToCurrency[country?.toUpperCase() || "AU"] || "AUD";
+}
 
 type OrderItem = {
   id: string;
@@ -87,10 +111,10 @@ export default async function OrderConfirmationPage({
     `New order ${order!.id}`,
     "",
     ...(order!.items || []).map(
-      (it) => `${it.product?.name || it.productId} x ${it.quantity} (₹${it.unitPrice})`
+      (it) => `${it.product?.name || it.productId} x ${it.quantity} (${formatPrice(it.unitPrice, getCurrencyForCountry(order!.country || "AU"))})`
     ),
     "",
-    `Total: ₹${order!.total}`,
+    `Total: ${formatPrice(order!.total, getCurrencyForCountry(order!.country || "AU"))}`,
     order!.deliverySlot ? `Delivery slot: ${order!.deliverySlot}` : "",
     order!.customerName ? `Name: ${order!.customerName}` : "",
     order!.customerPhone ? `Phone: ${order!.customerPhone}` : "",
@@ -114,7 +138,7 @@ export default async function OrderConfirmationPage({
           <div className="mt-6 rounded-xl border border-foreground/10 p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-foreground/70">Total</span>
-              <span className="text-sm font-semibold">₹{order!.total}</span>
+              <span className="text-sm font-semibold">{formatPrice(order!.total, getCurrencyForCountry(order!.country || "AU"))}</span>
             </div>
             {order!.deliverySlot && (
               <div className="mt-2 flex items-center justify-between">
@@ -135,7 +159,7 @@ export default async function OrderConfirmationPage({
                   {it.product?.name || it.productId}
                 </div>
                 <div className="text-sm text-foreground/70">
-                  × {it.quantity} (₹{it.unitPrice})
+                  × {it.quantity} ({formatPrice(it.unitPrice, getCurrencyForCountry(order!.country || "AU"))})
                 </div>
               </div>
             ))}
@@ -160,6 +184,8 @@ export default async function OrderConfirmationPage({
               </a>
             )}
           </div>
+
+          <PostPurchaseAuthPrompt tenant={tenant} />
         </div>
       </div>
     </main>

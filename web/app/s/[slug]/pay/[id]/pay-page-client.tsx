@@ -4,6 +4,29 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function formatPrice(price: number, currency: string = "AUD"): string {
+  const currencySymbols: Record<string, string> = {
+    AUD: "$",
+    USD: "$",
+    INR: "₹",
+    GBP: "£",
+    EUR: "€",
+  };
+  const symbol = currencySymbols[currency] || "$";
+  return `${symbol}${price.toFixed(2)}`;
+}
+
+function getCurrencyForCountry(country: string): string {
+  const countryToCurrency: Record<string, string> = {
+    AU: "AUD",
+    IN: "INR",
+    US: "USD",
+    GB: "GBP",
+    EU: "EUR",
+  };
+  return countryToCurrency[country?.toUpperCase() || "AU"] || "AUD";
+}
+
 type OrderItem = {
   id: string;
   productId: string;
@@ -18,6 +41,7 @@ type Order = {
   total: number;
   createdAt: string;
   deliverySlot?: string | null;
+  country?: string | null;
   items: OrderItem[];
 };
 
@@ -189,7 +213,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                       <div className="mt-1 text-xs text-foreground/60">Delivery: {order.deliverySlot}</div>
                     ) : null}
                   </div>
-                  <div className="text-sm font-semibold">₹{order.total}</div>
+                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
               </div>
 
@@ -207,7 +231,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                       <tr key={it.id} className="border-t border-foreground/10">
                         <td className="px-4 py-3">{it.product?.name || it.productId}</td>
                         <td className="px-4 py-3">{it.quantity}</td>
-                        <td className="px-4 py-3">₹{it.unitPrice}</td>
+                        <td className="px-4 py-3">{formatPrice(it.unitPrice, getCurrencyForCountry(order.country || "AU"))}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -225,7 +249,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                       {order.items.reduce((s, it) => s + it.quantity, 0) === 1 ? "" : "s"}
                     </div>
                   </div>
-                  <div className="text-sm font-semibold">₹{order.total}</div>
+                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
 
                 <div className="mt-4 grid gap-2">
@@ -235,7 +259,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                     disabled={confirming || cancelling || order.status !== "PENDING_PAYMENT"}
                     className="inline-flex w-full items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-semibold hover:bg-foreground/10 disabled:opacity-60"
                   >
-                    {confirming ? "Paying..." : `Pay ₹${order.total}`}
+                    {confirming ? "Paying..." : `Pay ${formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}`}
                   </button>
                   <button
                     type="button"

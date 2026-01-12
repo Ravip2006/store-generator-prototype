@@ -17,6 +17,7 @@ type Product = {
   discountPercent?: number | null;
   discountPrice?: number | null;
   stock?: number | null;
+  imageUrl?: string | null;
   description?: string | null;
   categoryId: string | null;
   category?: { id: string; name: string } | null;

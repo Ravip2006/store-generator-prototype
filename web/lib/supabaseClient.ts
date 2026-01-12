@@ -31,6 +31,9 @@ export type AuthSession = {
 // Get current user session
 export async function getCurrentUser() {
   try {
+    if (!supabase) {
+      return null;
+    }
     const {
       data: { session },
       error,
@@ -59,6 +62,11 @@ export async function getCurrentUser() {
 // Sign up with email and password
 export async function signUp(email: string, password: string, phone?: string) {
   try {
+    if (!supabase) {
+      throw new Error(
+        "Authentication not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+      );
+    }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -82,38 +90,43 @@ export async function signUp(email: string, password: string, phone?: string) {
 // Sign in with email and password
 export async function signIn(email: string, password: string) {
   try {
+    if (!supabase) {
+      throw new Error(
+        "Authentication not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+      );
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-
     if (error) {
       throw new Error(error.message);
     }
-
-    return data.session;
+    return data.user;
   } catch (error) {
     throw error;
   }
 }
 
-// Sign out
 export async function signOut() {
-  try {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      throw new Error(error.message);
-    }
-  } catch (error) {
-    throw error;
-  }
+  if (!supabase) return;
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new Error(error.message);
 }
 
 // Reset password
 export async function resetPassword(email: string) {
   try {
+    if (!supabase) {
+      throw new Error(
+        "Authentication not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+      );
+    }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
+      redirectTo:
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/reset-password`
+          : undefined,
     });
 
     if (error) {
@@ -127,6 +140,11 @@ export async function resetPassword(email: string) {
 // Update password
 export async function updatePassword(newPassword: string) {
   try {
+    if (!supabase) {
+      throw new Error(
+        "Authentication not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+      );
+    }
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
     });

@@ -1429,6 +1429,125 @@ app.get("/stores", async (req, res) => {
   }
 });
 
+app.patch("/stores/:id", async (req, res) => {
+  const storeId = String(req.params.id || "").trim();
+  if (!storeId) return res.status(400).json({ error: "Missing store id" });
+
+  const { name, phone, themeColor } = req.body || {};
+  const data = {};
+  if (name != null) data.name = String(name).trim();
+  if (phone != null) data.phone = String(phone).trim();
+  if (themeColor != null) data.themeColor = String(themeColor).trim();
+
+  if (!Object.keys(data).length) {
+    return res.status(400).json({ error: "No fields to update" });
+  }
+
+  try {
+    const updateStore = (client) =>
+      client.store.update({
+        where: { id: storeId },
+        data,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          phone: true,
+          themeColor: true,
+          createdAt: true,
+        },
+      });
+
+    let updated;
+    if (prismaAdmin) {
+      try {
+        updated = await updateStore(prismaAdmin);
+      } catch (e) {
+        if (isPrismaAuthError(e)) {
+          console.warn(
+            "[warn] prismaAdmin failed auth; falling back to APP_DATABASE_URL client for PATCH /stores/:id"
+          );
+          updated = await updateStore(prisma);
+        } else {
+          throw e;
+        }
+      }
+    } else {
+      updated = await updateStore(prisma);
+    }
+
+    return res.status(200).json(updated);
+  } catch (e) {
+    if (e?.code === "P2025") return res.status(404).json({ error: "Store not found" });
+    console.error("PATCH /stores/:id failed:", e);
+    if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
+    if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
+    return res.status(500).json({ error: "Failed to update store", details: e?.message || String(e) });
+  }
+});
+
+app.delete("/stores/:id", async (req, res) => {
+  const storeId = String(req.params.id || "").trim();
+  if (!storeId) return res.status(400).json({ error: "Missing store id" });
+
+  try {
+    const deleteStore = async (client) =>
+      client.$transaction(async (tx) => {
+        const orders = await tx.order.findMany({
+          where: { storeId },
+          select: { id: true },
+        });
+        const orderIds = orders.map((o) => o.id);
+
+        if (orderIds.length) {
+          await tx.orderItem.deleteMany({
+            where: { orderId: { in: orderIds } },
+          });
+        }
+
+        await tx.order.deleteMany({ where: { storeId } });
+
+        await tx.storeProductOverride.deleteMany({ where: { storeId } });
+        await tx.category.deleteMany({ where: { storeId } });
+        await tx.customer.deleteMany({ where: { storeId } });
+
+        // Store-owned products: detach ownership so deletion doesn't fail.
+        await tx.catalogProduct.updateMany({
+          where: { ownerStoreId: storeId },
+          data: { ownerStoreId: null },
+        });
+
+        await tx.store.delete({ where: { id: storeId } });
+        return { ok: true };
+      });
+
+    if (prismaAdmin) {
+      try {
+        await deleteStore(prismaAdmin);
+      } catch (e) {
+        if (isPrismaAuthError(e)) {
+          console.warn(
+            "[warn] prismaAdmin failed auth; falling back to APP_DATABASE_URL client for DELETE /stores/:id"
+          );
+          await deleteStore(prisma);
+        } else {
+          throw e;
+        }
+      }
+    } else {
+      await deleteStore(prisma);
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (e) {
+    if (e?.code === "P2025") return res.status(404).json({ error: "Store not found" });
+    console.error("DELETE /stores/:id failed:", e);
+    if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
+    if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
+    return res.status(500).json({ error: "Failed to delete store", details: e?.message || String(e) });
+  }
+});
+
 const isPostgres = true;
 
 function roundMoney(value) {

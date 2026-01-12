@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/authContext";
 import { AuthModal } from "@/components/AuthModal";
@@ -105,9 +106,14 @@ export default function StoreFront({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
   const apiBase =
     process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
+  const router = useRouter();
 
   function cartStorageKey(currentTenant: string) {
     return `storegen:cart:${currentTenant}`;
+  }
+
+  function lastOrderStorageKey(currentTenant: string) {
+    return `storegen:lastOrderId:${currentTenant}`;
   }
 
   function legacyCartStorageKey(currentTenant: string) {
@@ -172,7 +178,7 @@ export default function StoreFront({ slug }: { slug: string }) {
   const [selectedCountry, setSelectedCountry] = useState<string>("AU");
   const [showCountryMenu, setShowCountryMenu] = useState(false);
 
-  const { user, isAuthenticated, signOut } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, signOut } = useAuth();
 
   const previousTenantRef = useRef<string>(tenant);
 
@@ -570,13 +576,6 @@ export default function StoreFront({ slug }: { slug: string }) {
                 Sign In
               </button>
             )}
-
-            <Link
-              href="/"
-              className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5"
-            >
-              Back
-            </Link>
 
             <button
               type="button"
@@ -1114,29 +1113,54 @@ export default function StoreFront({ slug }: { slug: string }) {
                 <div className="space-y-6">
                   <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
                     <div className="text-sm font-semibold">Checkout</div>
-                    <p className="mt-1 text-sm text-foreground/70">
-                      Log in to save details and see your orders, or continue as a guest.
-                    </p>
+
+                    {authLoading ? (
+                      <p className="mt-1 text-sm text-foreground/70">Checking login…</p>
+                    ) : isAuthenticated ? (
+                      <p className="mt-1 text-sm text-foreground/70">
+                        ✅ You’re logged in as <span className="font-semibold">{user?.name || user?.email}</span>. We’ll speed up checkout.
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-sm text-foreground/70">
+                        Continue as guest (recommended) or log in to save details and track orders.
+                      </p>
+                    )}
 
                     <div className="mt-4 grid gap-2">
                       <button
                         type="button"
-                        onClick={() => setAuthModalOpen(true)}
+                        onClick={() => {
+                          setCartPanelOpen(false);
+                          setCartPanelView("cart");
+                          router.push(`/s/${encodeURIComponent(tenant)}/cart`);
+                        }}
                         className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold hover:bg-foreground/5 transition-colors"
                         style={accent ? { backgroundColor: accent, color: "white", borderColor: accent } : undefined}
                       >
-                        Log in
+                        Enter delivery details
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAuthModalOpen(true);
-                          setIsSignUp(true);
-                        }}
-                        className="inline-flex items-center justify-center rounded-xl bg-background px-4 py-3 text-sm font-semibold border border-foreground/15 hover:bg-foreground/5 transition-colors"
-                      >
-                        Sign up
-                      </button>
+
+                      {!authLoading && !isAuthenticated ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setAuthModalOpen(true)}
+                            className="inline-flex items-center justify-center rounded-xl bg-background px-4 py-3 text-sm font-semibold border border-foreground/15 hover:bg-foreground/5 transition-colors"
+                          >
+                            Log in
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAuthModalOpen(true);
+                              setIsSignUp(true);
+                            }}
+                            className="inline-flex items-center justify-center rounded-xl bg-background px-4 py-3 text-sm font-semibold border border-foreground/15 hover:bg-foreground/5 transition-colors"
+                          >
+                            Sign up
+                          </button>
+                        </>
+                      ) : null}
                     </div>
                   </div>
 
@@ -1188,32 +1212,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                     </div>
                   </div>
 
-                  <div className="sticky bottom-0 border-t border-foreground/10 bg-background/90 p-4 sm:p-5 backdrop-blur">
-                    <div className="flex items-center justify-between gap-3 mb-4">
-                      <div className="text-sm font-semibold">Subtotal</div>
-                      <div className="text-sm font-semibold">{formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}</div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Link
-                        href={`/s/${encodeURIComponent(tenant)}/cart`}
-                        onClick={() => {
-                          setCartPanelOpen(false);
-                          setCartPanelView("cart");
-                        }}
-                        className="inline-flex w-full items-center justify-center rounded-lg border border-foreground/15 px-3 py-2 text-xs sm:text-sm font-semibold text-background hover:opacity-90"
-                        style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
-                      >
-                        Checkout
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => setCartPanelView("cart")}
-                        className="inline-flex w-full items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-xs sm:text-sm font-semibold hover:bg-foreground/5"
-                      >
-                        Back
-                      </button>
-                    </div>
-                  </div>
+                  {/* Keep a single CTA in this view (Continue to checkout above). */}
                 </div>
               ) : (
                 <>

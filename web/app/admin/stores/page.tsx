@@ -8,8 +8,8 @@ type Store = {
   id: string;
   slug: string;
   name: string;
-  phone: string;
-  themeColor: string;
+  phone: string | null;
+  themeColor: string | null;
   createdAt: string;
 };
 
@@ -56,7 +56,7 @@ export default function StoresPage() {
     const filtered = stores.filter((store) =>
       store.name.toLowerCase().includes(query.toLowerCase()) ||
       store.slug.toLowerCase().includes(query.toLowerCase()) ||
-      store.phone.toLowerCase().includes(query.toLowerCase())
+      (store.phone || "").toLowerCase().includes(query.toLowerCase())
     );
     setFilteredStores(filtered);
   };
@@ -69,9 +69,9 @@ export default function StoresPage() {
     setEditingId(store.id);
     setEditData({
       id: store.id,
-      name: store.name,
-      phone: store.phone,
-      themeColor: store.themeColor,
+      name: String(store.name || ""),
+      phone: String(store.phone || ""),
+      themeColor: String(store.themeColor || "#000000"),
     });
   }
 
@@ -87,20 +87,33 @@ export default function StoresPage() {
     setError(null);
 
     try {
-      // Find the store's slug
       const store = stores.find((s) => s.id === editData.id);
       if (!store) throw new Error("Store not found");
 
-      const res = await fetch(`${apiBase}/stores`, {
-        method: "POST",
+      const payload = {
+        name: editData.name.trim(),
+        phone: editData.phone.trim(),
+        themeColor: editData.themeColor.trim(),
+      };
+
+      let res = await fetch(`${apiBase}/stores/${encodeURIComponent(editData.id)}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug: store.slug,
-          name: editData.name.trim(),
-          phone: editData.phone.trim(),
-          themeColor: editData.themeColor.trim(),
-        }),
+        body: JSON.stringify(payload),
       });
+
+      // Backwards-compat: if the API server isn't running the new PATCH route yet,
+      // fall back to the existing POST /stores upsert-by-slug.
+      if (res.status === 404 || res.status === 405) {
+        res = await fetch(`${apiBase}/stores`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slug: store.slug,
+            ...payload,
+          }),
+        });
+      }
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -122,10 +135,59 @@ export default function StoresPage() {
         )
       );
 
+      setFilteredStores((prev) =>
+        prev.map((s) =>
+          s.id === editData.id
+            ? {
+                ...s,
+                name: editData.name,
+                phone: editData.phone,
+                themeColor: editData.themeColor,
+              }
+            : s
+        )
+      );
+
       setEditingId(null);
       setEditData(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save store");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteStore(store: Store) {
+    if (saving) return;
+
+    const ok = window.confirm(
+      `Delete store "${store.name}"?\n\nThis may remove store-related data (orders, categories, overrides, customers). This cannot be undone.`
+    );
+    if (!ok) return;
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`${apiBase}/stores/${encodeURIComponent(store.id)}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.error || `Delete failed (${res.status})`);
+        return;
+      }
+
+      setStores((prev) => prev.filter((s) => s.id !== store.id));
+      setFilteredStores((prev) => prev.filter((s) => s.id !== store.id));
+
+      if (editingId === store.id) {
+        setEditingId(null);
+        setEditData(null);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to delete store");
     } finally {
       setSaving(false);
     }
@@ -192,9 +254,12 @@ export default function StoresPage() {
                       <tr key={store.id} className="border-t border-foreground/10 bg-foreground/5">
                         <td className="px-4 py-3">
                           <input
-                            value={editData.name}
+                            autoFocus
+                            value={editData.name ?? ""}
                             onChange={(e) =>
-                              setEditData({ ...editData, name: e.target.value })
+                              setEditData((prev) =>
+                                prev ? { ...prev, name: e.target.value } : prev
+                              )
                             }
                             disabled={saving}
                             className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
@@ -205,9 +270,11 @@ export default function StoresPage() {
                         </td>
                         <td className="px-4 py-3">
                           <input
-                            value={editData.phone}
+                            value={editData.phone ?? ""}
                             onChange={(e) =>
-                              setEditData({ ...editData, phone: e.target.value })
+                              setEditData((prev) =>
+                                prev ? { ...prev, phone: e.target.value } : prev
+                              )
                             }
                             disabled={saving}
                             className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
@@ -216,12 +283,11 @@ export default function StoresPage() {
                         <td className="px-4 py-3">
                           <input
                             type="color"
-                            value={editData.themeColor}
+                            value={editData.themeColor ?? "#000000"}
                             onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                themeColor: e.target.value,
-                              })
+                              setEditData((prev) =>
+                                prev ? { ...prev, themeColor: e.target.value } : prev
+                              )
                             }
                             disabled={saving}
                             className="h-10 w-16 cursor-pointer rounded-lg border border-foreground/15 disabled:opacity-60"
@@ -262,7 +328,7 @@ export default function StoresPage() {
                         <td className="px-4 py-3">
                           <div
                             className="h-6 w-12 rounded-lg border border-foreground/20"
-                            style={{ backgroundColor: store.themeColor }}
+                            style={{ backgroundColor: store.themeColor || "#000000" }}
                           />
                         </td>
                         <td className="px-4 py-3">
@@ -281,6 +347,13 @@ export default function StoresPage() {
                               className="inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
                             >
                               Edit
+                            </button>
+                            <button
+                              onClick={() => void deleteStore(store)}
+                              disabled={editingId !== null || saving}
+                              className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-50 dark:bg-red-600/20 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-600/30 disabled:opacity-60"
+                            >
+                              Delete
                             </button>
                           </div>
                         </td>

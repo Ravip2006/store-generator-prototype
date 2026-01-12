@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/authContext";
+import { AuthModal } from "@/components/AuthModal";
 
 type Product = {
   id: string;
@@ -86,6 +88,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
 
   type Store = { name?: string | null; phone?: string | null; themeColor?: string | null; currency?: string; country?: string };
 
@@ -150,6 +153,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
   const [placing, setPlacing] = useState(false);
   const [placingWhatsApp, setPlacingWhatsApp] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const accent = store?.themeColor || undefined;
   const storeName = store?.name || "Cart";
@@ -333,6 +337,18 @@ export default function CartPageClient({ slug }: { slug: string }) {
     }
   }, [store?.country, country]);
 
+  // Auto-fill user data when authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      if (user.name && !customerName) {
+        setCustomerName(user.name);
+      }
+      if (user.phone && !customerPhone) {
+        setCustomerPhone(user.phone);
+      }
+    }
+  }, [user, authLoading, customerName, customerPhone]);
+
   // Persist cart to localStorage whenever it changes (but not during initial load)
   useEffect(() => {
     if (loadingCart) {
@@ -442,8 +458,16 @@ export default function CartPageClient({ slug }: { slug: string }) {
               </div>
               <div className="min-w-0">
                 <div className="truncate text-lg font-semibold tracking-tight sm:text-xl">{storeName}</div>
-                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
-                  <span>🛒 Shopping Cart</span>
+                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold">
+                  {user ? (
+                    <span className="text-transparent bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text">
+                      ✅ Welcome, {user.name || user.email}!
+                    </span>
+                  ) : (
+                    <span className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
+                      🛒 Shopping Cart
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -564,6 +588,30 @@ export default function CartPageClient({ slug }: { slug: string }) {
                       Clear trolley
                     </button>
                   </div>
+
+                  {!authLoading ? (
+                    user ? (
+                      <div className="mt-3 rounded-2xl border border-foreground/10 bg-foreground/5 p-4 text-sm">
+                        ✅ You’re logged in as <span className="font-semibold">{user.name || user.email}</span>. We’ll use your details to speed up checkout.
+                      </div>
+                    ) : (
+                      <div className="mt-3 rounded-2xl border border-foreground/10 bg-foreground/5 p-4 text-sm">
+                        <div className="font-semibold">Check out faster</div>
+                        <div className="mt-1 text-foreground/70">Log in to save your details and track orders (optional).</div>
+                        <div className="mt-3">
+                          <button
+                            type="button"
+                            onClick={() => setShowAuthModal(true)}
+                            className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm font-semibold hover:bg-foreground/5"
+                            style={accent ? { borderColor: accent, color: accent } : undefined}
+                          >
+                            Log in / Sign up
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  ) : null}
+
                   <div className="mt-3 grid max-w-xl gap-2">
                     <input
                       value={customerName}
@@ -742,6 +790,16 @@ export default function CartPageClient({ slug }: { slug: string }) {
           </aside>
         </div>
       </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+        }}
+        tenant={tenant}
+        initialMode="signin"
+      />
     </main>
   );
 }
