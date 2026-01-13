@@ -104,8 +104,6 @@ function getCurrencyForCountry(country: string): string {
 
 export default function StoreFront({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
 
   function cartStorageKey(currentTenant: string) {
@@ -333,15 +331,15 @@ export default function StoreFront({ slug }: { slug: string }) {
 
     try {
       const [storeRes, categoriesRes, productsRes] = await Promise.all([
-        fetch(`${apiBase}/store`, {
+        fetch(`/api/backend/store`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         }),
-        fetch(`${apiBase}/categories`, {
+        fetch(`/api/backend/categories`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         }),
-        fetch(`${apiBase}/products`, {
+        fetch(`/api/backend/products`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         }),
@@ -364,7 +362,7 @@ export default function StoreFront({ slug }: { slug: string }) {
     } finally {
       setLoading(false);
     }
-  }, [apiBase, tenant]);
+  }, [tenant]);
 
   function whatsappPhone(): string | null {
     const raw = store?.phone || "";

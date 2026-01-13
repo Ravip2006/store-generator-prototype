@@ -14,6 +14,8 @@ model Store {
   name       String
   phone      String
   themeColor String    @default("#0A7C2F")
+  currency   String    @default("AUD")
+  country    String    @default("AU")
   logoUrl    String?
   createdAt  DateTime  @default(now())
 

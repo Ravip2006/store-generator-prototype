@@ -32,9 +32,6 @@ type Order = {
 };
 
 export default function AdminOrdersPage() {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [stores, setStores] = useState<Store[]>([]);
   const [slug, setSlug] = useState("green-mart");
 
@@ -73,7 +70,7 @@ export default function AdminOrdersPage() {
   async function loadStores() {
     setLoadingStores(true);
     try {
-      const res = await fetch(`${apiBase}/stores`, { cache: "no-store" });
+      const res = await fetch(`/api/stores`, { cache: "no-store" });
       const data = await res.json().catch(() => []);
       if (res.ok && Array.isArray(data)) {
         setStores(data);
@@ -94,7 +91,7 @@ export default function AdminOrdersPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/orders`, {
+      const res = await fetch(`/api/backend/orders`, {
         headers: { "x-tenant-id": tenant },
         cache: "no-store",
       });
@@ -153,7 +150,7 @@ export default function AdminOrdersPage() {
     };
 
     try {
-      const res = await fetch(`${apiBase}/orders`, {
+      const res = await fetch(`/api/backend/orders`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

@@ -13,6 +13,6 @@ export default defineConfig({
     // Use DATABASE_URL for migrations. If hanging, try:
     // 1. Use Supabase direct connection (db.<project_ref>.supabase.co:5432) in DIRECT_URL
     // 2. Or add ?statement_timeout=30000 to DATABASE_URL
-    url: process.env["DATABASE_URL"],
+    url: process.env["DIRECT_URL"] || process.env["DATABASE_URL"],
   },
 });

@@ -27,7 +27,6 @@ type Order = {
 
 export default function MyOrdersPageClient({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
 
@@ -54,7 +53,7 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
 
       try {
         const res = await fetch(
-          `${apiBase}/customers/by-email/${encodeURIComponent(user.email)}/orders`,
+          `/api/backend/customers/by-email/${encodeURIComponent(user.email)}/orders`,
           {
             headers: { "x-tenant-id": tenant },
             cache: "no-store",
@@ -81,7 +80,7 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
     return () => {
       cancelled = true;
     };
-  }, [user?.email, isAuthenticated, apiBase, tenant]);
+  }, [user?.email, isAuthenticated, tenant]);
 
   // Buy Again: Add all items from an order to the cart
   const buyAgain = (order: Order) => {

@@ -86,7 +86,6 @@ function getCurrencyForCountry(country: string): string {
 
 export default function CartPageClient({ slug }: { slug: string }) {
   const tenant = slug.trim().toLowerCase();
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
@@ -316,7 +315,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${apiBase}/store`, {
+        const res = await fetch(`/api/backend/store`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         });
@@ -329,7 +328,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
     return () => {
       cancelled = true;
     };
-  }, [apiBase, tenant]);
+  }, [tenant]);
 
   useEffect(() => {
     if (store?.country && !country) {
@@ -382,7 +381,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
     else setPlacing(true);
 
     try {
-      const res = await fetch(`${apiBase}/orders`, {
+      const res = await fetch(`/api/backend/orders`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

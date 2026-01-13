@@ -48,7 +48,6 @@ type Order = {
 export default function PayPageClient({ slug, id }: { slug: string; id: string }) {
   const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
   const orderId = useMemo(() => String(id || "").trim(), [id]);
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const router = useRouter();
 
   const [order, setOrder] = useState<Order | null>(null);
@@ -71,7 +70,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${apiBase}/orders/${encodeURIComponent(orderId)}`, {
+        const res = await fetch(`/api/backend/orders/${encodeURIComponent(orderId)}`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         });
@@ -95,13 +94,13 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
     return () => {
       cancelled = true;
     };
-  }, [apiBase, tenant, orderId]);
+  }, [tenant, orderId]);
 
   async function onConfirm() {
     setConfirming(true);
     setError(null);
     try {
-      const res = await fetch(`${apiBase}/orders/${encodeURIComponent(orderId)}/confirm`, {
+      const res = await fetch(`/api/backend/orders/${encodeURIComponent(orderId)}/confirm`, {
         method: "POST",
         headers: { "x-tenant-id": tenant },
       });
@@ -140,7 +139,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
     setCancelling(true);
     setError(null);
     try {
-      const res = await fetch(`${apiBase}/orders/${encodeURIComponent(orderId)}/cancel`, {
+      const res = await fetch(`/api/backend/orders/${encodeURIComponent(orderId)}/cancel`, {
         method: "POST",
         headers: { "x-tenant-id": tenant },
       });

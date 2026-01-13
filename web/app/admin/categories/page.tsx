@@ -10,9 +10,6 @@ type Category = {
 };
 
 export default function AdminCategoriesPage() {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [stores, setStores] = useState<Array<{ id: string; name: string; slug: string }>>([]);
   const [slug, setSlug] = useState("green-mart");
   const [loadingStores, setLoadingStores] = useState(false);
@@ -30,7 +27,7 @@ export default function AdminCategoriesPage() {
     const fetchStores = async () => {
       setLoadingStores(true);
       try {
-        const res = await fetch(`${apiBase}/debug/stores`, { cache: "no-store" });
+        const res = await fetch("/api/debug/stores", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setStores(Array.isArray(data.stores) ? data.stores : []);
@@ -42,14 +39,14 @@ export default function AdminCategoriesPage() {
       }
     };
     fetchStores();
-  }, [apiBase]);
+  }, []);
 
   async function load() {
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/categories`, {
+      const res = await fetch(`/api/backend/categories`, {
         headers: { "x-tenant-id": tenant },
         cache: "no-store",
       });
@@ -83,7 +80,7 @@ export default function AdminCategoriesPage() {
     }
 
     try {
-      const res = await fetch(`${apiBase}/categories`, {
+      const res = await fetch(`/api/backend/categories`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

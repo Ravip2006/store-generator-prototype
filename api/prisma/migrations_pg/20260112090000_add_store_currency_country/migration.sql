@@ -1,0 +1,4 @@
+-- Add currency/country to Store
+ALTER TABLE "Store"
+  ADD COLUMN IF NOT EXISTS "currency" TEXT NOT NULL DEFAULT 'AUD',
+  ADD COLUMN IF NOT EXISTS "country"  TEXT NOT NULL DEFAULT 'AU';

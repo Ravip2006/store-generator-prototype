@@ -28,8 +28,6 @@ type Product = {
 };
 
 export default function AdminProductsPage() {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
   const imageBucket = process.env.NEXT_PUBLIC_SUPABASE_PRODUCT_IMAGES_BUCKET || "product-images";
 
   const [stores, setStores] = useState<Array<{ id: string; name: string; slug: string }>>([]);
@@ -82,7 +80,7 @@ export default function AdminProductsPage() {
     const fetchStores = async () => {
       setLoadingStores(true);
       try {
-        const res = await fetch(`${apiBase}/debug/stores`, { cache: "no-store" });
+        const res = await fetch("/api/debug/stores", { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setStores(Array.isArray(data.stores) ? data.stores : []);
@@ -94,7 +92,7 @@ export default function AdminProductsPage() {
       }
     };
     fetchStores();
-  }, [apiBase]);
+  }, []);
 
   // Helper: Calculate sale price from discount percentage
   function calculateSalePrice(regularPrice: number, discountPercent: number | string): number | null {
@@ -118,11 +116,11 @@ export default function AdminProductsPage() {
 
     try {
       const [catsRes, prodRes] = await Promise.all([
-        fetch(`${apiBase}/categories`, {
+        fetch(`/api/backend/categories`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         }),
-        fetch(`${apiBase}/products`, {
+        fetch(`/api/backend/products`, {
           headers: { "x-tenant-id": tenant },
           cache: "no-store",
         }),
@@ -220,7 +218,7 @@ export default function AdminProductsPage() {
     if (cleanImageUrl) payload.imageUrl = cleanImageUrl;
 
     try {
-      const res = await fetch(`${apiBase}/products`, {
+      const res = await fetch(`/api/backend/products`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -305,7 +303,7 @@ export default function AdminProductsPage() {
 
     setCreatingCategory(true);
     try {
-      const res = await fetch(`${apiBase}/categories`, {
+      const res = await fetch(`/api/backend/categories`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -335,7 +333,7 @@ export default function AdminProductsPage() {
 
     try {
       const payload = { categoryId: categoryId || null };
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -369,7 +367,7 @@ export default function AdminProductsPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/make-global`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}/make-global`, {
         method: "POST",
         headers: {
           "x-tenant-id": tenant,
@@ -395,7 +393,7 @@ export default function AdminProductsPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/set-active`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}/set-active`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -431,7 +429,7 @@ export default function AdminProductsPage() {
         return;
       }
 
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/stock`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}/stock`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -467,7 +465,7 @@ export default function AdminProductsPage() {
         return;
       }
 
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -524,7 +522,7 @@ export default function AdminProductsPage() {
         payload.discountPercent = pct;
       }
 
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}` , {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}` , {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -557,7 +555,7 @@ export default function AdminProductsPage() {
     try {
       const description = (descriptionDraftById[productId] ?? "").trim();
 
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}`, {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
@@ -588,7 +586,7 @@ export default function AdminProductsPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/ai-description`, {
+      const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}/ai-description`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -689,7 +687,7 @@ export default function AdminProductsPage() {
 
         // Save the description
         try {
-          const res = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}`, {
+          const res = await fetch(`/api/backend/products/${encodeURIComponent(productId)}`, {
             method: "PATCH",
             headers: {
               "content-type": "application/json",
@@ -734,7 +732,7 @@ export default function AdminProductsPage() {
 
     try {
       // First, verify GS1 is available
-      const checkRes = await fetch(`${apiBase}/gs1/search/gtin?gtin=${encodeURIComponent(gtin)}`);
+      const checkRes = await fetch(`/api/backend/gs1/search/gtin?gtin=${encodeURIComponent(gtin)}`);
       
       if (checkRes.status === 501) {
         setError("GS1 lookup not configured (missing GS1_API_KEY in server)");
@@ -748,7 +746,7 @@ export default function AdminProductsPage() {
       }
 
       // Now link the product to GS1
-      const linkRes = await fetch(`${apiBase}/products/${encodeURIComponent(productId)}/gs1-lookup`, {
+      const linkRes = await fetch(`/api/backend/products/${encodeURIComponent(productId)}/gs1-lookup`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -785,7 +783,7 @@ export default function AdminProductsPage() {
     setNotice(null);
 
     try {
-      const res = await fetch(`${apiBase}/catalog/onboard`, {
+      const res = await fetch(`/api/backend/catalog/onboard`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

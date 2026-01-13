@@ -12,9 +12,6 @@ type Customer = {
 };
 
 export default function AdminCustomersPage() {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [slug, setSlug] = useState("green-mart");
   const [name, setName] = useState("Test Customer");
   const [phone, setPhone] = useState("9999999999");
@@ -34,7 +31,7 @@ export default function AdminCustomersPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/customers`, {
+      const res = await fetch(`/api/backend/customers`, {
         headers: { "x-tenant-id": tenant },
         cache: "no-store",
       });
@@ -86,7 +83,7 @@ export default function AdminCustomersPage() {
     };
 
     try {
-      const res = await fetch(`${apiBase}/customers`, {
+      const res = await fetch(`/api/backend/customers`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

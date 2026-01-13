@@ -450,6 +450,122 @@ app.post('/catalog/onboard', async (req, res) => {
   }
 });
 
+// --- Global catalog lookup/upsert by GTIN (EAN-13)
+// GET /catalog/by-gtin/:gtin
+// Returns the first matching global catalog product (if any)
+app.get('/catalog/by-gtin/:gtin', async (req, res) => {
+  try {
+    const raw = String(req.params.gtin || '').trim();
+    const gtin = raw.replace(/\D/g, '');
+    if (!gtin) return res.status(400).json({ error: 'gtin is required' });
+
+    const client = prismaAdmin || prisma;
+    const product = await client.catalogProduct.findFirst({
+      where: { gtin, isGlobal: true },
+      select: {
+        id: true,
+        name: true,
+        basePrice: true,
+        imageUrl: true,
+        description: true,
+        gtin: true,
+        brand: true,
+        isBrandedFMCG: true,
+        createdAt: true,
+      },
+    });
+
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    return res.json({ product });
+  } catch (e) {
+    console.error('GET /catalog/by-gtin/:gtin failed:', e);
+    if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
+    if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
+    return res.status(500).json({ error: 'Failed to lookup catalog product', details: e?.message || String(e) });
+  }
+});
+
+// POST /catalog/by-gtin
+// Body: { gtin: string, name: string, imageUrl?: string, brand?: string }
+// Upserts a GLOBAL catalog product. Requires prismaAdmin (DATABASE_URL) to bypass RLS.
+app.post('/catalog/by-gtin', async (req, res) => {
+  try {
+    if (!prismaAdmin) {
+      return res
+        .status(503)
+        .json({ error: 'Global master update requires DATABASE_URL (admin client) to bypass RLS' });
+    }
+
+    const rawGtin = String(req.body?.gtin || '').trim();
+    const gtin = rawGtin.replace(/\D/g, '');
+    const name = String(req.body?.name || '').trim();
+    const imageUrl = req.body?.imageUrl == null ? null : String(req.body?.imageUrl).trim();
+    const brand = req.body?.brand == null ? null : String(req.body?.brand).trim();
+
+    if (!gtin) return res.status(400).json({ error: 'gtin is required' });
+    if (!name) return res.status(400).json({ error: 'name is required' });
+
+    // Best-effort: update existing by GTIN, else create.
+    const existing = await prismaAdmin.catalogProduct.findFirst({
+      where: { gtin },
+      select: { id: true },
+    });
+
+    const product = existing
+      ? await prismaAdmin.catalogProduct.update({
+          where: { id: existing.id },
+          data: {
+            name,
+            isGlobal: true,
+            ...(imageUrl ? { imageUrl } : {}),
+            ...(brand ? { brand } : {}),
+          },
+          select: {
+            id: true,
+            name: true,
+            basePrice: true,
+            imageUrl: true,
+            description: true,
+            gtin: true,
+            brand: true,
+            isBrandedFMCG: true,
+            createdAt: true,
+          },
+        })
+      : await prismaAdmin.catalogProduct.create({
+          data: {
+            gtin,
+            name,
+            basePrice: 0,
+            imageUrl: imageUrl || null,
+            brand: brand || null,
+            isGlobal: true,
+            isActive: true,
+            stock: 0,
+          },
+          select: {
+            id: true,
+            name: true,
+            basePrice: true,
+            imageUrl: true,
+            description: true,
+            gtin: true,
+            brand: true,
+            isBrandedFMCG: true,
+            createdAt: true,
+          },
+        });
+
+    return res.status(existing ? 200 : 201).json({ product });
+  } catch (e) {
+    if (e?.code === 'P2002') return res.status(409).json({ error: 'GTIN already exists' });
+    console.error('POST /catalog/by-gtin failed:', e);
+    if (isPgTlsChainError(e)) return respondPgTlsChainError(res, e);
+    if (isPrismaAuthError(e)) return respondPrismaAuthError(res, e);
+    return res.status(500).json({ error: 'Failed to upsert global catalog product', details: e?.message || String(e) });
+  }
+});
+
 // --- Inventory management (admin-friendly)
 // Updates stock for a product.
 // Body:
@@ -1339,26 +1455,78 @@ app.post("/stores", async (req, res) => {
 
     const cleanSlug = String(slug).trim().toLowerCase();
 
+    const storeSelectSafe = {
+      id: true,
+      slug: true,
+      name: true,
+      phone: true,
+      themeColor: true,
+      createdAt: true,
+    };
+
+    const updateWithCurrency = {
+      name: String(name).trim(),
+      phone: String(phone).trim(),
+      themeColor: String(themeColor || "#D4AF37").trim(),
+      currency: String(currency || "AUD").toUpperCase().trim(),
+      country: String(country || "AU").toUpperCase().trim(),
+    };
+
+    const createWithCurrency = {
+      slug: cleanSlug,
+      name: String(name).trim(),
+      phone: String(phone).trim(),
+      themeColor: String(themeColor || "#D4AF37").trim(),
+      currency: String(currency || "AUD").toUpperCase().trim(),
+      country: String(country || "AU").toUpperCase().trim(),
+    };
+
     // Admin operation: creating/updating stores should bypass RLS.
     // Use prismaAdmin when available; otherwise fall back to prisma (will require RLS policies).
-    const store = await (prismaAdmin || prisma).store.upsert({
-      where: { slug: cleanSlug },
-      update: {
-        name: String(name).trim(),
-        phone: String(phone).trim(),
-        themeColor: String(themeColor || "#D4AF37").trim(),
-        currency: String(currency || "AUD").toUpperCase().trim(),
-        country: String(country || "AU").toUpperCase().trim(),
-      },
-      create: {
-        slug: cleanSlug,
-        name: String(name).trim(),
-        phone: String(phone).trim(),
-        themeColor: String(themeColor || "#D4AF37").trim(),
-        currency: String(currency || "AUD").toUpperCase().trim(),
-        country: String(country || "AU").toUpperCase().trim(),
-      },
-    });
+    let store;
+    try {
+      store = await (prismaAdmin || prisma).store.upsert({
+        where: { slug: cleanSlug },
+        update: updateWithCurrency,
+        create: createWithCurrency,
+        select: storeSelectSafe,
+      });
+    } catch (e) {
+      const message = String(e?.message || "");
+      const missingCurrency =
+        /column\s+"?currency"?\s+does\s+not\s+exist/i.test(message) ||
+        /column\s+`currency`\s+does\s+not\s+exist/i.test(message) ||
+        /unknown\s+argument\s+`?currency`?/i.test(message) ||
+        (message.toLowerCase().includes("currency") && message.toLowerCase().includes("does not exist"));
+      const missingCountry =
+        /column\s+"?country"?\s+does\s+not\s+exist/i.test(message) ||
+        /column\s+`country`\s+does\s+not\s+exist/i.test(message) ||
+        /unknown\s+argument\s+`?country`?/i.test(message) ||
+        (message.toLowerCase().includes("country") && message.toLowerCase().includes("does not exist"));
+
+      if (missingCurrency || missingCountry) {
+        console.warn(
+          "[warn] Store table missing currency/country columns; retrying without them. Apply latest migrations to persist these fields.",
+          message
+        );
+
+        const updateFallback = { ...updateWithCurrency };
+        const createFallback = { ...createWithCurrency };
+        delete updateFallback.currency;
+        delete createFallback.currency;
+        delete updateFallback.country;
+        delete createFallback.country;
+
+        store = await (prismaAdmin || prisma).store.upsert({
+          where: { slug: cleanSlug },
+          update: updateFallback,
+          create: createFallback,
+          select: storeSelectSafe,
+        });
+      } else {
+        throw e;
+      }
+    }
 
     // Auto-seed store categories from the master taxonomy so every store starts
     // with a consistent baseline, while remaining store-specific.

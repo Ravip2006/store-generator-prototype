@@ -21,8 +21,6 @@ type EditingStore = {
 };
 
 export default function StoresPage() {
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [stores, setStores] = useState<Store[]>([]);
   const [filteredStores, setFilteredStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +34,7 @@ export default function StoresPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${apiBase}/stores`, { cache: "no-store" });
+      const res = await fetch(`/api/stores`, { cache: "no-store" });
       if (!res.ok) throw new Error(`Failed to load stores (${res.status})`);
       const data = await res.json();
       const storesList = Array.isArray(data) ? data : [];
@@ -96,7 +94,7 @@ export default function StoresPage() {
         themeColor: editData.themeColor.trim(),
       };
 
-      let res = await fetch(`${apiBase}/stores/${encodeURIComponent(editData.id)}`, {
+      let res = await fetch(`/api/stores/${encodeURIComponent(editData.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -105,7 +103,7 @@ export default function StoresPage() {
       // Backwards-compat: if the API server isn't running the new PATCH route yet,
       // fall back to the existing POST /stores upsert-by-slug.
       if (res.status === 404 || res.status === 405) {
-        res = await fetch(`${apiBase}/stores`, {
+        res = await fetch(`/api/stores`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -169,7 +167,7 @@ export default function StoresPage() {
     setError(null);
 
     try {
-      const res = await fetch(`${apiBase}/stores/${encodeURIComponent(store.id)}`, {
+      const res = await fetch(`/api/stores/${encodeURIComponent(store.id)}`, {
         method: "DELETE",
       });
 

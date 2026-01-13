@@ -12,9 +12,6 @@ interface DashboardStats {
 }
 
 export default function AdminDashboard() {
-  const apiBase =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [stats, setStats] = useState<DashboardStats>({
     stores: 0,
     products: 0,
@@ -26,7 +23,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch(`${apiBase}/admin/stats`);
+        const response = await fetch("/api/admin/stats", { cache: "no-store" });
         if (response.ok) {
           const data = await response.json();
           setStats(data);
@@ -38,7 +35,7 @@ export default function AdminDashboard() {
       }
     };
     fetchStats();
-  }, [apiBase]);
+  }, []);
 
   const statCards = [
     {

@@ -167,8 +167,6 @@ export default function ProductPageClient({
   const productId = String(product.id);
   const [cart, setCart] = useState<Record<string, CartLine>>({});
 
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:3001";
-
   const [description, setDescription] = useState<string>(
     String(product.description || "").trim()
   );
