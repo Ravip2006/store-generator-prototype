@@ -121,7 +121,7 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-background dark:to-foreground/5">
       {/* Navigation Bar */}
       <nav className="sticky top-0 z-50 border-b border-slate-200/50 dark:border-foreground/10 bg-white/80 dark:bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/admin" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold">
               A
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
       </nav>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-6 py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
         {/* Admin Header */}
         <AdminHeader
           title="Dashboard"

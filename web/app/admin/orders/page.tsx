@@ -191,7 +191,7 @@ export default function AdminOrdersPage() {
         showSearch={true}
       />
 
-      <div className="mx-auto w-full max-w-5xl p-6">
+      <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:p-6">
         <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
 
           <div className="mb-6">
@@ -335,8 +335,8 @@ export default function AdminOrdersPage() {
           ) : filteredOrders.length === 0 ? (
             <p className="mt-4 text-sm text-foreground/80">No orders match your search.</p>
           ) : (
-            <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
-              <table className="w-full border-collapse text-left text-sm">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-foreground/10">
+              <table className="min-w-[900px] w-full border-collapse text-left text-sm">
                 <thead className="bg-foreground/5">
                   <tr>
                     <th className="px-4 py-3 font-medium">Order</th>

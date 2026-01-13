@@ -35,10 +35,10 @@ export default function AdminHeader({
 
   return (
     <div className="border-b border-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 bg-gradient-to-br from-background via-background/95 to-background/90 shadow-lg shadow-blue-500/5">
-      <div className="mx-auto w-full max-w-6xl px-6 py-6">
+      <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
         {/* Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground/70">
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground/70">
             <Link href="/admin" className="rounded-lg px-3 py-1.5 font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 hover:bg-gradient-to-r hover:shadow-lg transition-all duration-300">
               Admin
             </Link>
@@ -61,15 +61,15 @@ export default function AdminHeader({
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              {icon && <span className="text-4xl drop-shadow-lg">{icon}</span>}
+              {icon && <span className="text-3xl sm:text-4xl drop-shadow-lg">{icon}</span>}
               <div>
-                <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
+                <h1 className="text-2xl sm:text-4xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent drop-shadow-lg">
                   {title}
                 </h1>
               </div>
             </div>
             {description && (
-              <p className="mt-2 text-sm font-semibold text-foreground/70 ml-16">{description}</p>
+              <p className="mt-2 text-sm font-semibold text-foreground/70 sm:ml-16">{description}</p>
             )}
           </div>
 
