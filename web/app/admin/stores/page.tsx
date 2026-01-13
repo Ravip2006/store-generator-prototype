@@ -296,15 +296,17 @@ export default function StoresPage() {
                             <button
                               onClick={saveEdit}
                               disabled={saving}
-                              className="inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-blue-500/30 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 hover:border-blue-500/40 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/30 disabled:opacity-60 dark:bg-blue-600/15 dark:text-blue-300 dark:hover:bg-blue-600/25"
                             >
+                              <span aria-hidden>✓</span>
                               {saving ? "Saving..." : "Save"}
                             </button>
                             <button
                               onClick={cancelEdit}
                               disabled={saving}
-                              className="inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-semibold hover:bg-foreground/5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/20 disabled:opacity-60"
                             >
+                              <span aria-hidden>↩</span>
                               Cancel
                             </button>
                           </div>
@@ -335,22 +337,25 @@ export default function StoresPage() {
                               href={`/s/${store.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center rounded-lg border border-green-500/30 bg-green-50 dark:bg-green-600/20 px-3 py-2 text-sm font-medium text-green-700 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-600/30"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 hover:border-emerald-500/40 hover:shadow-md hover:shadow-emerald-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 dark:bg-emerald-600/15 dark:text-emerald-300 dark:hover:bg-emerald-600/25"
                             >
+                              <span aria-hidden>↗</span>
                               Open
                             </Link>
                             <button
                               onClick={() => startEdit(store)}
                               disabled={editingId !== null}
-                              className="inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md hover:shadow-slate-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/20 disabled:opacity-60 dark:bg-background dark:border-foreground/15 dark:text-foreground dark:hover:bg-foreground/5"
                             >
+                              <span aria-hidden>✎</span>
                               Edit
                             </button>
                             <button
                               onClick={() => void deleteStore(store)}
                               disabled={editingId !== null || saving}
-                              className="inline-flex items-center justify-center rounded-lg border border-red-500/30 bg-red-50 dark:bg-red-600/20 px-3 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-600/30 disabled:opacity-60"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100 hover:border-red-500/40 hover:shadow-md hover:shadow-red-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/30 disabled:opacity-60 dark:bg-red-600/15 dark:text-red-300 dark:hover:bg-red-600/25"
                             >
+                              <span aria-hidden>🗑</span>
                               Delete
                             </button>
                           </div>
