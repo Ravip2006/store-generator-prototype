@@ -786,11 +786,11 @@ export default function StoreFront({ slug }: { slug: string }) {
                       </p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredProducts.slice(0, productsToShow).map((p) => (
                         <div
                           key={p.id}
-                          className="group overflow-hidden rounded-2xl border border-foreground/10 bg-background hover:bg-foreground/5"
+                          className="group overflow-hidden rounded-2xl border border-foreground/10 bg-background hover:bg-foreground/5 focus-within:ring-2 focus-within:ring-foreground/10"
                         >
                         <Link
                           href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
@@ -814,7 +814,7 @@ export default function StoreFront({ slug }: { slug: string }) {
 
                           <div className="p-4 pb-3">
                             <div className="min-w-0">
-                              <div className="truncate text-sm font-semibold">{p.name}</div>
+                              <div className="text-sm font-semibold leading-snug sm:truncate">{p.name}</div>
                               <div className="mt-1 flex flex-wrap items-center gap-2">
                                 <span className="text-sm font-semibold">{formatPrice(p.price, getCurrencyForCountry(selectedCountry))}</span>
                                 {p.category?.name && (
@@ -833,22 +833,22 @@ export default function StoreFront({ slug }: { slug: string }) {
                         <div className="px-4 pb-4">
                           <div className="flex items-center justify-center gap-2">
                             {quantityInCart(p.id) > 0 ? (
-                              <div className="inline-flex items-center gap-2 rounded-lg border border-foreground/15 bg-background px-2 py-2">
+                              <div className="flex w-full items-center justify-between gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2">
                                 <button
                                   type="button"
                                   onClick={() => removeFromCart(p.id)}
-                                  className="rounded-lg border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
+                                  className="min-h-10 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-base font-semibold hover:bg-foreground/5"
                                   style={accent ? { borderColor: accent, color: accent } : undefined}
                                 >
                                   −
                                 </button>
-                                <span className="min-w-6 text-center text-sm font-semibold">
+                                <span className="min-w-10 text-center text-sm font-semibold">
                                   {quantityInCart(p.id)}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => addToCart(p)}
-                                  className="rounded-lg border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
+                                  className="min-h-10 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-base font-semibold hover:bg-foreground/5"
                                   style={accent ? { borderColor: accent, color: accent } : undefined}
                                 >
                                   +
@@ -858,10 +858,9 @@ export default function StoreFront({ slug }: { slug: string }) {
                               <button
                                 type="button"
                                 onClick={() => addToCart(p)}
-                                className="inline-flex items-center justify-center gap-2 rounded-lg font-bold py-2 px-5 text-sm transition-all hover:shadow-md active:scale-95"
-                                style={accent ? { backgroundColor: accent, color: "white" } : { backgroundColor: "#0A7C2F", color: "white" }}
+                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-background transition hover:opacity-90 active:scale-95"
+                                style={accent ? { backgroundColor: accent } : undefined}
                               >
-                                <span>🛒</span>
                                 <span>Add to Cart</span>
                               </button>
                             )}

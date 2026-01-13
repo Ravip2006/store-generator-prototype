@@ -273,7 +273,7 @@ export default function ProductPageClient({
   return (
     <main className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 border-b border-foreground/10 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-6 py-4">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
@@ -282,7 +282,7 @@ export default function ProductPageClient({
               >
                 <span className="text-background">{logoText}</span>
               </div>
-              <div className="truncate text-lg font-semibold tracking-tight">{store.name}</div>
+              <div className="truncate text-base font-semibold tracking-tight sm:text-lg">{store.name}</div>
             </div>
             <div className="mt-1 text-xs text-foreground/60 truncate">
               {product.category?.name ? product.category.name : "Product"}
@@ -311,7 +311,7 @@ export default function ProductPageClient({
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-5xl p-6">
+      <div className="mx-auto w-full max-w-5xl p-4 sm:p-6">
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
           <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-background shadow-sm">
             <div className="aspect-[4/3] w-full border-b border-foreground/10 bg-foreground/5">
@@ -330,7 +330,7 @@ export default function ProductPageClient({
               )}
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm font-semibold">Product description</div>
               </div>
