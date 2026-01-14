@@ -46,31 +46,36 @@ export default function AdminHeader({
 
       <div className="relative mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
         {/* Breadcrumbs */}
-        {breadcrumbs && breadcrumbs.length > 0 && (
-          <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground/70">
-            <Link
-              href="/admin"
-              className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent hover:from-green-700 hover:to-emerald-700 transition-all"
-            >
-              Admin
-            </Link>
-            {breadcrumbs.map((crumb, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <span className="text-foreground/40">/</span>
-                {crumb.href ? (
-                  <Link
-                    href={crumb.href}
-                    className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent hover:from-green-700 hover:to-emerald-700 transition-all"
-                  >
-                    {crumb.label}
-                  </Link>
-                ) : (
-                  <span className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{crumb.label}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mb-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground/70">
+          <Link
+            href="/"
+            className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent hover:from-green-700 hover:to-emerald-700 transition-all"
+          >
+            Home
+          </Link>
+          <span className="text-foreground/40">/</span>
+          <Link
+            href="/admin"
+            className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent hover:from-green-700 hover:to-emerald-700 transition-all"
+          >
+            Admin
+          </Link>
+          {breadcrumbs?.map((crumb, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className="text-foreground/40">/</span>
+              {crumb.href ? (
+                <Link
+                  href={crumb.href}
+                  className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent hover:from-green-700 hover:to-emerald-700 transition-all"
+                >
+                  {crumb.label}
+                </Link>
+              ) : (
+                <span className="rounded-lg px-3 py-1.5 font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{crumb.label}</span>
+              )}
+            </div>
+          ))}
+        </div>
 
         {/* Header Content */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
