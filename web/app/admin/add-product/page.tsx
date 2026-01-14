@@ -537,7 +537,7 @@ export default function AddProductPage() {
   const previewUrl = `http://localhost:3000/s/${tenant}`;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <AdminHeader
         title="Add Product"
         description="Create a new product in your store"
@@ -548,10 +548,10 @@ export default function AddProductPage() {
       <div className="mx-auto w-full max-w-3xl p-6">
         <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
           <form onSubmit={onSubmit} className="grid gap-4">
-            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-200/30">
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-green-200/40 dark:border-green-500/20">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Select Store</span>
-                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-blue-600/20 text-blue-600">
+                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-green-600/15 text-emerald-700 dark:bg-green-500/20 dark:text-emerald-300">
                   {slug ? "Active" : "Required"}
                 </span>
               </div>
@@ -565,7 +565,7 @@ export default function AddProductPage() {
                 <select
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full rounded-xl border-2 border-blue-200/50 bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-300/50 hover:border-blue-300/70 transition-all"
+                  className="w-full rounded-xl border-2 border-green-200/60 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 hover:border-emerald-300/70 transition-all"
                 >
                   {stores.map((store) => (
                     <option key={store.id} value={store.slug}>
@@ -576,7 +576,7 @@ export default function AddProductPage() {
               )}
               <span className="text-xs text-foreground/60">
                 Preview:{" "}
-                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-blue-600 hover:text-blue-700">
+                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200">
                   {previewUrl}
                 </a>
               </span>
@@ -680,7 +680,7 @@ export default function AddProductPage() {
                   type="button"
                   onClick={onUploadImage}
                   disabled={uploadingImage || !imageFile}
-                  className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 font-medium disabled:opacity-60 transition-all"
+                  className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 font-medium disabled:opacity-60 transition-all"
                 >
                   {uploadingImage ? "Uploading..." : "Upload"}
                 </button>
@@ -724,7 +724,7 @@ export default function AddProductPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-4 py-3 text-sm font-bold text-white hover:from-blue-700 hover:to-purple-700 disabled:opacity-60 transition-all"
+              className="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-sm font-bold text-white hover:from-green-700 hover:to-emerald-700 disabled:opacity-60 transition-all"
             >
               {loading ? "Adding..." : "Add product"}
             </button>
@@ -742,7 +742,7 @@ export default function AddProductPage() {
               <pre className="mt-2 overflow-auto text-xs bg-white p-3 rounded-lg border border-green-200">{JSON.stringify(result, null, 2)}</pre>
               <p className="mt-3 text-sm">
                 View store:{" "}
-                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-blue-600 hover:text-blue-700">
+                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200">
                   {previewUrl}
                 </a>
               </p>

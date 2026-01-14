@@ -814,7 +814,7 @@ export default function AdminProductsPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <AdminHeader
         title="Products"
         description="Create, edit, and manage products with pricing, inventory, and GS1 integration"
@@ -833,10 +833,10 @@ export default function AdminProductsPage() {
           </div>
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
-            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-200/30 dark:border-blue-500/20">
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-green-200/40 dark:border-green-500/20">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Select Store</span>
-                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-blue-600/20 text-blue-600 dark:bg-blue-500/30 dark:text-blue-400">
+                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-green-600/15 text-emerald-700 dark:bg-green-500/20 dark:text-emerald-300">
                   {slug ? "Active" : "Required"}
                 </span>
               </div>
@@ -844,7 +844,7 @@ export default function AdminProductsPage() {
                 <select
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full rounded-xl border-2 border-blue-300/50 dark:border-blue-500/40 bg-gradient-to-r from-background to-blue-500/5 hover:from-blue-500/10 hover:to-blue-500/10 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/10"
+                  className="w-full rounded-xl border-2 border-green-300/50 dark:border-green-500/30 bg-gradient-to-r from-background to-green-500/5 hover:from-green-500/10 hover:to-emerald-500/10 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/10"
                 >
                   <option value="">-- Choose a store --</option>
                   {stores.map((store) => (
@@ -957,7 +957,7 @@ export default function AdminProductsPage() {
                   type="button"
                   onClick={() => onCreateCategory()}
                   disabled={creatingCategory}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-3 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-sm font-bold text-white hover:from-green-700 hover:to-emerald-700 transition-all hover:shadow-lg hover:shadow-emerald-500/20 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
                 >
                   <span>{creatingCategory ? "Adding..." : "✨ Add Category"}</span>
                 </button>
@@ -1021,7 +1021,7 @@ export default function AdminProductsPage() {
                 type="button"
                 onClick={load}
                 disabled={loading}
-                className="text-sm font-medium underline underline-offset-4 hover:text-foreground/80 disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white hover:from-green-600 hover:to-emerald-600 transition-all hover:shadow-lg hover:shadow-green-500/20 disabled:opacity-60"
               >
                 {loading ? "Refreshing..." : "Refresh"}
               </button>

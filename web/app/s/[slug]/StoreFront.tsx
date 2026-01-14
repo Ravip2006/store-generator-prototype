@@ -179,6 +179,17 @@ export default function StoreFront({ slug }: { slug: string }) {
   const { user, isAuthenticated, loading: authLoading, signOut } = useAuth();
 
   const previousTenantRef = useRef<string>(tenant);
+  const cartPulseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const justAddedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cartPulse, setCartPulse] = useState(false);
+  const [justAddedProductId, setJustAddedProductId] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cartPulseTimerRef.current) clearTimeout(cartPulseTimerRef.current);
+      if (justAddedTimerRef.current) clearTimeout(justAddedTimerRef.current);
+    };
+  }, []);
 
   // Clear user when switching stores
   useEffect(() => {
@@ -218,7 +229,18 @@ export default function StoreFront({ slug }: { slug: string }) {
     }
   }
 
+  function triggerAddAnimations(productId: string) {
+    setJustAddedProductId(productId);
+    if (justAddedTimerRef.current) clearTimeout(justAddedTimerRef.current);
+    justAddedTimerRef.current = setTimeout(() => setJustAddedProductId(null), 900);
+
+    setCartPulse(true);
+    if (cartPulseTimerRef.current) clearTimeout(cartPulseTimerRef.current);
+    cartPulseTimerRef.current = setTimeout(() => setCartPulse(false), 450);
+  }
+
   function addToCart(product: Product) {
+    triggerAddAnimations(product.id);
     setCart((prev) => {
       const existing = prev[product.id];
       const nextQty = (existing?.quantity || 0) + 1;
@@ -431,17 +453,26 @@ export default function StoreFront({ slug }: { slug: string }) {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-foreground/10 bg-background/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-6 py-4">
+      <header
+        className="sticky top-0 z-20 border-b border-foreground/10 backdrop-blur"
+        style={
+          accent
+            ? {
+                backgroundColor: accent,
+                backgroundImage: `linear-gradient(135deg, ${accent}, ${hexWithAlpha(accent, "CC") ?? accent})`,
+              }
+            : undefined
+        }
+      >
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
-                style={{ backgroundColor: accent }}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/25 bg-white/10 text-xs font-black tracking-tight"
               >
-                <span className="text-background">{logoText}</span>
+                <span className="text-white">{logoText}</span>
               </div>
-              <h1 className="truncate text-lg font-semibold tracking-tight sm:text-xl">
+              <h1 className="truncate text-lg font-black tracking-tight text-white sm:text-2xl">
                 {storeName}
               </h1>
             </div>
@@ -453,8 +484,7 @@ export default function StoreFront({ slug }: { slug: string }) {
               <button
                 type="button"
                 onClick={() => setShowCountryMenu(!showCountryMenu)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 transition-colors"
-                style={accent ? { borderColor: accent, color: accent } : undefined}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
               >
                 <span>🌐</span>
                 <span className="hidden sm:inline">{selectedCountry}</span>
@@ -507,8 +537,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                 href={whatsappStoreHref}
                 target="_blank"
                 rel="noreferrer"
-                className="hidden rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 sm:inline-flex"
-                style={accent ? { borderColor: accent, color: accent } : undefined}
+                className="hidden rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/15 sm:inline-flex"
               >
                 WhatsApp
               </a>
@@ -520,7 +549,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                 <button
                   type="button"
                   onClick={() => setAccountMenuOpen(!accountMenuOpen)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-purple-200 bg-purple-50 px-3 py-2 text-sm font-semibold text-purple-700 hover:bg-purple-100 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
                 >
                   <span className="hidden sm:inline">👤</span>
                   <span className="hidden sm:inline">{user?.name || user?.email?.split("@")[0] || "Account"}</span>
@@ -565,7 +594,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                   setIsSignUp(false);
                   setAuthModalOpen(true);
                 }}
-                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-colors shadow-sm"
+                className="inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
                 title="Sign In"
               >
                 <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -584,8 +613,9 @@ export default function StoreFront({ slug }: { slug: string }) {
                   return next;
                 })
               }
-              className="relative inline-flex items-center gap-2 rounded-xl border border-foreground/15 px-3 py-2 text-sm font-semibold text-background hover:opacity-90 ml-auto"
-              style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
+              className={`relative ml-auto inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.99] ${
+                cartPulse ? "ring-2 ring-white/30 shadow-lg shadow-black/10 scale-[1.02]" : ""
+              }`}
             >
               <TrolleyIcon className="h-4 w-4" />
               <div className="flex flex-col items-start">
@@ -593,7 +623,11 @@ export default function StoreFront({ slug }: { slug: string }) {
                 <span className="text-xs font-medium">{formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}</span>
               </div>
               {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                <span
+                  className={`absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white ${
+                    cartPulse ? "animate-pulse" : ""
+                  }`}
+                >
                   {cartItemCount}
                 </span>
               )}
@@ -606,38 +640,40 @@ export default function StoreFront({ slug }: { slug: string }) {
         <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-background shadow-sm">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-background to-background" />
 
-          <div className="relative p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-foreground/60">
-                  Storefront
-                </p>
-                <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-                  {storeName}
+          <div className="relative p-6 md:p-8">
+            <div
+              className="absolute inset-0 -m-4 bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 opacity-40"
+              style={
+                accent
+                  ? {
+                      backgroundImage: `linear-gradient(135deg, ${hexWithAlpha(accent, "1A")}, ${hexWithAlpha(accent, "0A")})`,
+                    }
+                  : undefined
+              }
+            />
+            <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="max-w-2xl">
+                <h2 className="text-4xl font-bold tracking-tighter text-gray-900 sm:text-5xl">
+                  Welcome to {storeName}
                 </h2>
-                <p className="mt-2 max-w-prose text-sm text-foreground/70">
-                  Fresh picks, fast checkout — add items and place an order.
+                <p className="mt-3 text-base text-gray-600 sm:text-lg">
+                  Your one-stop shop for fresh picks and fast checkouts. Browse our products and start your order.
                 </p>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-foreground/15 bg-background px-3 py-1 text-xs text-foreground/70">
-                  Items in cart: <span className="font-semibold">{cartItemCount}</span>
-                </span>
-                {whatsappStoreHref && (
-                  <a
-                    href={whatsappStoreHref}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full border border-foreground/15 bg-background px-3 py-1 text-xs font-medium hover:bg-foreground/5"
-                  >
-                    WhatsApp store
-                  </a>
-                )}
+              <div className="flex shrink-0 items-center gap-2">
+                <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-medium text-emerald-800 shadow-sm backdrop-blur-sm">
+                  <TrolleyIcon className="h-4 w-4" />
+                  <span>
+                    <span className="font-bold">{cartItemCount}</span> items in cart
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
 
+          <div className="relative p-6 md:p-8">
             {error && (
-              <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                 <b>Error:</b> {error}
               </div>
             )}
@@ -786,70 +822,74 @@ export default function StoreFront({ slug }: { slug: string }) {
                       </p>
                     </div>
 
-                    <div className="grid gap-4 sm:gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {filteredProducts.slice(0, productsToShow).map((p) => (
-                        <div
-                          key={p.id}
-                          className="group overflow-hidden rounded-2xl border border-foreground/10 bg-background hover:bg-foreground/5 focus-within:ring-2 focus-within:ring-foreground/10"
-                        >
-                        <Link
-                          href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
-                          className="block"
-                        >
-                          <div className="aspect-[4/3] w-full border-b border-foreground/10 bg-foreground/5">
-                            {p.imageUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={p.imageUrl}
-                                alt={p.name}
-                                className="h-full w-full object-cover"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-foreground/50">
-                                No image
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="p-4 pb-3">
-                            <div className="min-w-0">
-                              <div className="text-sm font-semibold leading-snug sm:truncate">{p.name}</div>
-                              <div className="mt-1 flex flex-wrap items-center gap-2">
-                                <span className="text-sm font-semibold">{formatPrice(p.price, getCurrencyForCountry(selectedCountry))}</span>
-                                {p.category?.name && (
-                                  <span className="rounded-full border border-foreground/15 bg-background px-2 py-0.5 text-xs text-foreground/70">
-                                    {p.category.name}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="mt-2 text-xs font-medium underline underline-offset-4 text-foreground/70 group-hover:text-foreground/90">
-                                View details
-                              </div>
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {filteredProducts.slice(0, productsToShow).map((p) => {
+                        const isJustAdded = justAddedProductId === p.id;
+                        return (
+                          <div
+                            key={p.id}
+                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                          >
+                          <Link
+                            href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
+                            className="block"
+                          >
+                            <div className="aspect-[4/3] w-full bg-gray-100">
+                              {p.imageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={p.imageUrl}
+                                  alt={p.name}
+                                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center text-xs text-gray-500">
+                                  No image
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        </Link>
+                          </Link>
 
-                        <div className="px-4 pb-4">
-                          <div className="flex items-center justify-center gap-2">
+                          <div className="flex flex-1 flex-col p-4">
+                            <div className="flex-1">
+                              <h3 className="text-base font-semibold text-gray-800">
+                                <Link
+                                  href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
+                                  className="hover:underline"
+                                >
+                                  {p.name}
+                                </Link>
+                              </h3>
+                              {p.category?.name && (
+                                <p className="mt-1 text-xs font-medium text-gray-500">{p.category.name}</p>
+                              )}
+                            </div>
+
+                            <p className="mt-4 text-lg font-bold text-gray-900" style={accent ? { color: accent } : {}}>
+                              {formatPrice(p.price, getCurrencyForCountry(selectedCountry))}
+                            </p>
+                          </div>
+
+                          <div className="border-t border-gray-200 p-4">
                             {quantityInCart(p.id) > 0 ? (
-                              <div className="flex w-full items-center justify-between gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2">
+                              <div className="flex items-center justify-between gap-2">
                                 <button
                                   type="button"
                                   onClick={() => removeFromCart(p.id)}
-                                  className="min-h-10 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-base font-semibold hover:bg-foreground/5"
-                                  style={accent ? { borderColor: accent, color: accent } : undefined}
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-lg font-bold text-gray-700 transition-all duration-150 hover:bg-gray-100 hover:shadow-sm active:scale-95"
+                                  style={accent ? { color: accent, borderColor: `${accent}40` } : {}}
                                 >
                                   −
                                 </button>
-                                <span className="min-w-10 text-center text-sm font-semibold">
+                                <span className="flex-1 text-center text-base font-semibold text-gray-800">
                                   {quantityInCart(p.id)}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => addToCart(p)}
-                                  className="min-h-10 rounded-xl border border-foreground/15 bg-background px-4 py-2 text-base font-semibold hover:bg-foreground/5"
-                                  style={accent ? { borderColor: accent, color: accent } : undefined}
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-lg font-bold text-gray-700 transition-all duration-150 hover:bg-gray-100 hover:shadow-sm active:scale-95"
+                                  style={accent ? { color: accent, borderColor: `${accent}40` } : {}}
                                 >
                                   +
                                 </button>
@@ -858,16 +898,33 @@ export default function StoreFront({ slug }: { slug: string }) {
                               <button
                                 type="button"
                                 onClick={() => addToCart(p)}
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-background transition hover:opacity-90 active:scale-95"
-                                style={accent ? { backgroundColor: accent } : undefined}
+                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] ${
+                                  isJustAdded ? "scale-[1.02]" : ""
+                                }`}
+                                style={
+                                  accent
+                                    ? {
+                                        backgroundColor: accent,
+                                        boxShadow: `0 4px 15px ${hexWithAlpha(accent, "4D")}`,
+                                      }
+                                    : { backgroundColor: "#000" }
+                                }
                               >
-                                <span>Add to Cart</span>
+                                <span className="relative z-10">{isJustAdded ? "Added ✓" : "Add to Cart"}</span>
+                                <span
+                                  aria-hidden="true"
+                                  className={`pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/35 to-transparent blur-[1px] transition-transform duration-700 ease-out ${
+                                    isJustAdded
+                                      ? "translate-x-[240%]"
+                                      : "-translate-x-[140%] group-hover:translate-x-[240%]"
+                                  }`}
+                                />
                               </button>
                             )}
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {filteredProducts.length > 0 && productsToShow < filteredProducts.length && (

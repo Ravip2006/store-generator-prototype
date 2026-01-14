@@ -118,29 +118,29 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-background dark:to-foreground/5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200/50 dark:border-foreground/10 bg-white/80 dark:bg-background/80 backdrop-blur-lg">
+      <nav className="sticky top-0 z-50 border-b border-white/20 bg-gradient-to-r from-green-700 via-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-500/20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 text-white font-bold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/20 text-white font-black">
               A
             </div>
-            <span className="text-lg font-bold text-foreground">AdminPanel</span>
+            <span className="text-lg font-black tracking-tight">AdminPanel</span>
           </Link>
           <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-6">
-              <Link href="/admin/stores" className="text-sm text-foreground/60 hover:text-foreground transition-colors">
+            <div className="hidden sm:flex items-center gap-2">
+              <Link href="/admin/stores" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
                 Stores
               </Link>
-              <Link href="/admin/products" className="text-sm text-foreground/60 hover:text-foreground transition-colors">
+              <Link href="/admin/products" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
                 Products
               </Link>
-              <Link href="/admin/orders" className="text-sm text-foreground/60 hover:text-foreground transition-colors">
+              <Link href="/admin/orders" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
                 Orders
               </Link>
             </div>
-            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+            <div className="h-8 w-8 rounded-full bg-white/15 ring-1 ring-white/20 flex items-center justify-center text-white font-bold text-sm">
               A
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function AdminDashboard() {
           {statCards.map((card) => (
             <div
               key={card.title}
-              className={`group relative overflow-hidden rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-gradient-to-br ${card.color} backdrop-blur-sm p-6 transition-all hover:shadow-2xl hover:shadow-blue-500/20 hover:border-slate-400 dark:hover:border-foreground/30 hover:-translate-y-2`}
+              className={`group relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-foreground/10 bg-gradient-to-br ${card.color} backdrop-blur-sm p-6 transition-all hover:shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-300/60 dark:hover:border-emerald-500/30 hover:-translate-y-2`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="relative z-10">
@@ -187,22 +187,22 @@ export default function AdminDashboard() {
           <div className="lg:col-span-2 space-y-8">
             {/* Quick Management Section */}
             <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-8 shadow-sm">
-              <h2 className="text-3xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6">⚡ Quick Management</h2>
+              <h2 className="text-3xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-6">⚡ Quick Management</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {menuItems.slice(0, 4).map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-foreground/10 bg-gradient-to-br from-slate-50 to-white dark:from-foreground/5 dark:to-background p-4 transition-all hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 hover:-translate-y-2 dark:hover:bg-background"
+                    className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-foreground/10 bg-gradient-to-br from-slate-50 to-white dark:from-foreground/5 dark:to-background p-4 transition-all hover:border-emerald-300/70 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/15 hover:-translate-y-2"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <div className="relative z-10 flex items-start justify-between">
                       <div>
                         <div className="text-3xl mb-2 group-hover:scale-125 transition-transform group-hover:-rotate-6">{item.icon}</div>
                         <h3 className="font-semibold text-foreground">{item.title}</h3>
                         <p className="text-xs text-foreground/60 mt-1">{item.description}</p>
                       </div>
-                      <div className="text-xl text-foreground/30 group-hover:text-blue-600 group-hover:translate-x-2 transition-all">→</div>
+                      <div className="text-xl text-foreground/30 group-hover:text-emerald-600 group-hover:translate-x-2 transition-all">→</div>
                     </div>
                   </Link>
                 ))}
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Platform Features */}
               <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">
                   <span>⚡</span> Features
                 </h3>
                 <ul className="space-y-2 text-xs text-foreground/70">
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
 
               {/* API Integration */}
               <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">
                   <span>🔌</span> API
                 </h3>
                 <div className="space-y-2 text-xs">
@@ -266,16 +266,16 @@ export default function AdminDashboard() {
           <div className="sticky top-24 self-start space-y-6">
             {/* Quick Links */}
             <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-              <h3 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">🧭 Navigation</h3>
+              <h3 className="text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">🧭 Navigation</h3>
               <div className="space-y-2">
                 {menuItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-600/30 dark:hover:to-purple-600/30 hover:text-foreground hover:shadow-md hover:-translate-x-1 border border-transparent hover:border-blue-300/50 dark:hover:border-blue-500/30"
+                    className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-gradient-to-r hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-600/20 dark:hover:to-emerald-600/10 hover:text-foreground hover:shadow-md hover:-translate-x-1 border border-transparent hover:border-emerald-300/50 dark:hover:border-emerald-500/30"
                   >
                     <span className="text-xl group-hover:scale-110 group-hover:rotate-6 transition-transform">{item.icon}</span>
-                    <span className="font-bold text-foreground hover:bg-gradient-to-r hover:from-blue-600 hover:to-purple-600 hover:bg-clip-text hover:text-transparent transition-all">{item.title}</span>
+                    <span className="font-bold text-foreground hover:bg-gradient-to-r hover:from-green-700 hover:to-emerald-600 hover:bg-clip-text hover:text-transparent transition-all">{item.title}</span>
                   </Link>
                 ))}
               </div>
