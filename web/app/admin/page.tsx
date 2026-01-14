@@ -130,6 +130,9 @@ export default function AdminDashboard() {
           </Link>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2">
+              <Link href="/" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
+                Home
+              </Link>
               <Link href="/admin/stores" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
                 Stores
               </Link>
