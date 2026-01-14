@@ -115,7 +115,7 @@ export default function AdminCustomersPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <AdminHeader
         title="Customers"
         description="Create and manage customer profiles"
@@ -192,7 +192,7 @@ export default function AdminCustomersPage() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="text-sm font-medium underline underline-offset-4 hover:text-foreground/80 disabled:opacity-60"
+              className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white hover:from-green-600 hover:to-emerald-600 transition-all hover:shadow-lg hover:shadow-green-500/20 disabled:opacity-60"
             >
               {loading ? "Refreshing..." : "Refresh"}
             </button>

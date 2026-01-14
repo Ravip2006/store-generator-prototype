@@ -181,7 +181,7 @@ export default function AdminOrdersPage() {
   }, [tenant]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <AdminHeader
         title="Orders"
         description="Create and manage customer orders"
@@ -321,7 +321,7 @@ export default function AdminOrdersPage() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2.5 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white hover:from-green-600 hover:to-emerald-600 transition-all hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
             >
               <span className={`inline-block text-lg ${loading ? "animate-spin" : ""}`}>
                 {loading ? "↻" : "↻"}

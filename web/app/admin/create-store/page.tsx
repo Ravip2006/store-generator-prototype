@@ -79,7 +79,7 @@ export default function CreateStorePage() {
     : null;
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <div className="pointer-events-none absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-500/20 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl" />
       <div className="pointer-events-none absolute top-40 right-10 hidden h-80 w-80 rounded-full bg-blue-500/10 blur-3xl lg:block" />

@@ -192,7 +192,7 @@ export default function StoresPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-background dark:via-blue-950/20 dark:to-purple-950/20">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
       <AdminHeader
         title="Stores"
         description="View and edit all onboarded stores"
@@ -213,16 +213,20 @@ export default function StoresPage() {
           )}
 
           <div className="mt-6 flex items-center justify-between gap-3">
-            <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🏬 Store list</h2>
+            <h2 className="text-2xl font-black bg-gradient-to-r from-green-700 via-emerald-600 to-teal-600 bg-clip-text text-transparent">🏬 Store list</h2>
             <button
               onClick={loadStores}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2.5 text-sm font-bold text-white hover:from-blue-600 hover:to-purple-600 transition-all hover:shadow-lg hover:shadow-purple-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
+              className="group/cta relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white transition-all hover:from-green-600 hover:to-emerald-600 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 disabled:hover:shadow-none border border-white/20 backdrop-blur-sm"
             >
-              <span className={`inline-block text-lg ${loading ? "animate-spin" : ""}`}>
+              <span className={`relative z-10 inline-block text-lg ${loading ? "animate-spin" : ""}`}>
                 {loading ? "↻" : "↻"}
               </span>
-              {loading ? "Refreshing..." : "Refresh"}
+              <span className="relative z-10">{loading ? "Refreshing..." : "Refresh"}</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent blur-[1px] transition-transform duration-700 ease-out -translate-x-[140%] group-hover/cta:translate-x-[240%]"
+              />
             </button>
           </div>
 
@@ -332,15 +336,21 @@ export default function StoresPage() {
                           />
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex flex-col gap-2 sm:flex-row">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
                             <Link
                               href={`/s/${store.slug}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-100 hover:border-emerald-500/40 hover:shadow-md hover:shadow-emerald-500/10 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 dark:bg-emerald-600/15 dark:text-emerald-300 dark:hover:bg-emerald-600/25"
+                              className="group/cta relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white transition-all hover:from-green-600 hover:to-emerald-600 hover:shadow-lg hover:shadow-green-500/30 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30 disabled:opacity-60 border border-white/20 backdrop-blur-sm"
                             >
-                              <span aria-hidden>↗</span>
-                              Open
+                              <span className="relative z-10 inline-flex items-center gap-2">
+                                <span aria-hidden>↗</span>
+                                Open
+                              </span>
+                              <span
+                                aria-hidden="true"
+                                className="pointer-events-none absolute inset-y-0 left-0 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/30 to-transparent blur-[1px] transition-transform duration-700 ease-out -translate-x-[140%] group-hover/cta:translate-x-[240%]"
+                              />
                             </Link>
                             <button
                               onClick={() => startEdit(store)}
