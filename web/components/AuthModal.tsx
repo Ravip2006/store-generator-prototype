@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/lib/authContext";
+import { AnimatePresence, motion } from "framer-motion";
+import { SPRING } from "@/lib/motion";
 
 type AuthModalProps = {
   isOpen: boolean;
@@ -20,8 +22,6 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,12 +60,24 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      onClick={handleModalClick}
-    >
-      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in duration-300 relative z-[10000] max-h-[90vh] overflow-y-auto">
-        <div className="p-8">
+    <AnimatePresence>
+      {isOpen ? (
+        <motion.div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={handleModalClick}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={SPRING}
+        >
+          <motion.div
+            className="w-full max-w-md rounded-2xl bg-white shadow-2xl relative z-[10000] max-h-[90vh] overflow-y-auto"
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={SPRING}
+          >
+            <div className="p-8">
         {/* Close button */}
         <button
           onClick={onClose}
@@ -221,7 +233,9 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
           </ul>
         </div>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
   );
 }

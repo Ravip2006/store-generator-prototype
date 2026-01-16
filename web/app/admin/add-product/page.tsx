@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import AdminHeader from "@/components/AdminHeader";
 import { canUseSupabaseStorage, uploadProductImage } from "@/lib/supabaseStorage";
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
+};
 
 type Category = { id: string; name: string };
 
@@ -537,7 +545,13 @@ export default function AddProductPage() {
   const previewUrl = `http://localhost:3000/s/${tenant}`;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.18),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)]"
+    >
       <AdminHeader
         title="Add Product"
         description="Create a new product in your store"
@@ -759,6 +773,6 @@ export default function AddProductPage() {
           void lookupByBarcode(code);
         }}
       />
-    </main>
+    </motion.main>
   );
 }

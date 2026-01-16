@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/authContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 type OrderItem = {
   id: string;
@@ -23,6 +24,13 @@ type Order = {
   city?: string;
   deliverySlot?: string | null;
   items: OrderItem[];
+};
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
 };
 
 export default function MyOrdersPageClient({ slug }: { slug: string }) {
@@ -130,7 +138,10 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
 
   if (authLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
+      <main
+        style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+        className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+      >
         <div className="mx-auto max-w-4xl px-6 py-12">
           <div className="text-center">Loading...</div>
         </div>
@@ -143,7 +154,13 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+    >
       <div className="mx-auto max-w-4xl px-6 py-12">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
@@ -151,13 +168,13 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               My Orders
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-white/60">
               Welcome back, <span className="font-semibold">{user?.name || user?.email}</span>
             </p>
           </div>
           <Link
             href={`/s/${encodeURIComponent(tenant)}`}
-            className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
           >
             Back to store
           </Link>
@@ -293,6 +310,6 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
           </div>
         )}
       </div>
-    </main>
+    </motion.main>
   );
 }

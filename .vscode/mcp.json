@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"my-mcp-server-908de278": {
+			"url": "https://mcp.v0.dev",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

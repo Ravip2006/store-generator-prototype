@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 
 type Store = {
   name: string;
@@ -28,6 +29,13 @@ type Product = {
 type CartLine = {
   product: Product;
   quantity: number;
+};
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
 };
 
 function ShieldIcon({ className }: { className?: string }) {
@@ -271,20 +279,26 @@ export default function ProductPageClient({
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-foreground/10 bg-background/80 backdrop-blur">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+    >
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 text-xs font-bold tracking-tight shadow-sm"
                 style={{ backgroundColor: accent }}
               >
-                <span className="text-background">{logoText}</span>
+                <span className="text-white">{logoText}</span>
               </div>
-              <div className="truncate text-base font-semibold tracking-tight sm:text-lg">{store.name}</div>
+              <div className="truncate text-base font-semibold tracking-tight text-white sm:text-lg">{store.name}</div>
             </div>
-            <div className="mt-1 text-xs text-foreground/60 truncate">
+            <div className="mt-1 text-xs text-white/60 truncate">
               {product.category?.name ? product.category.name : "Product"}
             </div>
           </div>
@@ -313,8 +327,8 @@ export default function ProductPageClient({
 
       <div className="mx-auto w-full max-w-5xl p-4 sm:p-6">
         <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="overflow-hidden rounded-2xl border border-foreground/10 bg-background shadow-sm">
-            <div className="aspect-[4/3] w-full border-b border-foreground/10 bg-foreground/5">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/40 backdrop-blur-xl">
+            <div className="aspect-[4/3] w-full border-b border-white/10 bg-white/10">
               {product.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -715,6 +729,6 @@ export default function ProductPageClient({
           </div>
         </div>
       </footer>
-    </main>
+    </motion.main>
   );
 }
