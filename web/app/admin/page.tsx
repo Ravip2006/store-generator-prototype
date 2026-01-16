@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import AdminHeader from "@/components/AdminHeader";
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
+};
 
 interface DashboardStats {
   stores: number;
@@ -118,32 +126,41 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50/40 to-emerald-50/30 dark:from-background dark:via-green-950/20 dark:to-emerald-950/10">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.18),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)]"
+    >
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 border-b border-white/20 bg-gradient-to-r from-green-700 via-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-500/20">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/30 text-white backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/20 text-white font-black">
-              A
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 ring-1 ring-white/20 text-white text-sm font-semibold">
+              SG
             </div>
-            <span className="text-lg font-black tracking-tight">AdminPanel</span>
+            <span className="text-sm font-semibold tracking-tight text-white/80">Admin Console</span>
           </Link>
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2">
-              <Link href="/" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
-                Home
-              </Link>
-              <Link href="/admin/stores" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
-                Stores
-              </Link>
-              <Link href="/admin/products" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
-                Products
-              </Link>
-              <Link href="/admin/orders" className="rounded-full px-4 py-2 text-sm font-semibold text-white/85 hover:text-white hover:bg-white/15 transition-colors">
-                Orders
-              </Link>
+              {[
+                { href: "/", label: "Home" },
+                { href: "/admin/stores", label: "Stores" },
+                { href: "/admin/products", label: "Products" },
+                { href: "/admin/orders", label: "Orders" },
+              ].map((item) => (
+                <motion.div key={item.href} whileHover={{ y: -2 }} transition={spring}>
+                  <Link
+                    href={item.href}
+                    className="rounded-full px-4 py-2 text-xs font-semibold text-white/70 hover:text-white hover:bg-white/10 transition"
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
             </div>
-            <div className="h-8 w-8 rounded-full bg-white/15 ring-1 ring-white/20 flex items-center justify-center text-white font-bold text-sm">
+            <div className="h-8 w-8 rounded-full bg-white/10 ring-1 ring-white/20 flex items-center justify-center text-white text-xs font-semibold">
               A
             </div>
           </div>
@@ -163,24 +180,26 @@ export default function AdminDashboard() {
         {/* Stats Grid */}
         <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
-            <div
+            <motion.div
               key={card.title}
-              className={`group relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-foreground/10 bg-gradient-to-br ${card.color} backdrop-blur-sm p-6 transition-all hover:shadow-2xl hover:shadow-emerald-500/20 hover:border-emerald-300/60 dark:hover:border-emerald-500/30 hover:-translate-y-2`}
+              whileHover={{ y: -6 }}
+              transition={spring}
+              className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/40"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
               <div className="relative z-10">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium text-foreground/60">{card.title}</p>
-                    <div className={`mt-2 text-4xl font-bold ${card.textColor} group-hover:scale-110 transition-transform`}>
+                    <p className="text-xs font-semibold text-white/60">{card.title}</p>
+                    <div className="mt-2 text-3xl font-semibold text-white">
                       {loading ? "—" : card.value}
                     </div>
                   </div>
-                  <div className="text-3xl group-hover:scale-125 group-hover:rotate-6 transition-transform">{card.icon}</div>
+                  <div className="text-2xl group-hover:scale-110 transition-transform">{card.icon}</div>
                 </div>
-                <p className="mt-4 text-xs text-foreground/50">{card.trend}</p>
+                <p className="mt-4 text-xs text-white/40">{card.trend}</p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -189,25 +208,26 @@ export default function AdminDashboard() {
           {/* Left Column - Full Height */}
           <div className="lg:col-span-2 space-y-8">
             {/* Quick Management Section */}
-            <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-8 shadow-sm">
-              <h2 className="text-3xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-6">⚡ Quick Management</h2>
+            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-8 shadow-lg shadow-black/30">
+              <h2 className="text-2xl font-semibold text-white mb-6">⚡ Quick Management</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 {menuItems.slice(0, 4).map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group relative overflow-hidden rounded-xl border border-slate-200 dark:border-foreground/10 bg-gradient-to-br from-slate-50 to-white dark:from-foreground/5 dark:to-background p-4 transition-all hover:border-emerald-300/70 dark:hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/15 hover:-translate-y-2"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                    <div className="relative z-10 flex items-start justify-between">
-                      <div>
-                        <div className="text-3xl mb-2 group-hover:scale-125 transition-transform group-hover:-rotate-6">{item.icon}</div>
-                        <h3 className="font-semibold text-foreground">{item.title}</h3>
-                        <p className="text-xs text-foreground/60 mt-1">{item.description}</p>
+                  <motion.div key={item.href} whileHover={{ y: -6 }} transition={spring}>
+                    <Link
+                      href={item.href}
+                      className="group relative overflow-hidden rounded-xl border border-white/15 bg-white/10 p-4 transition-all hover:border-emerald-300/40"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                      <div className="relative z-10 flex items-start justify-between">
+                        <div>
+                          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</div>
+                          <h3 className="text-sm font-semibold text-white">{item.title}</h3>
+                          <p className="text-xs text-white/60 mt-1">{item.description}</p>
+                        </div>
+                        <div className="text-base text-white/40 group-hover:text-emerald-200 group-hover:translate-x-2 transition-all">→</div>
                       </div>
-                      <div className="text-xl text-foreground/30 group-hover:text-emerald-600 group-hover:translate-x-2 transition-all">→</div>
-                    </div>
-                  </Link>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -215,48 +235,48 @@ export default function AdminDashboard() {
             {/* Info Cards */}
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Platform Features */}
-              <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">
+              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
+                <h3 className="flex items-center gap-2 text-xl font-semibold text-white mb-4">
                   <span>⚡</span> Features
                 </h3>
-                <ul className="space-y-2 text-xs text-foreground/70">
+                <ul className="space-y-2 text-xs text-white/70">
                   <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-emerald-300 mt-0.5">✓</span>
                     <span>Multi-store management</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-emerald-300 mt-0.5">✓</span>
                     <span>Product discounts & pricing</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-emerald-300 mt-0.5">✓</span>
                     <span>Order tracking & analytics</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
+                    <span className="text-emerald-300 mt-0.5">✓</span>
                     <span>Customer insights & data</span>
                   </li>
                 </ul>
               </div>
 
               {/* API Integration */}
-              <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-                <h3 className="flex items-center gap-2 text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">
+              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
+                <h3 className="flex items-center gap-2 text-xl font-semibold text-white mb-4">
                   <span>🔌</span> API
                 </h3>
-                <div className="space-y-2 text-xs">
+                <div className="space-y-2 text-xs text-white/70">
                   <div>
-                    <p className="font-semibold text-foreground mb-1">Header</p>
-                    <code className="rounded bg-foreground/10 px-2 py-1 block font-mono text-xs">
+                    <p className="font-semibold text-white mb-1">Header</p>
+                    <code className="rounded bg-white/10 px-2 py-1 block font-mono text-xs">
                       x-tenant-id: store-slug
                     </code>
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground mb-1">Endpoints</p>
-                    <code className="rounded bg-foreground/10 px-2 py-0.5 block font-mono text-xs mb-1">
+                    <p className="font-semibold text-white mb-1">Endpoints</p>
+                    <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs mb-1">
                       GET /api/products
                     </code>
-                    <code className="rounded bg-foreground/10 px-2 py-0.5 block font-mono text-xs">
+                    <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs">
                       PATCH /api/products/:id
                     </code>
                   </div>
@@ -268,33 +288,34 @@ export default function AdminDashboard() {
           {/* Right Sidebar */}
           <div className="sticky top-24 self-start space-y-6">
             {/* Quick Links */}
-            <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-white dark:bg-background/50 backdrop-blur-sm p-6 shadow-sm">
-              <h3 className="text-2xl font-black bg-gradient-to-r from-green-700 to-emerald-600 bg-clip-text text-transparent mb-4">🧭 Navigation</h3>
+            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
+              <h3 className="text-xl font-semibold text-white mb-4">🧭 Navigation</h3>
               <div className="space-y-2">
                 {menuItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-foreground/70 transition-all hover:bg-gradient-to-r hover:from-green-100 hover:to-emerald-100 dark:hover:from-green-600/20 dark:hover:to-emerald-600/10 hover:text-foreground hover:shadow-md hover:-translate-x-1 border border-transparent hover:border-emerald-300/50 dark:hover:border-emerald-500/30"
-                  >
-                    <span className="text-xl group-hover:scale-110 group-hover:rotate-6 transition-transform">{item.icon}</span>
-                    <span className="font-bold text-foreground hover:bg-gradient-to-r hover:from-green-700 hover:to-emerald-600 hover:bg-clip-text hover:text-transparent transition-all">{item.title}</span>
-                  </Link>
+                  <motion.div key={item.href} whileHover={{ x: 6 }} transition={spring}>
+                    <Link
+                      href={item.href}
+                      className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white border border-transparent hover:border-white/20"
+                    >
+                      <span className="text-xl group-hover:scale-110 transition-transform">{item.icon}</span>
+                      <span className="font-semibold text-white/80 group-hover:text-white transition-all">{item.title}</span>
+                    </Link>
+                  </motion.div>
                 ))}
               </div>
             </div>
 
             {/* Status */}
-            <div className="rounded-2xl border border-slate-200/50 dark:border-foreground/10 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-600/20 dark:to-emerald-600/5 backdrop-blur-sm p-6 shadow-sm">
+            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-2 w-2 rounded-full bg-green-600 animate-pulse" />
-                <span className="text-lg font-black bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">✅ System Status</span>
+                <div className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+                <span className="text-sm font-semibold text-white">System Status</span>
               </div>
-              <p className="text-xs text-foreground/70">All systems operational</p>
+              <p className="text-xs text-white/60">All systems operational</p>
             </div>
           </div>
         </div>
       </main>
-    </div>
+    </motion.div>
   );
 }

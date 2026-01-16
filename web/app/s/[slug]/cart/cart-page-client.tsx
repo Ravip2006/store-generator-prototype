@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { AuthModal } from "@/components/AuthModal";
@@ -19,6 +20,13 @@ type Product = {
 type CartLine = {
   product: Product;
   quantity: number;
+};
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
 };
 
 function isProduct(value: unknown): value is Product {
@@ -444,20 +452,26 @@ export default function CartPageClient({ slug }: { slug: string }) {
   const directWhatsAppHref = whatsappHref();
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-foreground/10 bg-background/80 backdrop-blur">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+    >
+      <header className="sticky top-0 z-10 border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-6 py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 text-xs font-bold tracking-tight shadow-sm"
                 style={{ backgroundColor: accent }}
               >
-                <span className="text-background">{logoText}</span>
+                <span className="text-white">{logoText}</span>
               </div>
               <div className="min-w-0">
-                <div className="truncate text-lg font-semibold tracking-tight sm:text-xl">{storeName}</div>
-                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold">
+                <div className="truncate text-lg font-semibold tracking-tight text-white sm:text-xl">{storeName}</div>
+                <div className="mt-0.5 flex items-center gap-1.5 text-xs font-semibold text-white/60">
                   {user ? (
                     <span className="text-transparent bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text">
                       ✅ Welcome, {user.name || user.email}!
@@ -601,7 +615,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => setShowAuthModal(true)}
-                            className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm font-semibold hover:bg-foreground/5"
+                            className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
                             style={accent ? { borderColor: accent, color: accent } : undefined}
                           >
                             Log in / Sign up
@@ -616,40 +630,40 @@ export default function CartPageClient({ slug }: { slug: string }) {
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Name"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <input
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       placeholder="Phone"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <input
                       value={addressLine1}
                       onChange={(e) => setAddressLine1(e.target.value)}
                       placeholder="Address"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <div className="grid gap-2 sm:grid-cols-2">
                       <input
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="City"
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                       <input
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
                         placeholder="Postal code (required)"
                         required
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <select
                         value={country || ""}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       >
                         <option value="">Select country</option>
                         <option value="AU">🇦🇺 Australia</option>
@@ -661,15 +675,15 @@ export default function CartPageClient({ slug }: { slug: string }) {
                         value={deliverySlot}
                         onChange={(e) => setDeliverySlot(e.target.value)}
                         placeholder="Delivery slot"
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                     </div>
                     {checkoutIssues.length > 0 ? (
-                      <p className="text-xs text-foreground/60">
+                      <p className="text-xs text-white/60">
                         To continue: {checkoutIssues.join(" • ")}
                       </p>
                     ) : (
-                      <p className="text-xs text-foreground/60">We’ll reserve stock, then take you to payment.</p>
+                      <p className="text-xs text-white/60">We’ll reserve stock, then take you to payment.</p>
                     )}
                   </div>
                 </div>
@@ -678,7 +692,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
           </section>
 
           <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-sm font-semibold">Order summary</div>
@@ -690,7 +704,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
               </div>
 
               {cartLines.length > 1 ? (
-                <div className="mt-4 rounded-2xl border border-foreground/10 bg-foreground/5 p-4">
+                <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                   <div className="text-xs font-medium uppercase tracking-wide text-foreground/60">
                     Items
                   </div>
@@ -718,7 +732,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(false)}
                   disabled={!canProceedToPay}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                   style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
                 >
                   {placing ? "Reserving..." : "Proceed to pay"}
@@ -728,7 +742,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(true)}
                   disabled={placing || placingWhatsApp || !directWhatsAppHref}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/30"
                   style={accent ? { borderColor: accent, color: accent } : undefined}
                 >
                   {placingWhatsApp ? "Placing & opening WhatsApp..." : "Place order & WhatsApp"}
@@ -748,7 +762,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                 )}
               </div>
 
-              <div className="mt-5 rounded-2xl border border-foreground/10 bg-foreground/5 p-4">
+              <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                 <div className="text-xs font-medium uppercase tracking-wide text-foreground/60">Summary</div>
                 <div className="mt-3 grid gap-2 text-sm">
                   <div className="flex items-center justify-between gap-3">
@@ -799,6 +813,6 @@ export default function CartPageClient({ slug }: { slug: string }) {
         tenant={tenant}
         initialMode="signin"
       />
-    </main>
+    </motion.main>
   );
 }

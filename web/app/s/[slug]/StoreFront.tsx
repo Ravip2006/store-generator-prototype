@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { GlowHoverCard } from "@/components/GlowHoverCard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/authContext";
 import { AuthModal } from "@/components/AuthModal";
@@ -31,6 +33,13 @@ type Product = {
 type CartLine = {
   product: Product;
   quantity: number;
+};
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
 };
 
 function isProduct(value: unknown): value is Product {
@@ -412,7 +421,10 @@ export default function StoreFront({ slug }: { slug: string }) {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-background text-foreground">
+      <main
+        style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+        className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+      >
         <div className="mx-auto w-full max-w-5xl p-6">
           <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
             <div className="h-7 w-48 rounded-lg bg-foreground/10" />
@@ -431,7 +443,10 @@ export default function StoreFront({ slug }: { slug: string }) {
 
   if (error && !store) {
     return (
-      <main className="min-h-screen bg-background text-foreground">
+      <main
+        style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+        className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+      >
         <div className="mx-auto w-full max-w-5xl p-6">
           <div className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
             <h1 className="text-xl font-semibold">Store unavailable</h1>
@@ -452,9 +467,15 @@ export default function StoreFront({ slug }: { slug: string }) {
   })();
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+    >
       <header
-        className="sticky top-0 z-20 border-b border-foreground/10 backdrop-blur"
+        className="sticky top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-xl"
         style={
           accent
             ? {
@@ -491,7 +512,7 @@ export default function StoreFront({ slug }: { slug: string }) {
               </button>
 
               {showCountryMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-foreground/15 bg-background shadow-lg z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/15 bg-black/80 shadow-lg shadow-black/40 z-50 overflow-hidden backdrop-blur-xl">
                   {[
                     { code: "AU", name: "Australia (AUD)" },
                     { code: "IN", name: "India (INR)" },
@@ -510,8 +531,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                           // ignore
                         }
                       }}
-                      className={`w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-foreground/5 transition-colors border-b border-foreground/10 last:border-b-0 ${
-                        selectedCountry === country.code ? "bg-foreground/5" : ""
+                      className={`w-full text-left px-4 py-2.5 text-sm font-medium text-white/80 hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0 ${
+                        selectedCountry === country.code ? "bg-white/10" : ""
                       }`}
                       style={
                         selectedCountry === country.code && accent
@@ -558,15 +579,15 @@ export default function StoreFront({ slug }: { slug: string }) {
 
                 {/* Account dropdown */}
                 {accountMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-gray-200 bg-white shadow-xl z-50" data-account-menu>
-                    <div className="border-b border-gray-100 px-4 py-3">
-                      <p className="text-sm font-semibold text-gray-900">{user?.name || "Account"}</p>
-                      <p className="text-xs text-gray-600 mt-0.5">{user?.email}</p>
+                    <div className="absolute right-0 mt-2 w-56 rounded-xl border border-white/15 bg-black/80 shadow-xl shadow-black/50 z-50 backdrop-blur-xl" data-account-menu>
+                    <div className="border-b border-white/10 px-4 py-3">
+                      <p className="text-sm font-semibold text-white">{user?.name || "Account"}</p>
+                      <p className="text-xs text-white/60 mt-0.5">{user?.email}</p>
                     </div>
 
                     <Link
                       href={`/s/${encodeURIComponent(tenant)}/orders`}
-                      className="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 border-b border-gray-100 transition-colors"
+                      className="block px-4 py-3 text-sm font-medium text-white/80 hover:bg-white/10 border-b border-white/10 transition-colors"
                       onClick={() => setAccountMenuOpen(false)}
                     >
                       📋 My Orders
@@ -578,7 +599,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                         await signOut();
                         setAccountMenuOpen(false);
                       }}
-                      className="w-full text-left px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-full text-left px-4 py-3 text-sm font-medium text-red-300 hover:bg-white/10 transition-colors"
                     >
                       🚪 Sign Out
                     </button>
@@ -637,8 +658,8 @@ export default function StoreFront({ slug }: { slug: string }) {
       </header>
 
       <div className="mx-auto w-full max-w-6xl p-6">
-        <div className="relative overflow-hidden rounded-2xl border border-foreground/10 bg-background shadow-sm">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-background to-background" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur-xl">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/5 via-black/10 to-transparent" />
 
           <div className="relative p-6 md:p-8">
             <div
@@ -653,15 +674,15 @@ export default function StoreFront({ slug }: { slug: string }) {
             />
             <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="max-w-2xl">
-                <h2 className="text-4xl font-bold tracking-tighter text-gray-900 sm:text-5xl">
+                <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                   Welcome to {storeName}
                 </h2>
-                <p className="mt-3 text-base text-gray-600 sm:text-lg">
+                <p className="mt-3 text-base text-white/70 sm:text-lg">
                   Your one-stop shop for fresh picks and fast checkouts. Browse our products and start your order.
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-sm font-medium text-emerald-800 shadow-sm backdrop-blur-sm">
+                <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white/80 shadow-sm backdrop-blur-sm">
                   <TrolleyIcon className="h-4 w-4" />
                   <span>
                     <span className="font-bold">{cartItemCount}</span> items in cart
@@ -673,14 +694,14 @@ export default function StoreFront({ slug }: { slug: string }) {
 
           <div className="relative p-6 md:p-8">
             {error && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              <div className="mb-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
                 <b>Error:</b> {error}
               </div>
             )}
 
             <div className="mt-8 grid gap-4 lg:grid-cols-[240px_1fr]">
               <aside className="hidden lg:block">
-                <div className="sticky top-24 rounded-2xl border border-foreground/10 bg-background p-4">
+                <div className="sticky top-24 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                   <div className="text-sm font-semibold">Categories</div>
                   <div className="mt-3 grid gap-1">
                     <button
@@ -698,8 +719,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                       }
                       className={
                         categoryId
-                          ? "w-full rounded-xl border border-foreground/10 bg-background px-3 py-2 text-left text-sm font-medium hover:bg-foreground/5"
-                          : "w-full rounded-xl border border-foreground/10 border-l-4 bg-foreground/5 px-3 py-2 text-left text-sm font-semibold"
+                          ? "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/80 hover:bg-white/10"
+                          : "w-full rounded-xl border border-white/15 border-l-4 bg-white/10 px-3 py-2 text-left text-sm font-semibold text-white"
                       }
                     >
                       All products
@@ -721,8 +742,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                         }
                         className={
                           categoryId === c.id
-                            ? "w-full rounded-xl border border-foreground/10 border-l-4 bg-foreground/5 px-3 py-2 text-left text-sm font-semibold"
-                            : "w-full rounded-xl border border-foreground/10 bg-background px-3 py-2 text-left text-sm font-medium hover:bg-foreground/5"
+                            ? "w-full rounded-xl border border-white/15 border-l-4 bg-white/10 px-3 py-2 text-left text-sm font-semibold text-white"
+                            : "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/80 hover:bg-white/10"
                         }
                       >
                         {c.name}
@@ -732,20 +753,20 @@ export default function StoreFront({ slug }: { slug: string }) {
                 </div>
               </aside>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="text-base font-semibold">Products</h2>
+                  <h2 className="text-base font-semibold text-white">Products</h2>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <input
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search products"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20"
                     />
                     <select
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30 sm:max-w-60 lg:hidden"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 sm:max-w-60 lg:hidden"
                     >
                       <option value="">All categories</option>
                       {categories.map((c) => (
@@ -774,8 +795,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                       }
                       className={
                         categoryId
-                          ? "whitespace-nowrap rounded-full border border-foreground/15 bg-background px-3 py-1 text-xs font-medium hover:bg-foreground/5"
-                          : "whitespace-nowrap rounded-full border border-foreground/15 bg-foreground/5 px-3 py-1 text-xs font-semibold"
+                          ? "whitespace-nowrap rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70 hover:bg-white/10"
+                          : "whitespace-nowrap rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white"
                       }
                     >
                       All
@@ -826,15 +847,17 @@ export default function StoreFront({ slug }: { slug: string }) {
                       {filteredProducts.slice(0, productsToShow).map((p) => {
                         const isJustAdded = justAddedProductId === p.id;
                         return (
-                          <div
+                          <GlowHoverCard
                             key={p.id}
-                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/40"
+                            hoverScale={1.02}
+                            glowSize={260}
                           >
                           <Link
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block"
                           >
-                            <div className="aspect-[4/3] w-full bg-gray-100">
+                            <div className="aspect-[4/3] w-full bg-white/10">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
@@ -844,16 +867,16 @@ export default function StoreFront({ slug }: { slug: string }) {
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-gray-500">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-white/50">
                                   No image
                                 </div>
                               )}
                             </div>
                           </Link>
 
-                          <div className="flex flex-1 flex-col p-4">
+                            <div className="flex flex-1 flex-col p-4">
                             <div className="flex-1">
-                              <h3 className="text-base font-semibold text-gray-800">
+                              <h3 className="text-base font-semibold text-white">
                                 <Link
                                   href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                                   className="hover:underline"
@@ -862,33 +885,33 @@ export default function StoreFront({ slug }: { slug: string }) {
                                 </Link>
                               </h3>
                               {p.category?.name && (
-                                <p className="mt-1 text-xs font-medium text-gray-500">{p.category.name}</p>
+                                <p className="mt-1 text-xs font-medium text-white/60">{p.category.name}</p>
                               )}
                             </div>
 
-                            <p className="mt-4 text-lg font-bold text-gray-900" style={accent ? { color: accent } : {}}>
+                            <p className="mt-4 text-lg font-semibold text-white" style={accent ? { color: accent } : {}}>
                               {formatPrice(p.price, getCurrencyForCountry(selectedCountry))}
                             </p>
                           </div>
 
-                          <div className="border-t border-gray-200 p-4">
+                          <div className="border-t border-white/10 p-4">
                             {quantityInCart(p.id) > 0 ? (
                               <div className="flex items-center justify-between gap-2">
                                 <button
                                   type="button"
                                   onClick={() => removeFromCart(p.id)}
-                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-lg font-bold text-gray-700 transition-all duration-150 hover:bg-gray-100 hover:shadow-sm active:scale-95"
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-lg font-bold text-white transition-all duration-150 hover:bg-white/20 hover:shadow-sm active:scale-95"
                                   style={accent ? { color: accent, borderColor: `${accent}40` } : {}}
                                 >
                                   −
                                 </button>
-                                <span className="flex-1 text-center text-base font-semibold text-gray-800">
+                                <span className="flex-1 text-center text-base font-semibold text-white">
                                   {quantityInCart(p.id)}
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => addToCart(p)}
-                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 bg-white text-lg font-bold text-gray-700 transition-all duration-150 hover:bg-gray-100 hover:shadow-sm active:scale-95"
+                                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-lg font-bold text-white transition-all duration-150 hover:bg-white/20 hover:shadow-sm active:scale-95"
                                   style={accent ? { color: accent, borderColor: `${accent}40` } : {}}
                                 >
                                   +
@@ -898,7 +921,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                               <button
                                 type="button"
                                 onClick={() => addToCart(p)}
-                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] ${
+                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 ${
                                   isJustAdded ? "scale-[1.02]" : ""
                                 }`}
                                 style={
@@ -922,7 +945,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                               </button>
                             )}
                           </div>
-                          </div>
+                          </GlowHoverCard>
                         );
                       })}
                     </div>
@@ -952,7 +975,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => setProductsToShow((prev) => prev + 12)}
-                            className="px-6 py-2.5 text-sm font-bold text-white rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-lg"
+                            className="px-6 py-2.5 text-sm font-bold text-white rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                             style={{
                               background: 'linear-gradient(135deg, #000000, #333333)',
                               boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
@@ -974,39 +997,39 @@ export default function StoreFront({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <footer className="mt-10 border-t border-foreground/10 bg-background">
+      <footer className="mt-10 border-t border-white/10 bg-black/30 backdrop-blur-xl">
         <div className="mx-auto w-full max-w-6xl px-6 py-10">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 text-xs font-bold tracking-tight shadow-sm"
                   style={accent ? { backgroundColor: accent } : undefined}
                 >
-                  <span className="text-background">{logoText}</span>
+                  <span className="text-white">{logoText}</span>
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">{storeName}</div>
-                  <div className="truncate text-xs text-foreground/60">Fast delivery • Easy ordering</div>
+                  <div className="truncate text-sm font-semibold text-white">{storeName}</div>
+                  <div className="truncate text-xs text-white/60">Fast delivery • Easy ordering</div>
                 </div>
               </div>
 
               {store?.phone ? (
                 <a
                   href={`tel:${store.phone}`}
-                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                  className="inline-flex text-sm font-medium underline underline-offset-4 text-white/80 hover:text-white"
                 >
                   Call store
                 </a>
               ) : (
-                <div className="text-sm text-foreground/60">Store phone not available</div>
+                <div className="text-sm text-white/60">Store phone not available</div>
               )}
               {whatsappStoreHref ? (
                 <a
                   href={whatsappStoreHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                  className="inline-flex text-sm font-medium underline underline-offset-4 text-white/80 hover:text-white"
                 >
                   WhatsApp store
                 </a>
@@ -1014,84 +1037,84 @@ export default function StoreFront({ slug }: { slug: string }) {
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Company</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#about-store" className="hover:text-foreground/90">About</a>
-                <a href="#contact" className="hover:text-foreground/90">Contact</a>
-                <a href="#top" className="hover:text-foreground/90">Back to top</a>
+              <div className="text-sm font-semibold text-white">Company</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#about-store" className="hover:text-white">About</a>
+                <a href="#contact" className="hover:text-white">Contact</a>
+                <a href="#top" className="hover:text-white">Back to top</a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Help</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#delivery" className="hover:text-foreground/90">Delivery info</a>
-                <a href="#cancellation-policy" className="hover:text-foreground/90">Cancellation policy</a>
-                <a href="#support" className="hover:text-foreground/90">Support</a>
+              <div className="text-sm font-semibold text-white">Help</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#delivery" className="hover:text-white">Delivery info</a>
+                <a href="#cancellation-policy" className="hover:text-white">Cancellation policy</a>
+                <a href="#support" className="hover:text-white">Support</a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Legal</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#terms" className="hover:text-foreground/90">Terms</a>
-                <a href="#privacy" className="hover:text-foreground/90">Privacy</a>
+              <div className="text-sm font-semibold text-white">Legal</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#terms" className="hover:text-white">Terms</a>
+                <a href="#privacy" className="hover:text-white">Privacy</a>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 rounded-2xl border border-foreground/10 bg-foreground/5 p-6">
+          <div className="mt-8 grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div id="about-store" className="scroll-mt-24">
-              <div className="text-sm font-semibold">About</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">About</div>
+              <p className="mt-2 text-sm text-white/70">
                 {storeName} is a local store. Prices and availability may vary by location.
               </p>
             </div>
 
             <div id="contact" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Contact</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Contact</div>
+              <p className="mt-2 text-sm text-white/70">
                 For order updates, you can call or WhatsApp the store.
               </p>
             </div>
 
             <div id="delivery" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Delivery info</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Delivery info</div>
+              <p className="mt-2 text-sm text-white/70">
                 Delivery slots are subject to availability. Exact timings can vary based on demand and address.
               </p>
             </div>
 
             <div id="support" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Support</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Support</div>
+              <p className="mt-2 text-sm text-white/70">
                 If you received a damaged or incorrect item, contact the store as soon as possible.
               </p>
             </div>
 
             <div id="cancellation-policy" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Cancellation policy</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Cancellation policy</div>
+              <p className="mt-2 text-sm text-white/70">
                 Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund may be provided, if applicable.
               </p>
             </div>
 
             <div id="terms" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Terms</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Terms</div>
+              <p className="mt-2 text-sm text-white/70">
                 By placing an order, you agree to provide accurate contact and delivery details.
               </p>
             </div>
 
             <div id="privacy" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Privacy</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Privacy</div>
+              <p className="mt-2 text-sm text-white/70">
                 Your information is used only to fulfill your order and contact you about delivery.
               </p>
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2 border-t border-foreground/10 pt-6 text-xs text-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
             <div>© {currentYear} {storeName}. All rights reserved.</div>
             <div>Powered by Store Generator</div>
           </div>
@@ -1103,15 +1126,15 @@ export default function StoreFront({ slug }: { slug: string }) {
           <button
             type="button"
             aria-label="Close cart"
-            className="absolute inset-0 z-0 bg-foreground/20"
+            className="absolute inset-0 z-0 bg-black/40"
             onClick={() => {
               setCartPanelOpen(false);
               setCartPanelView("cart");
             }}
           />
 
-          <div className="absolute right-0 top-0 z-10 h-full w-full max-w-md border-l border-foreground/10 bg-background shadow-sm">
-            <div className="sticky top-0 z-10 border-b border-foreground/10 bg-background/90 backdrop-blur">
+          <div className="absolute right-0 top-0 z-10 h-full w-full max-w-md border-l border-white/10 bg-black/80 shadow-2xl shadow-black/50 backdrop-blur-xl">
+            <div className="sticky top-0 z-10 border-b border-white/10 bg-black/70 backdrop-blur-xl">
               <div className="flex items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -1122,8 +1145,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                       <TrolleyIcon className="h-5 w-5 text-background" />
                     </div>
                     <div className="min-w-0">
-                      <div className="truncate text-base font-semibold">My cart</div>
-                      <div className="text-xs text-foreground/60">
+                      <div className="truncate text-base font-semibold text-white">My cart</div>
+                      <div className="text-xs text-white/60">
                         {cartItemCount} item{cartItemCount === 1 ? "" : "s"} • {formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}
                       </div>
                     </div>
@@ -1137,7 +1160,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                       setCartPanelOpen(false);
                       setCartPanelView("cart");
                     }}
-                    className="text-xs font-medium underline underline-offset-4 hover:text-foreground/80"
+                    className="text-xs font-medium text-white/70 underline underline-offset-4 hover:text-white"
                   >
                     Open checkout
                   </Link>
@@ -1147,7 +1170,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                       setCartPanelOpen(false);
                       setCartPanelView("cart");
                     }}
-                    className="rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-semibold hover:bg-foreground/5"
+                    className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20"
                   >
                     Close
                   </button>
@@ -1157,25 +1180,25 @@ export default function StoreFront({ slug }: { slug: string }) {
 
             <div className="h-full overflow-y-auto p-4 sm:p-5">
               {cartItemCount === 0 ? (
-                <div className="rounded-2xl border border-foreground/10 bg-foreground/5 p-5">
-                  <div className="text-sm font-semibold">Your cart is empty</div>
-                  <p className="mt-1 text-sm text-foreground/70">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+                  <div className="text-sm font-semibold text-white">Your cart is empty</div>
+                  <p className="mt-1 text-sm text-white/70">
                     Add a few products to start checkout.
                   </p>
                 </div>
               ) : cartPanelView === "checkout" ? (
                 <div className="space-y-6">
-                  <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
-                    <div className="text-sm font-semibold">Checkout</div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
+                    <div className="text-sm font-semibold text-white">Checkout</div>
 
                     {authLoading ? (
-                      <p className="mt-1 text-sm text-foreground/70">Checking login…</p>
+                      <p className="mt-1 text-sm text-white/70">Checking login…</p>
                     ) : isAuthenticated ? (
-                      <p className="mt-1 text-sm text-foreground/70">
+                      <p className="mt-1 text-sm text-white/70">
                         ✅ You’re logged in as <span className="font-semibold">{user?.name || user?.email}</span>. We’ll speed up checkout.
                       </p>
                     ) : (
-                      <p className="mt-1 text-sm text-foreground/70">
+                      <p className="mt-1 text-sm text-white/70">
                         Continue as guest (recommended) or log in to save details and track orders.
                       </p>
                     )}
@@ -1188,7 +1211,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           setCartPanelView("cart");
                           router.push(`/s/${encodeURIComponent(tenant)}/cart`);
                         }}
-                        className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold hover:bg-foreground/5 transition-colors"
+                        className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 transition-colors"
                         style={accent ? { backgroundColor: accent, color: "white", borderColor: accent } : undefined}
                       >
                         Enter delivery details
@@ -1350,6 +1373,6 @@ export default function StoreFront({ slug }: { slug: string }) {
         tenant={tenant}
         initialMode={isSignUp ? "signup" : "signin"}
       />
-    </main>
+    </motion.main>
   );
 }

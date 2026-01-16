@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 function formatPrice(price: number, currency: string = "AUD"): string {
   const currencySymbols: Record<string, string> = {
@@ -43,6 +44,13 @@ type Order = {
   deliverySlot?: string | null;
   country?: string | null;
   items: OrderItem[];
+};
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
 };
 
 export default function PayPageClient({ slug, id }: { slug: string; id: string }) {
@@ -163,62 +171,68 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
+    >
       <div className="mx-auto w-full max-w-5xl p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Order Confirmation</h1>
-            <p className="mt-2 text-sm font-medium text-foreground/80">
+            <h1 className="text-2xl font-semibold tracking-tight text-white">Order Confirmation</h1>
+            <p className="mt-2 text-sm font-medium text-white/80">
               <span className="inline-flex items-center gap-1.5">
-                <svg className="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-4 w-4 text-emerald-300" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
                 </svg>
                 Ready to complete your order?
               </span>
             </p>
-            <p className="mt-2 text-xs text-foreground/60">
+            <p className="mt-2 text-xs text-white/60">
               Confirm to finalize | Cancel to save your items
             </p>
           </div>
           <Link
             href={`/s/${encodeURIComponent(tenant)}`}
-            className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5"
+            className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
           >
             Back to store
           </Link>
         </div>
 
         {error && (
-          <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+          <div className="mt-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
             <b>Error:</b> {error}
           </div>
         )}
 
         {loading ? (
-          <p className="mt-6 text-sm text-foreground/70">Loading order...</p>
+          <p className="mt-6 text-sm text-white/70">Loading order...</p>
         ) : !order ? (
-          <div className="mt-6 rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-            <p className="text-sm text-foreground/70">Order not found.</p>
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+            <p className="text-sm text-white/70">Order not found.</p>
           </div>
         ) : (
           <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px]">
-            <section className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-              <div className="rounded-xl border border-foreground/10 p-4">
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm">
-                    <div className="font-semibold">Order {order.id}</div>
-                    <div className="mt-1 text-xs text-foreground/60">Status: {order.status}</div>
+                    <div className="font-semibold text-white">Order {order.id}</div>
+                    <div className="mt-1 text-xs text-white/60">Status: {order.status}</div>
                     {order.deliverySlot ? (
-                      <div className="mt-1 text-xs text-foreground/60">Delivery: {order.deliverySlot}</div>
+                      <div className="mt-1 text-xs text-white/60">Delivery: {order.deliverySlot}</div>
                     ) : null}
                   </div>
-                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
+                  <div className="text-sm font-semibold text-white">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
+              <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
                 <table className="w-full border-collapse text-left text-sm">
-                  <thead className="bg-foreground/5">
+                  <thead className="bg-white/10 text-white/80">
                     <tr>
                       <th className="px-4 py-3 font-medium">Item</th>
                       <th className="px-4 py-3 font-medium">Qty</th>
@@ -227,7 +241,10 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                   </thead>
                   <tbody>
                     {order.items.map((it) => (
-                      <tr key={it.id} className="border-t border-foreground/10">
+                      <tr
+                        key={it.id}
+                        className="border-t border-white/10 text-white/80 transition-colors hover:bg-white/5"
+                      >
                         <td className="px-4 py-3">{it.product?.name || it.productId}</td>
                         <td className="px-4 py-3">{it.quantity}</td>
                         <td className="px-4 py-3">{formatPrice(it.unitPrice, getCurrencyForCountry(order.country || "AU"))}</td>
@@ -239,16 +256,16 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
             </section>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-sm font-semibold">Order summary</div>
-                    <div className="mt-1 text-xs text-foreground/60">
+                    <div className="text-sm font-semibold text-white">Order summary</div>
+                    <div className="mt-1 text-xs text-white/60">
                       {order.items.reduce((s, it) => s + it.quantity, 0)} item
                       {order.items.reduce((s, it) => s + it.quantity, 0) === 1 ? "" : "s"}
                     </div>
                   </div>
-                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
+                  <div className="text-sm font-semibold text-white">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
 
                 <div className="mt-4 grid gap-2">
@@ -256,7 +273,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                     type="button"
                     onClick={onConfirm}
                     disabled={confirming || cancelling || order.status !== "PENDING_PAYMENT"}
-                    className="inline-flex w-full items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-semibold hover:bg-foreground/10 disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white hover:bg-white/20 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                   >
                     {confirming ? "Paying..." : `Pay ${formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}`}
                   </button>
@@ -280,6 +297,6 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
           </div>
         )}
       </div>
-    </main>
+    </motion.main>
   );
 }
