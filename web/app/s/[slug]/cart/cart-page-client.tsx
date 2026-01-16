@@ -494,7 +494,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
             <button
               type="button"
               onClick={() => router.push(`/s/${encodeURIComponent(tenant)}`)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20 transition-colors"
             >
               ← Continue Shopping
             </button>
@@ -502,30 +502,30 @@ export default function CartPageClient({ slug }: { slug: string }) {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <section className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
+      <div className="mx-auto w-full max-w-6xl p-6">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <section className="lg:col-span-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
             <div className="flex flex-col gap-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-foreground/60">Checkout</p>
-              <h2 className="text-2xl font-semibold tracking-tight">Your trolley</h2>
-              <p className="mt-1 text-sm text-foreground/70">Review items, then add delivery details.</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-white/60">Checkout</p>
+              <h2 className="text-2xl font-semibold tracking-tight text-white">Your trolley</h2>
+              <p className="mt-1 text-sm text-white/60">Review items, then add delivery details.</p>
             </div>
 
             {error && (
-              <div className="mt-6 rounded-xl border border-red-500/50 bg-red-50/50 p-4 text-sm text-red-700">
+              <div className="mt-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
                 <b>Error:</b> {error}
               </div>
             )}
 
             {loadingCart ? (
-              <p className="mt-6 text-sm text-foreground/80">Loading…</p>
+              <p className="mt-6 text-sm text-white/70">Loading…</p>
             ) : cartLines.length === 0 ? (
-              <div className="mt-6 rounded-2xl border border-foreground/10 bg-foreground/5 p-5">
-                <div className="text-sm font-semibold">Your cart is empty</div>
-                <p className="mt-1 text-sm text-foreground/70">Go back and add a few products.</p>
+              <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+                <div className="text-sm font-semibold text-white">Your cart is empty</div>
+                <p className="mt-1 text-sm text-white/60">Go back and add a few products.</p>
                 <Link
                   href={`/s/${encodeURIComponent(tenant)}`}
-                  className="mt-3 inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm font-medium hover:bg-foreground/5"
+                  className="mt-3 inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20"
                 >
                   Browse products
                 </Link>
@@ -536,10 +536,10 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   {cartLines.map((l) => (
                     <div
                       key={l.product.id}
-                      className="flex items-center justify-between gap-3 rounded-2xl border border-foreground/10 bg-background p-3"
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-14 w-20 overflow-hidden rounded-xl border border-foreground/10 bg-foreground/5">
+                        <div className="h-14 w-20 overflow-hidden rounded-xl border border-white/10 bg-white/10">
                           {l.product.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -554,14 +554,14 @@ export default function CartPageClient({ slug }: { slug: string }) {
                           <div className="truncate text-sm font-medium">{l.product.name}</div>
                           {typeof l.product.regularPrice === "number" && l.product.regularPrice !== l.product.price ? (
                             <div className="mt-1 flex items-center gap-2">
-                              <div className="text-sm font-semibold text-green-600">{formatPrice(l.product.price, getCurrencyForCountry(country || "AU"))}</div>
+                              <div className="text-sm font-semibold text-emerald-300">{formatPrice(l.product.price, getCurrencyForCountry(country || "AU"))}</div>
                               {typeof l.product.discountPercent === "number" && l.product.discountPercent > 0 ? (
                                 <span className="text-xs font-semibold text-red-600">{l.product.discountPercent.toFixed(0)}% OFF</span>
                               ) : null}
-                              <span className="text-xs text-foreground/60 line-through">{formatPrice(l.product.regularPrice, getCurrencyForCountry(country || "AU"))}</span>
+                              <span className="text-xs text-white/50 line-through">{formatPrice(l.product.regularPrice, getCurrencyForCountry(country || "AU"))}</span>
                             </div>
                           ) : (
-                            <div className="text-xs text-foreground/70">
+                            <div className="text-xs text-white/60">
                               {formatPrice(l.product.price, getCurrencyForCountry(country || "AU"))} each
                             </div>
                           )}
@@ -571,16 +571,16 @@ export default function CartPageClient({ slug }: { slug: string }) {
                         <button
                           type="button"
                           onClick={() => removeOne(l.product.id)}
-                          className="rounded-md border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
+                          className="rounded-md border border-white/15 bg-white/10 px-2 py-1 text-sm font-semibold text-white hover:bg-white/20"
                           style={accent ? { borderColor: accent, color: accent } : undefined}
                         >
                           −
                         </button>
-                        <span className="min-w-8 text-center text-sm font-semibold">{l.quantity}</span>
+                        <span className="min-w-8 text-center text-sm font-semibold text-white">{l.quantity}</span>
                         <button
                           type="button"
                           onClick={() => addOne(l.product.id)}
-                          className="rounded-md border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
+                          className="rounded-md border border-white/15 bg-white/10 px-2 py-1 text-sm font-semibold text-white hover:bg-white/20"
                           style={accent ? { borderColor: accent, color: accent } : undefined}
                         >
                           +
@@ -590,13 +590,13 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   ))}
                 </div>
 
-                <div className="mt-6 border-t border-foreground/10 pt-6">
+                <div className="mt-6 border-t border-white/10 pt-6">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-base font-semibold">Delivery details</h3>
+                    <h3 className="text-base font-semibold text-white">Delivery details</h3>
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                      className="text-sm font-medium text-white/70 underline underline-offset-4 hover:text-white"
                     >
                       Clear trolley
                     </button>
@@ -604,13 +604,13 @@ export default function CartPageClient({ slug }: { slug: string }) {
 
                   {!authLoading ? (
                     user ? (
-                      <div className="mt-3 rounded-2xl border border-foreground/10 bg-foreground/5 p-4 text-sm">
+                      <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
                         ✅ You’re logged in as <span className="font-semibold">{user.name || user.email}</span>. We’ll use your details to speed up checkout.
                       </div>
                     ) : (
-                      <div className="mt-3 rounded-2xl border border-foreground/10 bg-foreground/5 p-4 text-sm">
-                        <div className="font-semibold">Check out faster</div>
-                        <div className="mt-1 text-foreground/70">Log in to save your details and track orders (optional).</div>
+                      <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm">
+                        <div className="font-semibold text-white">Check out faster</div>
+                        <div className="mt-1 text-white/60">Log in to save your details and track orders (optional).</div>
                         <div className="mt-3">
                           <button
                             type="button"
@@ -691,35 +691,35 @@ export default function CartPageClient({ slug }: { slug: string }) {
             )}
           </section>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
+          <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/40 backdrop-blur-2xl">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold">Order summary</div>
-                  <div className="mt-1 text-xs text-foreground/60">
+                  <div className="text-sm font-semibold text-white">Order summary</div>
+                  <div className="mt-1 text-xs text-white/60">
                     {cartItemCount} item{cartItemCount === 1 ? "" : "s"}
                   </div>
                 </div>
-                <div className="text-sm font-semibold">{formatPrice(cartTotal, getCurrencyForCountry(country || "AU"))}</div>
+                <div className="text-sm font-semibold text-white">{formatPrice(cartTotal, getCurrencyForCountry(country || "AU"))}</div>
               </div>
 
               {cartLines.length > 1 ? (
                 <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-                  <div className="text-xs font-medium uppercase tracking-wide text-foreground/60">
+                  <div className="text-xs font-medium uppercase tracking-wide text-white/60">
                     Items
                   </div>
                   <div className="mt-2 grid gap-2">
                     {cartLines.slice(0, 6).map((l) => (
                       <div key={l.product.id} className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <div className="truncate text-sm font-medium">{l.product.name}</div>
-                          <div className="text-xs text-foreground/60">Qty {l.quantity}</div>
+                          <div className="truncate text-sm font-medium text-white">{l.product.name}</div>
+                          <div className="text-xs text-white/60">Qty {l.quantity}</div>
                         </div>
-                        <div className="shrink-0 text-sm font-semibold">{formatPrice(l.product.price * l.quantity, getCurrencyForCountry(country || "AU"))}</div>
+                        <div className="shrink-0 text-sm font-semibold text-white">{formatPrice(l.product.price * l.quantity, getCurrencyForCountry(country || "AU"))}</div>
                       </div>
                     ))}
                     {cartLines.length > 6 ? (
-                      <div className="text-xs text-foreground/60">
+                      <div className="text-xs text-white/60">
                         +{cartLines.length - 6} more item{cartLines.length - 6 === 1 ? "" : "s"}
                       </div>
                     ) : null}
@@ -732,8 +732,8 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(false)}
                   disabled={!canProceedToPay}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
-                  style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
+                  style={accent ? { backgroundColor: accent, borderColor: accent, color: "#0a0a0a" } : { backgroundColor: "#fff" }}
                 >
                   {placing ? "Reserving..." : "Proceed to pay"}
                 </button>
@@ -742,7 +742,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(true)}
                   disabled={placing || placingWhatsApp || !directWhatsAppHref}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/30"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white hover:bg-white/20 disabled:opacity-60 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/30"
                   style={accent ? { borderColor: accent, color: accent } : undefined}
                 >
                   {placingWhatsApp ? "Placing & opening WhatsApp..." : "Place order & WhatsApp"}
@@ -753,12 +753,12 @@ export default function CartPageClient({ slug }: { slug: string }) {
                     href={directWhatsAppHref}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-medium underline underline-offset-4 hover:text-foreground/80"
+                    className="text-xs font-medium text-white/70 underline underline-offset-4 hover:text-white"
                   >
                     Or just send this trolley on WhatsApp
                   </a>
                 ) : (
-                  <p className="text-xs text-foreground/60">WhatsApp is unavailable (store phone not set).</p>
+                  <p className="text-xs text-white/60">WhatsApp is unavailable (store phone not set).</p>
                 )}
               </div>
 

@@ -42,6 +42,23 @@ const spring = {
   mass: 0.8,
 };
 
+const galleryContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12 },
+  },
+};
+
+const galleryItem = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 220, damping: 24, mass: 0.8 },
+  },
+};
+
 function isProduct(value: unknown): value is Product {
   if (!value || typeof value !== "object") return false;
   const v = value as Record<string, unknown>;
@@ -229,6 +246,20 @@ export default function StoreFront({ slug }: { slug: string }) {
       return matchesCategory && matchesQuery;
     });
   }, [products, query, categoryId]);
+
+  const galleryImages = useMemo(
+    () => (Array.isArray(products) ? products.filter((p) => p.imageUrl).slice(0, 6) : []),
+    [products]
+  );
+
+  const galleryLayout = [
+    "lg:col-span-2 lg:row-span-2 aspect-video",
+    "aspect-square",
+    "aspect-square",
+    "lg:col-span-2 aspect-video",
+    "aspect-square",
+    "aspect-square",
+  ];
 
   function persist(nextCart: Record<string, CartLine>) {
     try {
@@ -693,6 +724,46 @@ export default function StoreFront({ slug }: { slug: string }) {
           </div>
 
           <div className="relative p-6 md:p-8">
+            {galleryImages.length > 0 ? (
+              <section className="mb-8">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="text-base font-semibold text-white">Store gallery</h3>
+                  <span className="text-xs text-white/60">Fresh picks from {storeName}</span>
+                </div>
+                <motion.div
+                  variants={galleryContainer}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+                >
+                  {galleryImages.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      variants={galleryItem}
+                      className={`overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-xl ${
+                        galleryLayout[index % galleryLayout.length]
+                      }`}
+                    >
+                      {item.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
+                          No image
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </section>
+            ) : null}
+
             {error && (
               <div className="mb-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
                 <b>Error:</b> {error}

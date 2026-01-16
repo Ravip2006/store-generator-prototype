@@ -131,8 +131,9 @@ export default async function OrderConfirmationPage({
       style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
       className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.16),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.16),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)] text-slate-100"
     >
-      <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-6xl p-6">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
           <h1 className="text-2xl font-semibold tracking-tight text-white">Order confirmed</h1>
           <p className="mt-1 text-sm text-white/70">
             Order <span className="font-mono">{order!.id}</span>
@@ -168,27 +169,35 @@ export default async function OrderConfirmationPage({
             ))}
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Link
-              href={`/s/${encodeURIComponent(tenant)}`}
-              className="text-sm font-medium text-white/80 underline underline-offset-4 hover:text-white"
-            >
-              Continue shopping
-            </Link>
-
-            {whatsappHref && (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm font-medium text-white/80 underline underline-offset-4 hover:text-white"
-              >
-                Send order to store on WhatsApp
-              </a>
-            )}
+          <PostPurchaseAuthPrompt tenant={tenant} />
           </div>
 
-          <PostPurchaseAuthPrompt tenant={tenant} />
+          <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+              <div className="text-sm font-semibold text-white">Next steps</div>
+              <p className="mt-2 text-xs text-white/60">
+                Track your delivery or place another order.
+              </p>
+              <div className="mt-4 grid gap-2">
+                <Link
+                  href={`/s/${encodeURIComponent(tenant)}`}
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+                >
+                  Continue shopping
+                </Link>
+                {whatsappHref ? (
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
+                  >
+                    Send order on WhatsApp
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </main>

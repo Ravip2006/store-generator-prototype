@@ -164,14 +164,14 @@ function BarcodeScannerOverlay({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm p-4 flex items-center justify-center">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-white/20 overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10">
+    <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm p-4 flex items-center justify-center">
+      <div className="w-full max-w-lg rounded-2xl bg-[#0b0f18] shadow-2xl border border-white/10 overflow-hidden text-white">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="text-sm font-semibold">Scan EAN-13 barcode</div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-foreground/15 bg-background px-3 py-1.5 text-xs font-medium hover:bg-foreground/5"
+            className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium hover:bg-white/10"
           >
             Close
           </button>
@@ -183,12 +183,12 @@ function BarcodeScannerOverlay({
               <b>Error:</b> {error}
             </div>
           ) : (
-            <div className="mb-3 rounded-xl border border-foreground/10 bg-foreground/5 p-3 text-xs text-foreground/70">
+            <div className="mb-3 rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white/70">
               Point your camera at the barcode. Scanning starts automatically.
             </div>
           )}
 
-          <div className="overflow-hidden rounded-xl border border-foreground/10 bg-black">
+          <div className="overflow-hidden rounded-xl border border-white/10 bg-black">
             <video ref={videoRef} className="w-full h-[340px] object-cover" muted playsInline />
           </div>
         </div>
@@ -560,26 +560,26 @@ export default function AddProductPage() {
       />
 
       <div className="mx-auto w-full max-w-3xl p-6">
-        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
+        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl shadow-black/40 p-6 text-white">
           <form onSubmit={onSubmit} className="grid gap-4">
-            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-green-200/40 dark:border-green-500/20">
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">🏬 Select Store</span>
-                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-green-600/15 text-emerald-700 dark:bg-green-500/20 dark:text-emerald-300">
+                <span className="text-lg font-bold bg-gradient-to-r from-emerald-200 to-emerald-400 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-emerald-400/15 text-emerald-200">
                   {slug ? "Active" : "Required"}
                 </span>
               </div>
               {loadingStores ? (
-                <div className="text-sm text-foreground/60">⏳ Loading stores...</div>
+                <div className="text-sm text-white/60">⏳ Loading stores...</div>
               ) : stores.length === 0 ? (
-                <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
+                <div className="text-sm text-amber-200 bg-amber-500/10 p-2 rounded-lg border border-amber-400/20">
                   📦 No stores found. <a href="/admin/create-store" className="underline font-semibold">Create one here</a>.
                 </div>
               ) : (
                 <select
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full rounded-xl border-2 border-green-200/60 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 hover:border-emerald-300/70 transition-all"
+                  className="w-full rounded-xl border border-emerald-400/30 bg-white/5 px-4 py-2 text-sm font-medium text-white outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-400/20 hover:bg-white/10 transition-all"
                 >
                   {stores.map((store) => (
                     <option key={store.id} value={store.slug}>
@@ -588,26 +588,26 @@ export default function AddProductPage() {
                   ))}
                 </select>
               )}
-              <span className="text-xs text-foreground/60">
+              <span className="text-xs text-white/60">
                 Preview:{" "}
-                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-emerald-700 hover:text-emerald-800 dark:text-emerald-300 dark:hover:text-emerald-200">
+                <a href={previewUrl} target="_blank" rel="noreferrer" className="underline text-emerald-300 hover:text-emerald-200">
                   {previewUrl}
                 </a>
               </span>
             </div>
 
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-foreground">Product name / search</span>
+              <span className="text-sm font-medium text-white/80">Product name / search</span>
               <div className="relative">
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 pr-12 text-sm outline-none focus:border-foreground/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 pr-12 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
                 />
                 <button
                   type="button"
                   onClick={() => setScannerOpen(true)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-foreground/15 bg-background text-foreground hover:bg-foreground/5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-white hover:bg-white/10"
                   aria-label="Scan barcode"
                   title="Scan barcode"
                 >
@@ -616,12 +616,12 @@ export default function AddProductPage() {
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-medium text-foreground/70">EAN-13 barcode</span>
+                  <span className="text-xs font-medium text-white/70">EAN-13 barcode</span>
                   <button
                     type="button"
                     onClick={() => void lookupByBarcode(gtin)}
                     disabled={lookupLoading || !gtin}
-                    className="rounded-lg border border-foreground/15 bg-background px-3 py-1.5 text-xs font-medium hover:bg-foreground/5 disabled:opacity-60"
+                    className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60"
                   >
                     {lookupLoading ? "Looking up..." : "Lookup"}
                   </button>
@@ -630,29 +630,29 @@ export default function AddProductPage() {
                   value={gtin}
                   onChange={(e) => setGtin(e.target.value)}
                   placeholder="Scan or enter barcode"
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
                 />
                 {lookupMessage ? (
-                  <div className="rounded-xl border border-foreground/10 bg-foreground/5 p-3 text-xs">
-                    <div className="font-semibold">{lookupResult ? "Product Found" : "Barcode Lookup"}</div>
-                    <div className="text-foreground/70">{lookupMessage}</div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs">
+                    <div className="font-semibold text-white">{lookupResult ? "Product Found" : "Barcode Lookup"}</div>
+                    <div className="text-white/70">{lookupMessage}</div>
                     {lookupResult?.imageUrl ? (
                       <div className="mt-2 flex items-center gap-3">
                         <img
                           src={lookupResult.imageUrl}
                           alt={lookupResult.name}
-                          className="h-14 w-14 rounded-lg border border-foreground/10 object-cover bg-white"
+                          className="h-14 w-14 rounded-lg border border-white/10 object-cover bg-white/10"
                         />
                         <div className="text-xs">
-                          <div className="font-medium">{lookupResult.name}</div>
-                          <div className="text-foreground/60">
+                          <div className="font-medium text-white">{lookupResult.name}</div>
+                          <div className="text-white/60">
                             Source: {lookupResult.source}
                             {lookupResult.brand ? ` • Brand: ${lookupResult.brand}` : ""}
                           </div>
                         </div>
                       </div>
                     ) : lookupResult ? (
-                      <div className="mt-2 text-xs text-foreground/60">Source: {lookupResult.source}</div>
+                      <div className="mt-2 text-xs text-white/60">Source: {lookupResult.source}</div>
                     ) : null}
                   </div>
                 ) : null}
@@ -660,34 +660,34 @@ export default function AddProductPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-foreground">Price</span>
+              <span className="text-sm font-medium text-white/80">Price</span>
               <input
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="e.g. 12.5"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
               />
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-foreground">Quantity</span>
+              <span className="text-sm font-medium text-white/80">Quantity</span>
               <input
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="e.g. 10"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
               />
-              <span className="text-xs text-foreground/60">Stored as store stock (inventory).</span>
+              <span className="text-xs text-white/60">Stored as store stock (inventory).</span>
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-foreground">Product image (optional)</span>
+              <span className="text-sm font-medium text-white/80">Product image (optional)</span>
               <input
                 type="file"
                 accept="image/*"
                 capture="environment"
                 onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none file:text-white/80 focus:border-white/30"
               />
               <div className="flex gap-2 items-center flex-wrap text-xs">
                 <button
@@ -698,7 +698,7 @@ export default function AddProductPage() {
                 >
                   {uploadingImage ? "Uploading..." : "Upload"}
                 </button>
-                <span className="text-foreground/60">
+                <span className="text-white/60">
                   Bucket: <b>{imageBucket}</b>
                 </span>
               </div>
@@ -707,7 +707,7 @@ export default function AddProductPage() {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="Image URL (auto-filled after upload)"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
               />
               {uploadError ? (
                 <span className="text-sm text-red-600">{uploadError}</span>
@@ -715,11 +715,11 @@ export default function AddProductPage() {
             </label>
 
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-foreground">Category (optional)</span>
+              <span className="text-sm font-medium text-white/80">Category (optional)</span>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/30"
               >
                 <option value="">No category</option>
                 {categories.map((c) => (
@@ -729,7 +729,7 @@ export default function AddProductPage() {
                 ))}
               </select>
               {categories.length === 0 ? (
-                <span className="text-xs text-foreground/60">
+                <span className="text-xs text-white/60">
                   No categories found for this store. Create one in the Categories admin page.
                 </span>
               ) : null}
