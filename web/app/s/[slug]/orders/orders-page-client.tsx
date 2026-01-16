@@ -136,6 +136,10 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
     }
   };
 
+  const totalSpent = orders.reduce((sum, o) => sum + o.total, 0);
+  const deliveredCount = orders.filter((o) => o.status === "DELIVERED").length;
+  const confirmedCount = orders.filter((o) => o.status === "CONFIRMED").length;
+
   if (authLoading) {
     return (
       <main
@@ -203,12 +207,13 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 shadow-lg shadow-black/40"
-              >
+          <div className="grid gap-6 lg:grid-cols-12">
+            <div className="lg:col-span-8 space-y-4">
+              {orders.map((order) => (
+                <div
+                  key={order.id}
+                  className="rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-2xl p-6 shadow-2xl shadow-black/40"
+                >
                 {/* Order header */}
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
@@ -305,8 +310,33 @@ export default function MyOrdersPageClient({ slug }: { slug: string }) {
                     🔄 Buy Again
                   </button>
                 </div>
+                </div>
+              ))}
+            </div>
+
+            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
+                <div className="text-sm font-semibold text-white">Insights</div>
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-xs text-white/60">Total orders</div>
+                    <div className="mt-1 text-2xl font-semibold text-white">{orders.length}</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-xs text-white/60">Total spent</div>
+                    <div className="mt-1 text-2xl font-semibold text-white">₹{totalSpent.toFixed(2)}</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-xs text-white/60">Delivered</div>
+                    <div className="mt-1 text-2xl font-semibold text-white">{deliveredCount}</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="text-xs text-white/60">Confirmed</div>
+                    <div className="mt-1 text-2xl font-semibold text-white">{confirmedCount}</div>
+                  </div>
+                </div>
               </div>
-            ))}
+            </aside>
           </div>
         )}
       </div>

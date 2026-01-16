@@ -215,8 +215,8 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
             <p className="text-sm text-white/70">Order not found.</p>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px]">
-            <section className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+          <div className="mt-6 grid gap-6 lg:grid-cols-12">
+            <section className="lg:col-span-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
               <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm">
@@ -255,8 +255,8 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
               </div>
             </section>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
+            <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/40 backdrop-blur-2xl">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="text-sm font-semibold text-white">Order summary</div>

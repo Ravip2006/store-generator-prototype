@@ -177,143 +177,145 @@ export default function AdminDashboard() {
           action={{ label: "✨ Create Store", href: "/admin/create-store" }}
         />
 
-        {/* Stats Grid */}
-        <div className="mb-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((card) => (
-            <motion.div
-              key={card.title}
-              whileHover={{ y: -6 }}
-              transition={spring}
-              className="group relative overflow-hidden rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/40"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="relative z-10">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-xs font-semibold text-white/60">{card.title}</p>
-                    <div className="mt-2 text-3xl font-semibold text-white">
-                      {loading ? "—" : card.value}
-                    </div>
-                  </div>
-                  <div className="text-2xl group-hover:scale-110 transition-transform">{card.icon}</div>
-                </div>
-                <p className="mt-4 text-xs text-white/40">{card.trend}</p>
+        {/* Bento Grid */}
+        <div className="grid gap-6 lg:grid-cols-12">
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-7 lg:row-span-2 rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-2xl p-8 shadow-2xl shadow-blue-500/10"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold text-white/60">Midnight Ops</p>
+                <h2 className="mt-2 text-2xl font-semibold text-white">Electric Control Plane</h2>
+                <p className="mt-2 text-sm text-white/60 max-w-xl">
+                  Monitor live store health, GMV, and fulfillment from a unified bento dashboard.
+                </p>
               </div>
-            </motion.div>
-          ))}
-        </div>
+              <div className="rounded-2xl border border-white/20 bg-white/10 px-3 py-1 text-xs text-white/70">
+                Live
+              </div>
+            </div>
 
-        {/* Main Grid */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left Column - Full Height */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Quick Management Section */}
-            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-8 shadow-lg shadow-black/30">
-              <h2 className="text-2xl font-semibold text-white mb-6">⚡ Quick Management</h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {menuItems.slice(0, 4).map((item) => (
-                  <motion.div key={item.href} whileHover={{ y: -6 }} transition={spring}>
-                    <Link
-                      href={item.href}
-                      className="group relative overflow-hidden rounded-xl border border-white/15 bg-white/10 p-4 transition-all hover:border-emerald-300/40"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                      <div className="relative z-10 flex items-start justify-between">
-                        <div>
-                          <div className="text-2xl mb-2 group-hover:scale-110 transition-transform">{item.icon}</div>
-                          <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                          <p className="text-xs text-white/60 mt-1">{item.description}</p>
-                        </div>
-                        <div className="text-base text-white/40 group-hover:text-emerald-200 group-hover:translate-x-2 transition-all">→</div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {statCards.map((card) => (
+                <motion.div
+                  key={card.title}
+                  whileHover={{ y: -4 }}
+                  transition={spring}
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-indigo-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="relative z-10 flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-white/60">{card.title}</p>
+                      <div className="mt-2 text-2xl font-semibold text-white">
+                        {loading ? "—" : card.value}
                       </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-
-            {/* Info Cards */}
-            <div className="grid gap-6 sm:grid-cols-2">
-              {/* Platform Features */}
-              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
-                <h3 className="flex items-center gap-2 text-xl font-semibold text-white mb-4">
-                  <span>⚡</span> Features
-                </h3>
-                <ul className="space-y-2 text-xs text-white/70">
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-300 mt-0.5">✓</span>
-                    <span>Multi-store management</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-300 mt-0.5">✓</span>
-                    <span>Product discounts & pricing</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-300 mt-0.5">✓</span>
-                    <span>Order tracking & analytics</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-emerald-300 mt-0.5">✓</span>
-                    <span>Customer insights & data</span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* API Integration */}
-              <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
-                <h3 className="flex items-center gap-2 text-xl font-semibold text-white mb-4">
-                  <span>🔌</span> API
-                </h3>
-                <div className="space-y-2 text-xs text-white/70">
-                  <div>
-                    <p className="font-semibold text-white mb-1">Header</p>
-                    <code className="rounded bg-white/10 px-2 py-1 block font-mono text-xs">
-                      x-tenant-id: store-slug
-                    </code>
+                      <p className="mt-2 text-[11px] text-white/40">{card.trend}</p>
+                    </div>
+                    <div className="text-xl group-hover:scale-110 transition-transform">{card.icon}</div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-white mb-1">Endpoints</p>
-                    <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs mb-1">
-                      GET /api/products
-                    </code>
-                    <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs">
-                      PATCH /api/products/:id
-                    </code>
-                  </div>
-                </div>
-              </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right Sidebar */}
-          <div className="sticky top-24 self-start space-y-6">
-            {/* Quick Links */}
-            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
-              <h3 className="text-xl font-semibold text-white mb-4">🧭 Navigation</h3>
-              <div className="space-y-2">
-                {menuItems.map((item) => (
-                  <motion.div key={item.href} whileHover={{ x: 6 }} transition={spring}>
-                    <Link
-                      href={item.href}
-                      className="group flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white border border-transparent hover:border-white/20"
-                    >
-                      <span className="text-xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                      <span className="font-semibold text-white/80 group-hover:text-white transition-all">{item.title}</span>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-5 rounded-[28px] border border-white/15 bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-2xl p-6 shadow-xl shadow-purple-500/10"
+          >
+            <h3 className="text-lg font-semibold text-white">⚡ Quick Actions</h3>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {menuItems.slice(0, 4).map((item) => (
+                <motion.div key={item.href} whileHover={{ y: -4 }} transition={spring}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white/80"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="text-lg">{item.icon}</span>
+                      <span className="font-semibold text-white">{item.title}</span>
+                    </span>
+                    <span className="text-white/40 group-hover:text-emerald-200 transition-colors">→</span>
+                  </Link>
+                </motion.div>
+              ))}
             </div>
+          </motion.div>
 
-            {/* Status */}
-            <div className="rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl p-6 shadow-lg shadow-black/30">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
-                <span className="text-sm font-semibold text-white">System Status</span>
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-4 rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-2xl p-6 shadow-xl shadow-cyan-500/10"
+          >
+            <h3 className="text-lg font-semibold text-white">🚀 Platform Features</h3>
+            <ul className="mt-4 space-y-2 text-xs text-white/70">
+              <li className="flex items-start gap-2"><span className="text-cyan-300">✓</span>Multi-store management</li>
+              <li className="flex items-start gap-2"><span className="text-cyan-300">✓</span>Dynamic pricing rules</li>
+              <li className="flex items-start gap-2"><span className="text-cyan-300">✓</span>Order telemetry</li>
+              <li className="flex items-start gap-2"><span className="text-cyan-300">✓</span>Customer intelligence</li>
+            </ul>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-4 rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-2xl p-6 shadow-xl shadow-indigo-500/10"
+          >
+            <h3 className="text-lg font-semibold text-white">🔌 API Status</h3>
+            <div className="mt-4 space-y-2 text-xs text-white/70">
+              <div>
+                <p className="font-semibold text-white mb-1">Header</p>
+                <code className="rounded bg-white/10 px-2 py-1 block font-mono text-xs">
+                  x-tenant-id: store-slug
+                </code>
               </div>
-              <p className="text-xs text-white/60">All systems operational</p>
+              <div>
+                <p className="font-semibold text-white mb-1">Endpoints</p>
+                <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs mb-1">
+                  GET /api/products
+                </code>
+                <code className="rounded bg-white/10 px-2 py-0.5 block font-mono text-xs">
+                  PATCH /api/products/:id
+                </code>
+              </div>
             </div>
-          </div>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-4 rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-2xl p-6 shadow-xl shadow-emerald-500/10"
+          >
+            <h3 className="text-lg font-semibold text-white">🧭 Navigation</h3>
+            <div className="mt-4 space-y-2">
+              {menuItems.map((item) => (
+                <motion.div key={item.href} whileHover={{ x: 6 }} transition={spring}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-white/70 transition-all hover:bg-white/10 hover:text-white border border-transparent hover:border-white/20"
+                  >
+                    <span className="text-lg group-hover:scale-110 transition-transform">{item.icon}</span>
+                    <span className="font-semibold text-white/80 group-hover:text-white transition-all">{item.title}</span>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            whileHover={{ y: -6 }}
+            transition={spring}
+            className="lg:col-span-12 rounded-[28px] border border-white/15 bg-white/10 backdrop-blur-2xl p-6 shadow-xl shadow-black/30"
+          >
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />
+              <span className="text-sm font-semibold text-white">System Status</span>
+            </div>
+            <p className="mt-2 text-xs text-white/60">All systems operational • 99.99% uptime • Edge latency 24ms</p>
+          </motion.div>
         </div>
       </main>
     </motion.div>

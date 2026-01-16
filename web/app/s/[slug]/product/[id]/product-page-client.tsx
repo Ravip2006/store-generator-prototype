@@ -325,9 +325,9 @@ export default function ProductPageClient({
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-5xl p-4 sm:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-lg shadow-black/40 backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-6xl p-4 sm:p-6">
+        <div className="grid gap-6 lg:grid-cols-12">
+          <div className="lg:col-span-8 overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur-2xl">
             <div className="aspect-[4/3] w-full border-b border-white/10 bg-white/10">
               {product.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -338,7 +338,7 @@ export default function ProductPageClient({
                   loading="lazy"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-foreground/50">
+                <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
                   No image
                 </div>
               )}
@@ -346,10 +346,10 @@ export default function ProductPageClient({
 
             <div className="p-4 sm:p-6">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold">Product description</div>
+                <div className="text-sm font-semibold text-white">Product description</div>
               </div>
 
-              <div className="mt-2 space-y-3 text-sm text-foreground/70">
+              <div className="mt-2 space-y-3 text-sm text-white/70">
                 {descriptionParagraphs.length > 0 ? (
                   descriptionParagraphs.map((p, idx) => <p key={idx}>{p}</p>)
                 ) : (
@@ -357,31 +357,31 @@ export default function ProductPageClient({
                 )}
               </div>
 
-              <div className="mt-6 border-t border-foreground/10 pt-5">
-                <div className="text-sm font-semibold">Product details</div>
+              <div className="mt-6 border-t border-white/10 pt-5">
+                <div className="text-sm font-semibold text-white">Product details</div>
                 <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
                   {product.brand ? (
                     <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/60">Brand</dt>
-                      <dd className="mt-1 text-foreground/80">{product.brand}</dd>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-white/80">Brand</dt>
+                      <dd className="mt-1 text-white/90">{product.brand}</dd>
                     </div>
                   ) : null}
                   {product.packSize ? (
                     <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/60">Pack size</dt>
-                      <dd className="mt-1 text-foreground/80">{product.packSize}</dd>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-white/80">Pack size</dt>
+                      <dd className="mt-1 text-white/90">{product.packSize}</dd>
                     </div>
                   ) : null}
                   {product.category?.name ? (
                     <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/60">Category</dt>
-                      <dd className="mt-1 text-foreground/80">{product.category.name}</dd>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-white/80">Category</dt>
+                      <dd className="mt-1 text-white/90">{product.category.name}</dd>
                     </div>
                   ) : null}
                   {typeof product.stock === "number" ? (
                     <div>
-                      <dt className="text-xs font-medium uppercase tracking-wide text-foreground/60">Availability</dt>
-                      <dd className="mt-1 text-foreground/80">
+                      <dt className="text-xs font-medium uppercase tracking-wide text-white/80">Availability</dt>
+                      <dd className="mt-1 text-white/90">
                         {product.stock <= 0 ? "Out of stock" : `${product.stock} in stock`}
                       </dd>
                     </div>
@@ -391,19 +391,19 @@ export default function ProductPageClient({
             </div>
           </div>
 
-          <aside className="lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
+          <aside className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/40 backdrop-blur-2xl">
               <div className="min-w-0">
                 {product.brand ? (
-                  <div className="text-xs font-medium uppercase tracking-wide text-foreground/60">
+                  <div className="text-xs font-medium uppercase tracking-wide text-white/80">
                     {product.brand}
                   </div>
                 ) : null}
-                <h1 className="mt-1 text-xl font-semibold tracking-tight">{product.name}</h1>
-                <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-foreground/70">
+                <h1 className="mt-1 text-xl font-semibold tracking-tight text-white">{product.name}</h1>
+                <div className="mt-1 flex flex-wrap gap-x-2 gap-y-1 text-sm text-white/70">
                   {product.packSize ? <span>{product.packSize}</span> : null}
                   {product.packSize && product.category?.name ? (
-                    <span className="text-foreground/40">•</span>
+                    <span className="text-white/40">•</span>
                   ) : null}
                   {product.category?.name ? <span>{product.category.name}</span> : null}
                 </div>
@@ -421,22 +421,22 @@ export default function ProductPageClient({
                           </div>
                         ) : null}
                       </div>
-                      <div className="text-sm text-foreground/60 line-through">₹{product.regularPrice.toFixed(2)}</div>
+                      <div className="text-sm text-white/60 line-through">₹{product.regularPrice.toFixed(2)}</div>
                     </div>
                   ) : (
                     <div className="text-2xl font-semibold">₹{product.price.toFixed(2)}</div>
                   )}
-                  <div className="text-xs text-foreground/60 mt-1">Inclusive of all taxes</div>
+                  <div className="text-xs text-white/70 mt-1">Inclusive of all taxes</div>
                 </div>
               </div>
 
               <div className="mt-4 flex flex-col gap-2">
                 {qty > 0 ? (
-                  <div className="inline-flex items-center justify-between gap-2 rounded-2xl border border-foreground/15 bg-background px-3 py-3">
+                  <div className="inline-flex items-center justify-between gap-2 rounded-2xl border border-white/15 bg-white/5 px-3 py-3">
                     <button
                       type="button"
                       onClick={() => removeFromCart(productId)}
-                      className="rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-semibold hover:bg-foreground/5"
+                      className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10"
                       style={accent ? { borderColor: accent, color: accent } : undefined}
                     >
                       −
@@ -446,7 +446,7 @@ export default function ProductPageClient({
                       type="button"
                       onClick={() => addToCart(product)}
                       disabled={isOutOfStock}
-                      className="rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-semibold hover:bg-foreground/5"
+                      className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10"
                       style={accent ? { borderColor: accent, color: accent } : undefined}
                     >
                       +
@@ -457,7 +457,7 @@ export default function ProductPageClient({
                     type="button"
                     onClick={() => addToCart(product)}
                     disabled={isOutOfStock}
-                    className="inline-flex items-center justify-center rounded-2xl border border-foreground/15 bg-background px-5 py-3 text-sm font-semibold hover:bg-foreground/5"
+                    className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
                     style={accent ? { borderColor: accent, color: accent } : undefined}
                   >
                     {isOutOfStock ? "Out of stock" : "Add to cart"}
@@ -466,45 +466,45 @@ export default function ProductPageClient({
 
                 <Link
                   href={`/s/${encodeURIComponent(tenant)}/cart`}
-                  className="inline-flex items-center justify-center rounded-2xl border border-foreground/15 bg-background px-5 py-3 text-sm font-semibold hover:bg-foreground/5"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
                 >
                   Go to cart
                 </Link>
               </div>
 
-              <div className="mt-5 rounded-2xl border border-foreground/10 bg-foreground/5 p-4">
-                <div className="text-sm font-semibold">Why shop from {store.name}?</div>
+              <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4">
+                <div className="text-sm font-semibold text-white">Why shop from {store.name}?</div>
                 <div className="mt-3 grid gap-2">
                   <div className="flex items-start gap-3">
                     <div
-                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10"
+                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/10"
                       style={accent ? { backgroundColor: accent } : undefined}
                     >
-                      <ShieldIcon className="h-4 w-4 text-background" />
+                      <ShieldIcon className="h-4 w-4 text-white" />
                     </div>
-                    <div className="text-sm text-foreground/80">
+                    <div className="text-sm text-white/80">
                       Trusted local store with secure checkout.
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div
-                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10"
+                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/10"
                       style={accent ? { backgroundColor: accent } : undefined}
                     >
-                      <ClockIcon className="h-4 w-4 text-background" />
+                      <ClockIcon className="h-4 w-4 text-white" />
                     </div>
-                    <div className="text-sm text-foreground/80">
+                    <div className="text-sm text-white/80">
                       Quick ordering and easy updates over WhatsApp.
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
                     <div
-                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-foreground/10"
+                      className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-xl border border-white/10 bg-white/10"
                       style={accent ? { backgroundColor: accent } : undefined}
                     >
-                      <SparkleIcon className="h-4 w-4 text-background" />
+                      <SparkleIcon className="h-4 w-4 text-white" />
                     </div>
-                    <div className="text-sm text-foreground/80">
+                    <div className="text-sm text-white/80">
                       Fresh assortment curated for your daily needs.
                     </div>
                   </div>
@@ -514,16 +514,16 @@ export default function ProductPageClient({
           </aside>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-foreground/10 bg-background p-5">
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-2xl">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Similar products</h2>
+            <h2 className="text-base font-semibold text-white">Similar products</h2>
             {product.category?.name ? (
-              <div className="text-xs text-foreground/60">From {product.category.name}</div>
+              <div className="text-xs text-white/70">From {product.category.name}</div>
             ) : null}
           </div>
 
           {similarProducts.length === 0 ? (
-            <p className="mt-2 text-sm text-foreground/70">
+            <p className="mt-2 text-sm text-white/70">
               No similar products found.
             </p>
           ) : (
@@ -723,7 +723,7 @@ export default function ProductPageClient({
             </div>
           </div>
 
-          <div className="mt-8 flex flex-col gap-2 border-t border-foreground/10 pt-6 text-xs text-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
             <div>© {currentYear} {store.name}. All rights reserved.</div>
             <div>Powered by Store Generator</div>
           </div>

@@ -839,18 +839,18 @@ export default function AdminProductsPage() {
       />
 
       <div className="mx-auto w-full max-w-5xl p-6">
-        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
+        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-2xl shadow-2xl shadow-black/40 p-6 text-white">
           <div className="mt-6 space-y-2">
-            <p className="text-sm text-foreground/70">
+            <p className="text-sm text-white/70">
               Create products and assign them to categories for a tenant store.
             </p>
           </div>
 
           <form onSubmit={onCreate} className="mt-6 grid gap-3">
-            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-green-200/40 dark:border-green-500/20">
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">🏬 Select Store</span>
-                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-green-600/15 text-emerald-700 dark:bg-green-500/20 dark:text-emerald-300">
+                <span className="text-lg font-bold bg-gradient-to-r from-emerald-200 to-emerald-400 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-emerald-400/15 text-emerald-200">
                   {slug ? "Active" : "Required"}
                 </span>
               </div>
@@ -858,7 +858,7 @@ export default function AdminProductsPage() {
                 <select
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
-                  className="w-full rounded-xl border-2 border-green-300/50 dark:border-green-500/30 bg-gradient-to-r from-background to-green-500/5 hover:from-green-500/10 hover:to-emerald-500/10 px-4 py-3 text-sm font-semibold text-slate-900 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/20 transition-all hover:shadow-lg hover:shadow-emerald-500/10"
+                  className="w-full rounded-xl border border-emerald-400/30 bg-white/5 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-400/20 transition-all hover:bg-white/10"
                 >
                   <option value="">-- Choose a store --</option>
                   {stores.map((store) => (
@@ -876,33 +876,33 @@ export default function AdminProductsPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="grid gap-2">
-                <span className="text-sm text-foreground/70">Product name</span>
+                <span className="text-sm text-white/80">Product name</span>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Kurkure"
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
                 />
               </label>
 
               <label className="grid gap-2">
-                <span className="text-sm text-foreground/70">Price</span>
+                <span className="text-sm text-white/80">Price</span>
                 <input
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
                   inputMode="decimal"
                 />
               </label>
             </div>
 
             <div className="grid gap-2">
-              <span className="text-sm text-foreground/70">Product image (optional)</span>
+              <span className="text-sm text-white/80">Product image (optional)</span>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none file:text-white/80 focus:border-white/30"
               />
 
               <div className="flex flex-wrap items-center gap-2">
@@ -910,28 +910,28 @@ export default function AdminProductsPage() {
                   type="button"
                   onClick={onUploadImage}
                   disabled={uploadingImage || !imageFile}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10 disabled:opacity-60"
                 >
                   {uploadingImage ? "Uploading..." : "Upload image"}
                 </button>
-                <span className="text-xs text-foreground/60">Bucket: {imageBucket}</span>
+                <span className="text-xs text-white/60">Bucket: {imageBucket}</span>
               </div>
 
               <input
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
                 placeholder="Image URL (auto-filled after upload)"
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
               />
               {uploadError ? <p className="text-sm text-red-600">{uploadError}</p> : null}
             </div>
 
             <label className="grid gap-2">
-              <span className="text-sm text-foreground/70">Category (optional)</span>
+              <span className="text-sm text-white/80">Category (optional)</span>
               <select
                 value={createCategoryId}
                 onChange={(e) => setCreateCategoryId(e.target.value)}
-                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none focus:border-white/30"
               >
                 <option value="">No category</option>
                 {categories.map((c) => (
@@ -941,21 +941,21 @@ export default function AdminProductsPage() {
                 ))}
               </select>
               {categories.length === 0 && (
-                <p className="text-xs text-foreground/60">
+                <p className="text-xs text-white/60">
                   No categories yet. Create one below.
                 </p>
               )}
             </label>
 
-            <div className="grid gap-2 rounded-xl border border-foreground/10 bg-foreground/5 p-4">
+            <div className="grid gap-2 rounded-xl border border-white/10 bg-white/5 p-4">
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold">Create category</div>
-                  <p className="mt-1 text-xs text-foreground/60">
+                  <div className="text-sm font-semibold text-white">Create category</div>
+                  <p className="mt-1 text-xs text-white/60">
                     Categories are tenant-specific.
                   </p>
                 </div>
-                <div className="text-xs text-foreground/60">
+                <div className="text-xs text-white/60">
                   {categories.length} total
                 </div>
               </div>
@@ -965,7 +965,7 @@ export default function AdminProductsPage() {
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   placeholder="e.g. Snacks"
-                  className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30"
                 />
                 <button
                   type="button"
@@ -981,20 +981,20 @@ export default function AdminProductsPage() {
             <button
               type="submit"
               disabled={creating}
-              className="mt-1 inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-medium hover:bg-foreground/10 disabled:opacity-60"
+              className="mt-1 inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-60"
             >
               {creating ? "Creating..." : "Create product"}
             </button>
           </form>
 
           {error && (
-            <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white">
               <b>Error:</b> {error}
             </div>
           )}
 
           {notice && !error && (
-            <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white">
               {notice}
             </div>
           )}
@@ -1003,7 +1003,7 @@ export default function AdminProductsPage() {
             <h2 className="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">📦 Product list</h2>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <label className="relative inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 cursor-pointer disabled:opacity-60">
+                <label className="relative inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-white hover:bg-white/10 cursor-pointer disabled:opacity-60">
                   📥 Import CSV
                   <input
                     type="file"
@@ -1019,14 +1019,14 @@ export default function AdminProductsPage() {
                     className="hidden"
                   />
                 </label>
-                <span className="text-xs text-foreground/50">(descriptions)</span>
+                <span className="text-xs text-white/60">(descriptions)</span>
               </div>
 
               <button
                 type="button"
                 onClick={onOnboardCatalog}
                 disabled={onboarding || loading}
-                className="inline-flex items-center justify-center rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5 disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-white hover:bg-white/10 disabled:opacity-60"
               >
                 {onboarding ? "Onboarding..." : "Onboard catalog"}
               </button>
@@ -1043,22 +1043,22 @@ export default function AdminProductsPage() {
           </div>
 
           {products.length === 0 ? (
-            <p className="mt-4 text-sm text-foreground/80">No products yet.</p>
+            <p className="mt-4 text-sm text-white/80">No products yet.</p>
           ) : filteredProducts.length === 0 ? (
-            <p className="mt-4 text-sm text-foreground/80">No products match your search.</p>
+            <p className="mt-4 text-sm text-white/80">No products match your search.</p>
           ) : (
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProducts.map((p) => (
-                <div key={p.id} className="rounded-xl border border-foreground/10 bg-white dark:bg-background/50 p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div key={p.id} className="rounded-xl border border-white/10 bg-white/5 p-5 shadow-2xl shadow-black/20 transition-shadow hover:shadow-black/40">
                   {/* Product Name & ID */}
                   <div className="mb-4">
-                    <h3 className="font-semibold text-foreground">{p.name}</h3>
-                    <p className="text-xs text-foreground/50 font-mono mt-1">{p.id}</p>
+                    <h3 className="font-semibold text-white">{p.name}</h3>
+                    <p className="text-xs text-white/60 font-mono mt-1">{p.id}</p>
                   </div>
 
                   {/* Price Section */}
-                  <div className="mb-4 space-y-2 rounded-lg bg-foreground/5 p-3">
-                    <label className="block text-xs font-semibold text-foreground/70">Price</label>
+                  <div className="mb-4 space-y-2 rounded-lg bg-white/5 p-3">
+                    <label className="block text-xs font-semibold text-white/80">Price</label>
                     <div className="flex gap-2">
                       <input
                         value={priceDraftById[p.id] ?? String((p.regularPrice ?? p.price) ?? "")}
@@ -1067,13 +1067,13 @@ export default function AdminProductsPage() {
                         }
                         disabled={savingPriceProductId === p.id}
                         inputMode="decimal"
-                        className="flex-1 rounded-lg border border-foreground/15 bg-background px-2 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
+                        className="flex-1 rounded-lg border border-white/15 bg-white/5 px-2 py-2 text-sm text-white outline-none focus:border-white/30 disabled:opacity-60"
                       />
                       <button
                         type="button"
                         onClick={() => onSavePrice(p.id)}
                         disabled={savingPriceProductId === p.id}
-                        className="px-3 py-2 rounded-lg border border-foreground/15 bg-background text-xs font-medium hover:bg-foreground/5 disabled:opacity-60"
+                        className="px-3 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60"
                       >
                         {savingPriceProductId === p.id ? "..." : "Save"}
                       </button>
@@ -1086,8 +1086,8 @@ export default function AdminProductsPage() {
                   </div>
 
                   {/* Discount Section */}
-                  <div className="mb-4 space-y-2 rounded-lg bg-foreground/5 p-3">
-                    <label className="block text-xs font-semibold text-foreground/70">Discount (for {slug})</label>
+                  <div className="mb-4 space-y-2 rounded-lg bg-white/5 p-3">
+                    <label className="block text-xs font-semibold text-white/80">Discount (for {slug})</label>
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <div className="flex-1">
@@ -1099,15 +1099,15 @@ export default function AdminProductsPage() {
                             disabled={savingDiscountProductId === p.id}
                             inputMode="decimal"
                             placeholder="0"
-                            className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
+                            className="w-full rounded-lg border border-white/15 bg-white/5 px-2 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 disabled:opacity-60"
                           />
-                          <p className="mt-1 text-xs text-foreground/50">Discount %</p>
+                          <p className="mt-1 text-xs text-white/60">Discount %</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => onSaveDiscount(p.id)}
                           disabled={savingDiscountProductId === p.id}
-                          className="px-3 py-2 rounded-lg border border-foreground/15 bg-background text-xs font-medium hover:bg-foreground/5 disabled:opacity-60 self-start mt-0"
+                          className="px-3 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60 self-start mt-0"
                         >
                           {savingDiscountProductId === p.id ? "..." : "Save"}
                         </button>
@@ -1131,13 +1131,13 @@ export default function AdminProductsPage() {
                         ) : null;
                       })()}
 
-                      <p className="text-xs text-foreground/50">Leave blank to remove discount</p>
+                      <p className="text-xs text-white/60">Leave blank to remove discount</p>
                     </div>
                   </div>
 
                   {/* Stock Section */}
-                  <div className="mb-4 space-y-2 rounded-lg bg-foreground/5 p-3">
-                    <label className="block text-xs font-semibold text-foreground/70">Stock</label>
+                  <div className="mb-4 space-y-2 rounded-lg bg-white/5 p-3">
+                    <label className="block text-xs font-semibold text-white/80">Stock</label>
                     <div className="flex gap-2">
                       <input
                         value={stockDraftById[p.id] ?? (p.stock == null ? "" : String(p.stock))}
@@ -1147,13 +1147,13 @@ export default function AdminProductsPage() {
                         disabled={savingStockProductId === p.id}
                         inputMode="numeric"
                         placeholder="0"
-                        className="flex-1 rounded-lg border border-foreground/15 bg-background px-2 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
+                        className="flex-1 rounded-lg border border-white/15 bg-white/5 px-2 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 disabled:opacity-60"
                       />
                       <button
                         type="button"
                         onClick={() => onSaveStock(p.id)}
                         disabled={savingStockProductId === p.id}
-                        className="px-3 py-2 rounded-lg border border-foreground/15 bg-background text-xs font-medium hover:bg-foreground/5 disabled:opacity-60"
+                        className="px-3 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60"
                       >
                         {savingStockProductId === p.id ? "..." : "Save"}
                       </button>
@@ -1163,7 +1163,7 @@ export default function AdminProductsPage() {
                   {/* Category Section */}
                   <div className="mb-4 space-y-2">
                     <div className="flex items-center justify-between gap-2">
-                      <label className="block text-xs font-semibold text-foreground/70">Category</label>
+                      <label className="block text-xs font-semibold text-white/80">Category</label>
                       {savingProductId === p.id ? (
                         <span className="text-xs text-blue-600 font-medium animate-pulse">Saving...</span>
                       ) : null}
@@ -1172,7 +1172,7 @@ export default function AdminProductsPage() {
                       value={p.categoryId || ""}
                       onChange={(e) => onChangeCategory(p.id, e.target.value)}
                       disabled={savingProductId === p.id}
-                      className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60"
+                      className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white outline-none focus:border-white/30 disabled:opacity-60"
                     >
                       <option value="">No category</option>
                       {categories.map((c) => (
@@ -1184,14 +1184,14 @@ export default function AdminProductsPage() {
                   </div>
 
                   {/* Description Section */}
-                  <div className="mb-4 space-y-2 rounded-lg bg-foreground/5 p-3">
+                  <div className="mb-4 space-y-2 rounded-lg bg-white/5 p-3">
                     <div className="flex items-center justify-between gap-2">
-                      <label className="block text-xs font-semibold text-foreground/70">Description</label>
+                      <label className="block text-xs font-semibold text-white/80">Description</label>
                       <button
                         type="button"
                         onClick={() => onGenerateAiDescription(p.id)}
                         disabled={generatingAiDescriptionProductId === p.id}
-                        className="px-2 py-1 rounded-lg border border-foreground/15 bg-background text-xs font-medium hover:bg-foreground/5 disabled:opacity-60"
+                        className="px-2 py-1 rounded-lg border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60"
                       >
                         {generatingAiDescriptionProductId === p.id ? "Generating..." : "✨ AI"}
                       </button>
@@ -1203,32 +1203,32 @@ export default function AdminProductsPage() {
                       }
                       disabled={savingDescriptionProductId === p.id}
                       placeholder="Enter product description..."
-                      className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60 font-mono text-xs resize-none"
+                      className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 disabled:opacity-60 font-mono text-xs resize-none"
                       rows={3}
                     />
                     <button
                       type="button"
                       onClick={() => onSaveDescription(p.id)}
                       disabled={savingDescriptionProductId === p.id}
-                      className="w-full px-3 py-2 rounded-lg border border-foreground/15 bg-background text-xs font-medium hover:bg-foreground/5 disabled:opacity-60"
+                      className="w-full px-3 py-2 rounded-lg border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 disabled:opacity-60"
                     >
                       {savingDescriptionProductId === p.id ? "Saving..." : "Save Description"}
                     </button>
                   </div>
 
                   {/* GS1 Branded FMCG Lookup Section */}
-                  <div className="mb-4 space-y-2 rounded-lg bg-purple-50 dark:bg-purple-600/10 border border-purple-200 dark:border-purple-600/30 p-3">
-                    <label className="block text-xs font-semibold text-purple-900 dark:text-purple-200">
+                  <div className="mb-4 space-y-2 rounded-lg bg-purple-600/10 border border-purple-500/30 p-3">
+                    <label className="block text-xs font-semibold text-purple-200">
                       🔍 GS1 Lookup (Branded FMCG)
                     </label>
-                    <p className="text-xs text-purple-800 dark:text-purple-300 mb-2">
+                    <p className="text-xs text-purple-200/80 mb-2">
                       Link to official brand images from GS1 India database (Maggi, Amul, Surf Excel, etc.)
                     </p>
                     {p.isBrandedFMCG ? (
                       <div className="space-y-2">
-                        <div className="rounded-lg bg-white dark:bg-background/50 p-2 text-xs space-y-1">
-                          {p.brand && <p>✓ Brand: <span className="font-semibold text-green-700 dark:text-green-400">{p.brand}</span></p>}
-                          {p.gtin && <p>✓ GTIN: <span className="font-mono text-foreground/70">{p.gtin}</span></p>}
+                        <div className="rounded-lg bg-white/5 p-2 text-xs space-y-1 text-white">
+                          {p.brand && <p>✓ Brand: <span className="font-semibold text-green-300">{p.brand}</span></p>}
+                          {p.gtin && <p>✓ GTIN: <span className="font-mono text-white/80">{p.gtin}</span></p>}
                           {p.imageUrl && <p>✓ Image from GS1</p>}
                         </div>
                       </div>
@@ -1241,7 +1241,7 @@ export default function AdminProductsPage() {
                           }
                           disabled={lookingUpGs1ProductId === p.id}
                           placeholder="Enter EAN/GTIN (e.g., 8901001001234)"
-                          className="w-full rounded-lg border border-foreground/15 bg-background px-3 py-2 text-sm outline-none focus:border-foreground/30 disabled:opacity-60 font-mono"
+                          className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-white/30 disabled:opacity-60 font-mono"
                         />
                         <button
                           type="button"
