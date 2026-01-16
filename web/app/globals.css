@@ -62,3 +62,10 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.2em;
 }
+
+.font-geist-ultra {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Apple Color Emoji", "Segoe UI Emoji";
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
