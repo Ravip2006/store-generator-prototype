@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { GlowHoverCard } from "@/components/GlowHoverCard";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/lib/authContext";
 import { AuthModal } from "@/components/AuthModal";
@@ -693,7 +694,7 @@ export default function StoreFront({ slug }: { slug: string }) {
 
           <div className="relative p-6 md:p-8">
             {error && (
-              <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+              <div className="mb-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
                 <b>Error:</b> {error}
               </div>
             )}
@@ -718,8 +719,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                       }
                       className={
                         categoryId
-                          ? "w-full rounded-xl border border-foreground/10 bg-background px-3 py-2 text-left text-sm font-medium hover:bg-foreground/5"
-                          : "w-full rounded-xl border border-foreground/10 border-l-4 bg-foreground/5 px-3 py-2 text-left text-sm font-semibold"
+                          ? "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/80 hover:bg-white/10"
+                          : "w-full rounded-xl border border-white/15 border-l-4 bg-white/10 px-3 py-2 text-left text-sm font-semibold text-white"
                       }
                     >
                       All products
@@ -741,8 +742,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                         }
                         className={
                           categoryId === c.id
-                            ? "w-full rounded-xl border border-foreground/10 border-l-4 bg-foreground/5 px-3 py-2 text-left text-sm font-semibold"
-                            : "w-full rounded-xl border border-foreground/10 bg-background px-3 py-2 text-left text-sm font-medium hover:bg-foreground/5"
+                            ? "w-full rounded-xl border border-white/15 border-l-4 bg-white/10 px-3 py-2 text-left text-sm font-semibold text-white"
+                            : "w-full rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-left text-sm font-medium text-white/80 hover:bg-white/10"
                         }
                       >
                         {c.name}
@@ -752,20 +753,20 @@ export default function StoreFront({ slug }: { slug: string }) {
                 </div>
               </aside>
 
-              <div className="rounded-2xl border border-foreground/10 bg-background p-5">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <h2 className="text-base font-semibold">Products</h2>
+                  <h2 className="text-base font-semibold text-white">Products</h2>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <input
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Search products"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20"
                     />
                     <select
                       value={categoryId}
                       onChange={(e) => setCategoryId(e.target.value)}
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30 sm:max-w-60 lg:hidden"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 sm:max-w-60 lg:hidden"
                     >
                       <option value="">All categories</option>
                       {categories.map((c) => (
@@ -794,8 +795,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                       }
                       className={
                         categoryId
-                          ? "whitespace-nowrap rounded-full border border-foreground/15 bg-background px-3 py-1 text-xs font-medium hover:bg-foreground/5"
-                          : "whitespace-nowrap rounded-full border border-foreground/15 bg-foreground/5 px-3 py-1 text-xs font-semibold"
+                          ? "whitespace-nowrap rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/70 hover:bg-white/10"
+                          : "whitespace-nowrap rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white"
                       }
                     >
                       All
@@ -846,11 +847,11 @@ export default function StoreFront({ slug }: { slug: string }) {
                       {filteredProducts.slice(0, productsToShow).map((p) => {
                         const isJustAdded = justAddedProductId === p.id;
                         return (
-                          <motion.div
+                          <GlowHoverCard
                             key={p.id}
-                            whileHover={{ y: -8, scale: 1.01 }}
-                            transition={spring}
                             className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/40"
+                            hoverScale={1.02}
+                            glowSize={260}
                           >
                           <Link
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
@@ -920,7 +921,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                               <button
                                 type="button"
                                 onClick={() => addToCart(p)}
-                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] ${
+                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 ${
                                   isJustAdded ? "scale-[1.02]" : ""
                                 }`}
                                 style={
@@ -944,7 +945,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                               </button>
                             )}
                           </div>
-                          </motion.div>
+                          </GlowHoverCard>
                         );
                       })}
                     </div>
@@ -974,7 +975,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => setProductsToShow((prev) => prev + 12)}
-                            className="px-6 py-2.5 text-sm font-bold text-white rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-lg"
+                            className="px-6 py-2.5 text-sm font-bold text-white rounded-lg overflow-hidden group transition-all duration-300 hover:shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                             style={{
                               background: 'linear-gradient(135deg, #000000, #333333)',
                               boxShadow: '0 4px 15px rgba(0,0,0,0.3)'

@@ -306,18 +306,18 @@ export default function ProductPageClient({
           <div className="flex items-center gap-2">
             <Link
               href={`/s/${encodeURIComponent(tenant)}/cart`}
-              className="inline-flex items-center gap-2 rounded-xl border border-foreground/15 px-3 py-2 text-sm font-semibold text-background hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20"
               style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
             >
               <TrolleyIcon className="h-4 w-4" />
               <span>Cart</span>
-              <span className="rounded-full border border-background/30 bg-background px-2 py-0.5 text-xs text-foreground">
+              <span className="rounded-full border border-white/20 bg-black/40 px-2 py-0.5 text-xs text-white">
                 {cartItemCount}
               </span>
             </Link>
             <Link
               href={`/s/${encodeURIComponent(tenant)}`}
-              className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-medium hover:bg-foreground/5"
+              className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/20"
             >
               Back
             </Link>
@@ -535,13 +535,13 @@ export default function ProductPageClient({
                 return (
                   <div
                     key={id}
-                    className="w-56 shrink-0 overflow-hidden rounded-2xl border border-foreground/10 bg-background sm:w-auto"
+                    className="w-56 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl sm:w-auto"
                   >
                     <Link
                       href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(id)}`}
                       className="block"
                     >
-                      <div className="aspect-[4/3] w-full bg-foreground/5">
+                      <div className="aspect-[4/3] w-full bg-white/10">
                         {p.imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -551,36 +551,36 @@ export default function ProductPageClient({
                             loading="lazy"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center text-xs text-foreground/50">
+                          <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
                             No image
                           </div>
                         )}
                       </div>
                       <div className="p-3">
-                        <div className="truncate text-sm font-medium">{p.name}</div>
-                        <div className="mt-1 text-sm font-semibold">₹{p.price}</div>
+                        <div className="truncate text-sm font-medium text-white">{p.name}</div>
+                        <div className="mt-1 text-sm font-semibold text-white">₹{p.price}</div>
                       </div>
                     </Link>
 
                     <div className="px-3 pb-3">
                       {lineQty > 0 ? (
-                        <div className="inline-flex w-full items-center justify-between gap-2 rounded-xl border border-foreground/15 bg-background px-2 py-2">
+                        <div className="inline-flex w-full items-center justify-between gap-2 rounded-xl border border-white/15 bg-white/10 px-2 py-2">
                           <button
                             type="button"
                             onClick={() => removeFromCart(id)}
-                            className="rounded-lg border border-foreground/15 bg-background px-3 py-1 text-sm font-semibold hover:bg-foreground/5"
+                            className="rounded-lg border border-white/15 bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20"
                             style={accent ? { borderColor: accent, color: accent } : undefined}
                           >
                             −
                           </button>
-                          <span className="min-w-8 text-center text-sm font-semibold">
+                          <span className="min-w-8 text-center text-sm font-semibold text-white">
                             {lineQty}
                           </span>
                           <button
                             type="button"
                             onClick={() => addToCart(p)}
                             disabled={pOutOfStock}
-                            className="rounded-lg border border-foreground/15 bg-background px-3 py-1 text-sm font-semibold hover:bg-foreground/5"
+                            className="rounded-lg border border-white/15 bg-white/10 px-3 py-1 text-sm font-semibold text-white hover:bg-white/20"
                             style={accent ? { borderColor: accent, color: accent } : undefined}
                           >
                             +
@@ -591,7 +591,7 @@ export default function ProductPageClient({
                           type="button"
                           onClick={() => addToCart(p)}
                           disabled={pOutOfStock}
-                          className="inline-flex w-full items-center justify-center rounded-xl border border-foreground/15 bg-background px-3 py-2 text-sm font-semibold hover:bg-foreground/5"
+                          className="inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/20"
                           style={accent ? { borderColor: accent, color: accent } : undefined}
                         >
                           {pOutOfStock ? "Out" : "Add"}
@@ -606,39 +606,39 @@ export default function ProductPageClient({
         </div>
       </div>
 
-      <footer className="mt-10 border-t border-foreground/10 bg-background">
+      <footer className="mt-10 border-t border-white/10 bg-black/30 backdrop-blur-xl">
         <div className="mx-auto w-full max-w-5xl px-6 py-10">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-foreground/10 text-xs font-bold tracking-tight shadow-sm"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-white/10 text-xs font-bold tracking-tight shadow-sm"
                   style={accent ? { backgroundColor: accent } : undefined}
                 >
-                  <span className="text-background">{logoText}</span>
+                  <span className="text-white">{logoText}</span>
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">{store.name}</div>
-                  <div className="truncate text-xs text-foreground/60">Fast delivery • Easy ordering</div>
+                  <div className="truncate text-sm font-semibold text-white">{store.name}</div>
+                  <div className="truncate text-xs text-white/60">Fast delivery • Easy ordering</div>
                 </div>
               </div>
 
               {store?.phone ? (
                 <a
                   href={`tel:${store.phone}`}
-                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                  className="inline-flex text-sm font-medium text-white/80 underline underline-offset-4 hover:text-white"
                 >
                   Call store
                 </a>
               ) : (
-                <div className="text-sm text-foreground/60">Store phone not available</div>
+                <div className="text-sm text-white/60">Store phone not available</div>
               )}
               {whatsappStoreHref ? (
                 <a
                   href={whatsappStoreHref}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                  className="inline-flex text-sm font-medium text-white/80 underline underline-offset-4 hover:text-white"
                 >
                   WhatsApp store
                 </a>
@@ -646,78 +646,78 @@ export default function ProductPageClient({
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Company</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#about-store" className="hover:text-foreground/90">About</a>
-                <a href="#contact" className="hover:text-foreground/90">Contact</a>
-                <a href="#top" className="hover:text-foreground/90">Back to top</a>
+              <div className="text-sm font-semibold text-white">Company</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#about-store" className="hover:text-white">About</a>
+                <a href="#contact" className="hover:text-white">Contact</a>
+                <a href="#top" className="hover:text-white">Back to top</a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Help</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#delivery" className="hover:text-foreground/90">Delivery info</a>
-                <a href="#cancellation-policy" className="hover:text-foreground/90">Cancellation policy</a>
-                <a href="#support" className="hover:text-foreground/90">Support</a>
+              <div className="text-sm font-semibold text-white">Help</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#delivery" className="hover:text-white">Delivery info</a>
+                <a href="#cancellation-policy" className="hover:text-white">Cancellation policy</a>
+                <a href="#support" className="hover:text-white">Support</a>
               </div>
             </div>
 
             <div>
-              <div className="text-sm font-semibold">Legal</div>
-              <div className="mt-3 grid gap-2 text-sm text-foreground/70">
-                <a href="#terms" className="hover:text-foreground/90">Terms</a>
-                <a href="#privacy" className="hover:text-foreground/90">Privacy</a>
+              <div className="text-sm font-semibold text-white">Legal</div>
+              <div className="mt-3 grid gap-2 text-sm text-white/70">
+                <a href="#terms" className="hover:text-white">Terms</a>
+                <a href="#privacy" className="hover:text-white">Privacy</a>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 rounded-2xl border border-foreground/10 bg-foreground/5 p-6">
+          <div className="mt-8 grid gap-6 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
             <div id="about-store" className="scroll-mt-24">
-              <div className="text-sm font-semibold">About</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">About</div>
+              <p className="mt-2 text-sm text-white/70">
                 {store.name} is a local store. Prices and availability may vary by location.
               </p>
             </div>
 
             <div id="contact" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Contact</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Contact</div>
+              <p className="mt-2 text-sm text-white/70">
                 For order updates, you can call or WhatsApp the store.
               </p>
             </div>
 
             <div id="delivery" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Delivery info</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Delivery info</div>
+              <p className="mt-2 text-sm text-white/70">
                 Delivery slots are subject to availability. Exact timings can vary based on demand and address.
               </p>
             </div>
 
             <div id="support" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Support</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Support</div>
+              <p className="mt-2 text-sm text-white/70">
                 If you received a damaged or incorrect item, contact the store as soon as possible.
               </p>
             </div>
 
             <div id="cancellation-policy" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Cancellation policy</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Cancellation policy</div>
+              <p className="mt-2 text-sm text-white/70">
                 Orders cannot be cancelled once packed for delivery. In case of unexpected delays, a refund may be provided, if applicable.
               </p>
             </div>
 
             <div id="terms" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Terms</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Terms</div>
+              <p className="mt-2 text-sm text-white/70">
                 By placing an order, you agree to provide accurate contact and delivery details.
               </p>
             </div>
 
             <div id="privacy" className="scroll-mt-24">
-              <div className="text-sm font-semibold">Privacy</div>
-              <p className="mt-2 text-sm text-foreground/70">
+              <div className="text-sm font-semibold text-white">Privacy</div>
+              <p className="mt-2 text-sm text-white/70">
                 Your information is used only to fulfill your order and contact you about delivery.
               </p>
             </div>

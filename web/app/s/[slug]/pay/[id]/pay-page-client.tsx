@@ -203,36 +203,36 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
         </div>
 
         {error && (
-          <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+          <div className="mt-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
             <b>Error:</b> {error}
           </div>
         )}
 
         {loading ? (
-          <p className="mt-6 text-sm text-foreground/70">Loading order...</p>
+          <p className="mt-6 text-sm text-white/70">Loading order...</p>
         ) : !order ? (
-          <div className="mt-6 rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-            <p className="text-sm text-foreground/70">Order not found.</p>
+          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+            <p className="text-sm text-white/70">Order not found.</p>
           </div>
         ) : (
           <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_360px]">
-            <section className="rounded-2xl border border-foreground/10 bg-background p-6 shadow-sm">
-              <div className="rounded-xl border border-foreground/10 p-4">
+            <section className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/40 backdrop-blur-xl">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="text-sm">
-                    <div className="font-semibold">Order {order.id}</div>
-                    <div className="mt-1 text-xs text-foreground/60">Status: {order.status}</div>
+                    <div className="font-semibold text-white">Order {order.id}</div>
+                    <div className="mt-1 text-xs text-white/60">Status: {order.status}</div>
                     {order.deliverySlot ? (
-                      <div className="mt-1 text-xs text-foreground/60">Delivery: {order.deliverySlot}</div>
+                      <div className="mt-1 text-xs text-white/60">Delivery: {order.deliverySlot}</div>
                     ) : null}
                   </div>
-                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
+                  <div className="text-sm font-semibold text-white">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-xl border border-foreground/10">
+              <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
                 <table className="w-full border-collapse text-left text-sm">
-                  <thead className="bg-foreground/5">
+                  <thead className="bg-white/10 text-white/80">
                     <tr>
                       <th className="px-4 py-3 font-medium">Item</th>
                       <th className="px-4 py-3 font-medium">Qty</th>
@@ -241,7 +241,10 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                   </thead>
                   <tbody>
                     {order.items.map((it) => (
-                      <tr key={it.id} className="border-t border-foreground/10">
+                      <tr
+                        key={it.id}
+                        className="border-t border-white/10 text-white/80 transition-colors hover:bg-white/5"
+                      >
                         <td className="px-4 py-3">{it.product?.name || it.productId}</td>
                         <td className="px-4 py-3">{it.quantity}</td>
                         <td className="px-4 py-3">{formatPrice(it.unitPrice, getCurrencyForCountry(order.country || "AU"))}</td>
@@ -253,16 +256,16 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
             </section>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
+              <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-lg shadow-black/40 backdrop-blur-xl">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="text-sm font-semibold">Order summary</div>
-                    <div className="mt-1 text-xs text-foreground/60">
+                    <div className="text-sm font-semibold text-white">Order summary</div>
+                    <div className="mt-1 text-xs text-white/60">
                       {order.items.reduce((s, it) => s + it.quantity, 0)} item
                       {order.items.reduce((s, it) => s + it.quantity, 0) === 1 ? "" : "s"}
                     </div>
                   </div>
-                  <div className="text-sm font-semibold">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
+                  <div className="text-sm font-semibold text-white">{formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}</div>
                 </div>
 
                 <div className="mt-4 grid gap-2">
@@ -270,7 +273,7 @@ export default function PayPageClient({ slug, id }: { slug: string; id: string }
                     type="button"
                     onClick={onConfirm}
                     disabled={confirming || cancelling || order.status !== "PENDING_PAYMENT"}
-                    className="inline-flex w-full items-center justify-center rounded-xl border border-foreground/15 bg-foreground/5 px-4 py-3 text-sm font-semibold hover:bg-foreground/10 disabled:opacity-60"
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white hover:bg-white/20 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                   >
                     {confirming ? "Paying..." : `Pay ${formatPrice(order.total, getCurrencyForCountry(order.country || "AU"))}`}
                   </button>

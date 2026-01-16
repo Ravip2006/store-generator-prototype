@@ -615,7 +615,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => setShowAuthModal(true)}
-                            className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm font-semibold hover:bg-foreground/5"
+                            className="inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20"
                             style={accent ? { borderColor: accent, color: accent } : undefined}
                           >
                             Log in / Sign up
@@ -630,40 +630,40 @@ export default function CartPageClient({ slug }: { slug: string }) {
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder="Name"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <input
                       value={customerPhone}
                       onChange={(e) => setCustomerPhone(e.target.value)}
                       placeholder="Phone"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <input
                       value={addressLine1}
                       onChange={(e) => setAddressLine1(e.target.value)}
                       placeholder="Address"
-                      className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                      className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                     />
                     <div className="grid gap-2 sm:grid-cols-2">
                       <input
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="City"
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                       <input
                         value={postalCode}
                         onChange={(e) => setPostalCode(e.target.value)}
                         placeholder="Postal code (required)"
                         required
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
                       <select
                         value={country || ""}
                         onChange={(e) => setCountry(e.target.value)}
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       >
                         <option value="">Select country</option>
                         <option value="AU">🇦🇺 Australia</option>
@@ -675,15 +675,15 @@ export default function CartPageClient({ slug }: { slug: string }) {
                         value={deliverySlot}
                         onChange={(e) => setDeliverySlot(e.target.value)}
                         placeholder="Delivery slot"
-                        className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-2 text-sm outline-none focus:border-foreground/30"
+                        className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-2 text-sm text-white outline-none focus:border-emerald-300/60"
                       />
                     </div>
                     {checkoutIssues.length > 0 ? (
-                      <p className="text-xs text-foreground/60">
+                      <p className="text-xs text-white/60">
                         To continue: {checkoutIssues.join(" • ")}
                       </p>
                     ) : (
-                      <p className="text-xs text-foreground/60">We’ll reserve stock, then take you to payment.</p>
+                      <p className="text-xs text-white/60">We’ll reserve stock, then take you to payment.</p>
                     )}
                   </div>
                 </div>
@@ -732,7 +732,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(false)}
                   disabled={!canProceedToPay}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 px-4 py-3 text-sm font-semibold text-background hover:opacity-90 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                   style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
                 >
                   {placing ? "Reserving..." : "Proceed to pay"}
@@ -742,7 +742,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(true)}
                   disabled={placing || placingWhatsApp || !directWhatsAppHref}
-                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm font-semibold hover:bg-foreground/5 disabled:opacity-60 shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/30"
                   style={accent ? { borderColor: accent, color: accent } : undefined}
                 >
                   {placingWhatsApp ? "Placing & opening WhatsApp..." : "Place order & WhatsApp"}

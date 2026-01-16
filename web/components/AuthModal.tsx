@@ -63,7 +63,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
     <AnimatePresence>
       {isOpen ? (
         <motion.div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4"
           onClick={handleModalClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -71,7 +71,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
           transition={SPRING}
         >
           <motion.div
-            className="w-full max-w-md rounded-2xl bg-white shadow-2xl relative z-[10000] max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-md rounded-2xl border border-white/15 bg-black/80 shadow-2xl shadow-black/50 relative z-[10000] max-h-[90vh] overflow-y-auto backdrop-blur-xl"
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -79,28 +79,30 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
           >
             <div className="p-8">
         {/* Close button */}
-        <button
+          <motion.button
           onClick={onClose}
-          className="absolute right-4 top-4 p-1 text-gray-400 hover:text-gray-600 transition-colors z-50"
+          className="absolute right-4 top-4 p-1 text-white/50 hover:text-white transition-colors z-50"
+            whileHover={{ scale: 1.05 }}
+            transition={SPRING}
         >
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
-        </button>
+        </motion.button>
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl font-semibold text-white">
             {isSignUp ? "Create Account" : "Welcome Back"}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-white/60">
             {isSignUp ? "Sign up to enjoy faster checkout and order tracking" : "Sign in to view your orders and faster checkout"}
           </p>
         </div>
 
         {/* Error message */}
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+          <div className="mb-4 rounded-lg bg-red-500/10 p-4 text-sm text-red-200 border border-red-400/30">
             {error}
           </div>
         )}
@@ -111,7 +113,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
             <>
               {/* Name field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-white/70 mb-1.5">
                   Full Name
                 </label>
                 <input
@@ -119,14 +121,14 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                  className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-white placeholder-white/40 focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   disabled={loading}
                 />
               </div>
 
               {/* Phone field */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm font-medium text-white/70 mb-1.5">
                   Phone Number
                 </label>
                 <input
@@ -134,7 +136,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                  className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-white placeholder-white/40 focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   disabled={loading}
                 />
               </div>
@@ -143,7 +145,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
 
           {/* Email field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-white/70 mb-1.5">
               Email Address
             </label>
             <input
@@ -151,7 +153,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-white placeholder-white/40 focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 transition-all"
               disabled={loading}
               required
             />
@@ -159,7 +161,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
 
           {/* Password field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            <label className="block text-sm font-medium text-white/70 mb-1.5">
               Password
             </label>
             <input
@@ -167,17 +169,19 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              className="w-full rounded-lg border border-white/15 bg-white/10 px-4 py-2.5 text-white placeholder-white/40 focus:border-emerald-300/60 focus:ring-2 focus:ring-emerald-400/20 transition-all"
               disabled={loading}
               required
             />
           </div>
 
           {/* Submit button */}
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
-            className="w-full mt-6 py-2.5 px-4 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 transition-all shadow-lg hover:shadow-xl"
+            className="w-full mt-6 py-2.5 px-4 rounded-lg font-semibold text-black bg-white hover:bg-white/90 disabled:bg-white/30 transition-all shadow-lg shadow-emerald-500/20"
+            whileHover={{ y: -2 }}
+            transition={SPRING}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -192,13 +196,13 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
             ) : (
               "Sign In"
             )}
-          </button>
+          </motion.button>
         </form>
 
         {/* Toggle auth mode */}
-        <div className="mt-6 flex items-center justify-center gap-1 text-sm text-gray-600">
+        <div className="mt-6 flex items-center justify-center gap-1 text-sm text-white/60">
           <span>{isSignUp ? "Already have an account?" : "Don't have an account?"}</span>
-          <button
+          <motion.button
             type="button"
             onClick={() => {
               setIsSignUp(!isSignUp);
@@ -208,26 +212,28 @@ export function AuthModal({ isOpen, onClose, onSuccess, tenant, initialMode = "s
               setPhone("");
               setName("");
             }}
-            className="font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="font-semibold text-emerald-300 hover:text-emerald-200 transition-colors"
+            whileHover={{ y: -1 }}
+            transition={SPRING}
           >
             {isSignUp ? "Sign In" : "Sign Up"}
-          </button>
+          </motion.button>
         </div>
 
         {/* Benefits */}
-        <div className="mt-6 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 p-4 border border-blue-100">
-          <p className="text-xs font-semibold text-gray-700 mb-2">Benefits of signing up:</p>
-          <ul className="space-y-1.5 text-xs text-gray-600">
+        <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+          <p className="text-xs font-semibold text-white/70 mb-2">Benefits of signing up:</p>
+          <ul className="space-y-1.5 text-xs text-white/60">
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">✓</span>
+              <span className="text-emerald-300 font-bold">✓</span>
               <span>Faster checkout with saved address</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">✓</span>
+              <span className="text-emerald-300 font-bold">✓</span>
               <span>Track your orders in real-time</span>
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">✓</span>
+              <span className="text-emerald-300 font-bold">✓</span>
               <span>Reorder your favorites instantly</span>
             </li>
           </ul>

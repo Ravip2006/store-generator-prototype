@@ -156,7 +156,7 @@ export default async function OrderConfirmationPage({
             {order!.items.map((it) => (
               <div
                 key={it.id}
-                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl"
+                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-xl transition-colors hover:bg-white/10"
               >
                 <div className="text-sm font-medium">
                   {it.product?.name || it.productId}
