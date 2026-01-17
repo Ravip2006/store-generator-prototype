@@ -506,7 +506,7 @@ export default function CartPageClient({ slug }: { slug: string }) {
         <div className="grid gap-6 lg:grid-cols-12">
           <section className="lg:col-span-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40 backdrop-blur-2xl">
             <div className="flex flex-col gap-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-white/60">Checkout</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-white/80">Checkout</p>
               <h2 className="text-2xl font-semibold tracking-tight text-white">Your trolley</h2>
               <p className="mt-1 text-sm text-white/60">Review items, then add delivery details.</p>
             </div>

@@ -68,7 +68,7 @@ export default function HomePage() {
                   initial={{ y: 80, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ type: "spring", stiffness: 180, damping: 24, mass: 0.9, delay: 0.1 }}
-                  className="text-7xl lg:text-[10rem] font-semibold tracking-[-0.07em] leading-[0.8]"
+                  className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-tight"
                 >
                   Build premium multi-store experiences with an elite operating system.
                 </motion.h1>

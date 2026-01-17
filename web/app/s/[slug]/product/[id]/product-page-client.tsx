@@ -328,13 +328,16 @@ export default function ProductPageClient({
       <div className="mx-auto w-full max-w-6xl p-4 sm:p-6">
         <div className="grid gap-6 lg:grid-cols-12">
           <div className="lg:col-span-8 overflow-hidden rounded-[28px] border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur-2xl">
-            <div className="aspect-[4/3] w-full border-b border-white/10 bg-white/10">
+            <div className="flex w-full items-center justify-center overflow-hidden bg-white/10 aspect-square sm:aspect-[4/3]">
               {product.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={product.imageUrl}
                   alt={product.name}
-                  className="h-full w-full object-cover"
+                  /* w-full h-full + object-contain is the gold standard.
+                   * The image will resize to fit the box perfectly
+                   * without ever stretching or squishing.
+                   */
+                  className="h-full w-full object-contain"
                   loading="lazy"
                 />
               ) : (
