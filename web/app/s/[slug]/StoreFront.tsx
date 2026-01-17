@@ -872,17 +872,17 @@ export default function StoreFront({ slug }: { slug: string }) {
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block"
                           >
-                            <div className="relative aspect-square w-full overflow-hidden bg-white/10 sm:aspect-[4/3] flex items-center justify-center p-2">
+                            <div className="relative w-full overflow-hidden bg-white/10 sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={p.imageUrl}
                                   alt={p.name}
-                                  className="h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 sm:object-cover"
+                                  className="w-full h-auto max-h-[250px] object-contain sm:h-full sm:max-h-none p-2"
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
+                                <div className="flex h-48 w-full items-center justify-center text-xs text-white/60">
                                   No image
                                 </div>
                               )}
