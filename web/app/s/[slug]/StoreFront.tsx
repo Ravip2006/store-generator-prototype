@@ -1188,7 +1188,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                       setCartPanelOpen(false);
                       setCartPanelView("cart");
                     }}
-                    className="text-xs font-medium text-white/70 underline underline-offset-4 hover:text-white"
+                    className="text-xs font-semibold text-white underline underline-offset-4 hover:text-white"
                   >
                     Open checkout
                   </Link>
@@ -1250,7 +1250,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => setAuthModalOpen(true)}
-                            className="inline-flex items-center justify-center rounded-xl bg-background px-4 py-3 text-sm font-semibold border border-foreground/15 hover:bg-foreground/5 transition-colors"
+                            className="inline-flex items-center justify-center rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white border border-white/15 hover:bg-white/20 transition-colors"
                           >
                             Log in
                           </button>
@@ -1260,7 +1260,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                               setAuthModalOpen(true);
                               setIsSignUp(true);
                             }}
-                            className="inline-flex items-center justify-center rounded-xl bg-background px-4 py-3 text-sm font-semibold border border-foreground/15 hover:bg-foreground/5 transition-colors"
+                            className="inline-flex items-center justify-center rounded-xl bg-white/10 px-4 py-3 text-sm font-semibold text-white border border-white/15 hover:bg-white/20 transition-colors"
                           >
                             Sign up
                           </button>
@@ -1269,8 +1269,8 @@ export default function StoreFront({ slug }: { slug: string }) {
                     </div>
                   </div>
 
-                  <div className="rounded-2xl border border-foreground/10 bg-background p-5 shadow-sm">
-                    <div className="text-sm font-semibold">Quick links</div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-sm">
+                    <div className="text-sm font-semibold text-white">Quick links</div>
                     <div className="mt-3 grid gap-2 text-sm">
                       <Link
                         href={`/s/${encodeURIComponent(tenant)}`}
@@ -1278,7 +1278,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           setCartPanelOpen(false);
                           setCartPanelView("cart");
                         }}
-                        className="rounded-xl border border-foreground/15 bg-background px-4 py-3 font-medium hover:bg-foreground/5"
+                        className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 font-medium text-white hover:bg-white/20"
                       >
                         Buy again
                       </Link>
@@ -1290,12 +1290,12 @@ export default function StoreFront({ slug }: { slug: string }) {
                             setCartPanelOpen(false);
                             setCartPanelView("cart");
                           }}
-                          className="rounded-xl border border-foreground/15 bg-background px-4 py-3 font-medium hover:bg-foreground/5"
+                          className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 font-medium text-white hover:bg-white/20"
                         >
                           My orders
                         </Link>
                       ) : (
-                        <div className="rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm text-foreground/60">
+                        <div className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white/60">
                           My orders (no recent orders yet)
                         </div>
                       )}
@@ -1305,12 +1305,12 @@ export default function StoreFront({ slug }: { slug: string }) {
                           href={whatsappStoreHref}
                           target="_blank"
                           rel="noreferrer"
-                          className="rounded-xl border border-foreground/15 bg-background px-4 py-3 font-medium hover:bg-foreground/5"
+                          className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 font-medium text-white hover:bg-white/20"
                         >
                           Help & support (WhatsApp)
                         </a>
                       ) : (
-                        <div className="rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm text-foreground/60">
+                        <div className="rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm text-white/60">
                           Help & support
                         </div>
                       )}
@@ -1337,16 +1337,16 @@ export default function StoreFront({ slug }: { slug: string }) {
                           <button
                             type="button"
                             onClick={() => removeFromCart(l.product.id)}
-                            className="rounded-md border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
-                            style={accent ? { borderColor: accent, color: accent } : undefined}
+                            className="rounded-md border border-white/15 bg-white/10 px-2 py-1 text-sm font-semibold text-white hover:bg-white/20"
+                            style={accent ? { borderColor: accent } : undefined}
                           >
                             −
                           </button>
                           <button
                             type="button"
                             onClick={() => addToCart(l.product)}
-                            className="rounded-md border border-foreground/15 bg-background px-2 py-1 text-sm font-semibold hover:bg-foreground/5"
-                            style={accent ? { borderColor: accent, color: accent } : undefined}
+                            className="rounded-md border border-white/15 bg-white/10 px-2 py-1 text-sm font-semibold text-white hover:bg-white/20"
+                            style={accent ? { borderColor: accent } : undefined}
                           >
                             +
                           </button>
@@ -1354,30 +1354,30 @@ export default function StoreFront({ slug }: { slug: string }) {
                       </div>
                     ))}
 
-                    <div className="mt-2 flex items-center justify-between border-t border-foreground/10 pt-3">
-                      <span className="text-sm text-foreground/70">Subtotal</span>
-                      <span className="text-sm font-semibold">{formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}</span>
+                    <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-3">
+                      <span className="text-sm text-white/70">Subtotal</span>
+                      <span className="text-sm font-semibold text-white">{formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}</span>
                     </div>
 
                     <button
                       type="button"
                       onClick={clearCart}
-                      className="text-left text-sm font-medium underline underline-offset-4 hover:text-foreground/80"
+                      className="text-left text-sm font-medium text-white/80 underline underline-offset-4 hover:text-white"
                     >
                       Clear cart
                     </button>
                   </div>
 
-                  <div className="sticky bottom-0 mt-6 border-t border-foreground/10 bg-background/90 p-4 sm:p-5 backdrop-blur">
+                  <div className="sticky bottom-0 mt-6 border-t border-white/10 bg-black/70 p-4 sm:p-5 backdrop-blur">
                     <button
                       type="button"
                       onClick={() => setCartPanelView("checkout")}
-                      className="inline-flex w-full items-center justify-center rounded-lg border border-foreground/15 px-3 py-2 text-xs sm:text-sm font-semibold text-background hover:opacity-90"
-                      style={accent ? { backgroundColor: accent, borderColor: accent } : undefined}
+                      className="inline-flex w-full items-center justify-center rounded-lg border border-white/15 px-3 py-2 text-xs sm:text-sm font-semibold text-white hover:brightness-110"
+                      style={accent ? { backgroundColor: accent, borderColor: accent, color: "#ffffff" } : { backgroundColor: "#0f172a", color: "#ffffff" }}
                     >
                       Checkout
                     </button>
-                    <p className="mt-2 text-center text-xs text-foreground/60">
+                    <p className="mt-2 text-center text-xs text-white/60">
                       You’ll enter delivery details on the next screen.
                     </p>
                   </div>
