@@ -872,7 +872,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block w-full"
                           >
-                            <div className="h-40 w-full overflow-hidden bg-white/10 sm:h-auto sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
+                            <div className="aspect-square w-full overflow-hidden bg-white/10 sm:aspect-[4/3] border-b border-white/5">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
@@ -889,9 +889,9 @@ export default function StoreFront({ slug }: { slug: string }) {
                             </div>
                           </Link>
 
-                            <div className="flex flex-1 flex-col p-5">
-                            <div className="flex-1">
-                              <h3 className="text-base font-semibold text-white">
+                          <div className="flex min-w-0 flex-1 flex-col p-5">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="truncate text-base font-semibold text-white">
                                 <Link
                                   href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                                   className="hover:underline"
@@ -959,6 +959,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                                   accent
                                     ? {
                                         backgroundColor: accent,
+                                        color: accentText,
                                         boxShadow: `0 4px 15px ${hexWithAlpha(accent, "4D")}`,
                                       }
                                     : { backgroundColor: "#000" }
