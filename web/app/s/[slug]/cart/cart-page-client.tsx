@@ -732,8 +732,8 @@ export default function CartPageClient({ slug }: { slug: string }) {
                   type="button"
                   onClick={() => placeOrder(false)}
                   disabled={!canProceedToPay}
-                  className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-black hover:opacity-90 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
-                  style={accent ? { backgroundColor: accent, borderColor: accent, color: "#0a0a0a" } : { backgroundColor: "#fff" }}
+                  className="inline-flex items-center justify-center rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
+                  style={accent ? { backgroundColor: accent, borderColor: accent, color: "#ffffff" } : { backgroundColor: "#0f172a", color: "#ffffff" }}
                 >
                   {placing ? "Reserving..." : "Proceed to pay"}
                 </button>

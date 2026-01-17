@@ -42,22 +42,6 @@ const spring = {
   mass: 0.8,
 };
 
-const galleryContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12 },
-  },
-};
-
-const galleryItem = {
-  hidden: { opacity: 0, y: 16 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { type: "spring" as const, stiffness: 220, damping: 24, mass: 0.8 },
-  },
-};
 
 function isProduct(value: unknown): value is Product {
   if (!value || typeof value !== "object") return false;
@@ -83,6 +67,15 @@ function hexWithAlpha(hex: string, alphaHex: string) {
   const value = hex.trim();
   if (!/^#[0-9a-fA-F]{6}$/.test(value)) return null;
   return `${value}${alphaHex}`;
+}
+
+function readableTextOnAccent(hex?: string) {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return "#ffffff";
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance < 0.5 ? "#ffffff" : "#0b0f18";
 }
 
 function TrolleyIcon({ className }: { className?: string }) {
@@ -247,19 +240,6 @@ export default function StoreFront({ slug }: { slug: string }) {
     });
   }, [products, query, categoryId]);
 
-  const galleryImages = useMemo(
-    () => (Array.isArray(products) ? products.filter((p) => p.imageUrl).slice(0, 6) : []),
-    [products]
-  );
-
-  const galleryLayout = [
-    "lg:col-span-2 lg:row-span-2 aspect-video",
-    "aspect-square",
-    "aspect-square",
-    "lg:col-span-2 aspect-video",
-    "aspect-square",
-    "aspect-square",
-  ];
 
   function persist(nextCart: Record<string, CartLine>) {
     try {
@@ -490,6 +470,7 @@ export default function StoreFront({ slug }: { slug: string }) {
 
   const storeName = store?.name || "Store";
   const accent = store?.themeColor || undefined;
+  const accentText = readableTextOnAccent(accent);
   const logoText = initialsFromName(storeName);
   const currentYear = new Date().getFullYear();
   const whatsappStoreHref = (() => {
@@ -724,46 +705,6 @@ export default function StoreFront({ slug }: { slug: string }) {
           </div>
 
           <div className="relative p-6 md:p-8">
-            {galleryImages.length > 0 ? (
-              <section className="mb-8">
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-base font-semibold text-white">Store gallery</h3>
-                  <span className="text-xs text-white/60">Fresh picks from {storeName}</span>
-                </div>
-                <motion.div
-                  variants={galleryContainer}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
-                  className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-                >
-                  {galleryImages.map((item, index) => (
-                    <motion.div
-                      key={item.id}
-                      variants={galleryItem}
-                      className={`overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-xl shadow-black/40 backdrop-blur-xl ${
-                        galleryLayout[index % galleryLayout.length]
-                      }`}
-                    >
-                      {item.imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.imageUrl}
-                          alt={item.name}
-                          className="h-full w-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
-                          No image
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
-              </section>
-            ) : null}
-
             {error && (
               <div className="mb-6 rounded-xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-200">
                 <b>Error:</b> {error}
@@ -782,7 +723,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                         !categoryId && store?.themeColor
                           ? {
                               borderLeftColor: store.themeColor,
-                              color: store.themeColor,
+                              color: accentText,
                               backgroundColor:
                                 hexWithAlpha(store.themeColor, "14") ?? undefined,
                             }
@@ -805,7 +746,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           categoryId === c.id && store?.themeColor
                             ? {
                                 borderLeftColor: store.themeColor,
-                                color: store.themeColor,
+                                color: accentText,
                                 backgroundColor:
                                   hexWithAlpha(store.themeColor, "14") ?? undefined,
                               }
@@ -858,7 +799,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                         !categoryId && store?.themeColor
                           ? {
                               borderColor: store.themeColor,
-                              color: store.themeColor,
+                              color: accentText,
                               backgroundColor:
                                 hexWithAlpha(store.themeColor, "14") ?? undefined,
                             }
@@ -881,7 +822,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                           categoryId === c.id && store?.themeColor
                             ? {
                                 borderColor: store.themeColor,
-                                color: store.themeColor,
+                                color: accentText,
                                 backgroundColor:
                                   hexWithAlpha(store.themeColor, "14") ?? undefined,
                               }
@@ -920,7 +861,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                         return (
                           <GlowHoverCard
                             key={p.id}
-                            className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-lg shadow-black/40"
+                            className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
                             hoverScale={1.02}
                             glowSize={260}
                           >
@@ -945,7 +886,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                             </div>
                           </Link>
 
-                            <div className="flex flex-1 flex-col p-4">
+                            <div className="flex flex-1 flex-col p-5">
                             <div className="flex-1">
                               <h3 className="text-base font-semibold text-white">
                                 <Link
@@ -960,12 +901,19 @@ export default function StoreFront({ slug }: { slug: string }) {
                               )}
                             </div>
 
-                            <p className="mt-4 text-lg font-semibold text-white" style={accent ? { color: accent } : {}}>
+                            <Link
+                              href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
+                              className="mt-4 inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition hover:bg-white/10 sm:hidden"
+                            >
+                              Quick View
+                            </Link>
+
+                            <p className="mt-4 text-lg font-bold text-white" style={accent ? { color: accent } : {}}>
                               {formatPrice(p.price, getCurrencyForCountry(selectedCountry))}
                             </p>
                           </div>
 
-                          <div className="border-t border-white/10 p-4">
+                          <div className="border-t border-white/10 p-5">
                             {quantityInCart(p.id) > 0 ? (
                               <div className="flex items-center justify-between gap-2">
                                 <button
@@ -989,12 +937,21 @@ export default function StoreFront({ slug }: { slug: string }) {
                                 </button>
                               </div>
                             ) : (
-                              <button
+                              <motion.button
                                 type="button"
                                 onClick={() => addToCart(p)}
-                                className={`group/button relative w-full overflow-hidden rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 ${
-                                  isJustAdded ? "scale-[1.02]" : ""
-                                }`}
+                                animate={
+                                  isJustAdded
+                                    ? {
+                                        scale: [1, 1.06, 1],
+                                        boxShadow: accent
+                                          ? `0 0 0 1px ${hexWithAlpha(accent, "66")}, 0 12px 30px ${hexWithAlpha(accent, "66")}`
+                                          : "0 0 0 1px rgba(52,211,153,0.6), 0 12px 30px rgba(16,185,129,0.45)",
+                                      }
+                                    : { scale: 1 }
+                                }
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="group/button relative w-full overflow-hidden rounded-full px-4 py-3 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 active:scale-[0.98] shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40"
                                 style={
                                   accent
                                     ? {
@@ -1013,7 +970,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                                       : "-translate-x-[140%] group-hover:translate-x-[240%]"
                                   }`}
                                 />
-                              </button>
+                              </motion.button>
                             )}
                           </div>
                           </GlowHoverCard>

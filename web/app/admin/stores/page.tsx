@@ -257,11 +257,11 @@ export default function StoresPage() {
               <table className="min-w-[720px] w-full border-collapse text-left text-sm">
                 <thead className="bg-foreground/5">
                   <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Slug</th>
-                    <th className="px-4 py-3 font-medium">Phone</th>
-                    <th className="px-4 py-3 font-medium">Theme</th>
-                    <th className="px-4 py-3 font-medium">Actions</th>
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Name</th>
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Slug</th>
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Phone</th>
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500">Theme</th>
+                    <th className="px-4 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -332,16 +332,16 @@ export default function StoresPage() {
                       </tr>
                     ) : (
                       <tr key={store.id} className="border-t border-foreground/10">
-                        <td className="px-4 py-3">
-                          <div className="text-sm font-medium">{store.name}</div>
+                        <td className="px-4 py-3 text-slate-50">
+                          <div className="text-sm font-medium text-slate-50">{store.name}</div>
                         </td>
-                        <td className="px-4 py-3">
-                          <code className="rounded bg-foreground/10 px-2 py-1 text-xs font-mono">
+                        <td className="px-4 py-3 text-slate-50">
+                          <code className="rounded bg-foreground/10 px-2 py-1 text-xs font-mono text-slate-50">
                             {store.slug}
                           </code>
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">{store.phone}</div>
+                        <td className="px-4 py-3 text-slate-50">
+                          <div className="text-sm text-slate-50">{store.phone}</div>
                         </td>
                         <td className="px-4 py-3">
                           <div
