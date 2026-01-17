@@ -497,7 +497,7 @@ export default function StoreFront({ slug }: { slug: string }) {
             : undefined
         }
       >
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:flex-nowrap sm:px-6 sm:py-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <div
@@ -511,13 +511,13 @@ export default function StoreFront({ slug }: { slug: string }) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
             {/* Country Selector */}
             <div className="relative" data-country-menu>
               <button
                 type="button"
                 onClick={() => setShowCountryMenu(!showCountryMenu)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-white/25 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 transition-colors sm:px-3 sm:py-2 sm:text-sm"
               >
                 <span>🌐</span>
                 <span className="hidden sm:inline">{selectedCountry}</span>
@@ -627,13 +627,13 @@ export default function StoreFront({ slug }: { slug: string }) {
                   setIsSignUp(false);
                   setAuthModalOpen(true);
                 }}
-                className="inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm font-bold text-white hover:bg-white/15 transition-colors"
+                className="inline-flex items-center justify-center rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/15 transition-colors sm:px-4 sm:py-2 sm:text-sm"
                 title="Sign In"
               >
-                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                Sign In
+                <span className="hidden sm:inline">Sign In</span>
               </button>
             )}
 
@@ -649,11 +649,14 @@ export default function StoreFront({ slug }: { slug: string }) {
               className={`relative ml-auto inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-3 py-2 text-sm font-bold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.99] ${
                 cartPulse ? "ring-2 ring-white/30 shadow-lg shadow-black/10 scale-[1.02]" : ""
               }`}
+              aria-label="Open cart"
             >
               <TrolleyIcon className="h-4 w-4" />
               <div className="flex flex-col items-start">
-                <span>Cart</span>
-                <span className="text-xs font-medium">{formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}</span>
+                <span className="hidden sm:inline">Cart</span>
+                <span className="hidden text-xs font-medium sm:inline">
+                  {formatPrice(cartTotal, getCurrencyForCountry(selectedCountry))}
+                </span>
               </div>
               {cartItemCount > 0 && (
                 <span
