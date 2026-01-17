@@ -864,15 +864,15 @@ export default function StoreFront({ slug }: { slug: string }) {
                         return (
                           <GlowHoverCard
                             key={p.id}
-                            className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
+                            className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
                             hoverScale={1.02}
                             glowSize={260}
                           >
                           <Link
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
-                            className="block"
+                            className="block w-full"
                           >
-                            <div className="aspect-square w-full overflow-hidden bg-white/10 sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
+                            <div className="h-56 w-full overflow-hidden bg-white/10 sm:h-auto sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
