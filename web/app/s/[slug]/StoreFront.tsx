@@ -858,13 +858,13 @@ export default function StoreFront({ slug }: { slug: string }) {
                       </p>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {filteredProducts.slice(0, productsToShow).map((p) => {
                         const isJustAdded = justAddedProductId === p.id;
                         return (
                           <GlowHoverCard
                             key={p.id}
-                            className="group relative flex w-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
+                            className="group relative flex w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
                             hoverScale={1.02}
                             glowSize={260}
                           >
@@ -872,7 +872,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block w-full"
                           >
-                            <div className="h-56 w-full overflow-hidden bg-white/10 sm:h-auto sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
+                            <div className="h-40 w-full overflow-hidden bg-white/10 sm:h-auto sm:aspect-[4/3] flex items-center justify-center border-b border-white/5">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
