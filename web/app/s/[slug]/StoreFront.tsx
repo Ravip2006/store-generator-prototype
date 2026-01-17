@@ -872,7 +872,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block"
                           >
-                            <div className="aspect-square w-full bg-white/10 sm:aspect-[4/3] flex items-center justify-center overflow-hidden">
+                            <div className="relative aspect-square w-full overflow-hidden bg-white/10 sm:aspect-[4/3] flex items-center justify-center p-2">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
@@ -882,7 +882,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-white/50">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
                                   No image
                                 </div>
                               )}
