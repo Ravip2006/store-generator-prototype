@@ -878,7 +878,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                                 <img
                                   src={p.imageUrl}
                                   alt={p.name}
-                                  className="block h-full w-full object-contain sm:object-cover"
+                                  className="block h-full w-full object-contain p-2 sm:object-cover sm:p-0"
                                   loading="lazy"
                                 />
                               ) : (
