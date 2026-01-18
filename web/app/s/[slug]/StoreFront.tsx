@@ -858,27 +858,28 @@ export default function StoreFront({ slug }: { slug: string }) {
                       </p>
                     </div>
 
-                    <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {filteredProducts.slice(0, productsToShow).map((p) => {
-                        const isJustAdded = justAddedProductId === p.id;
-                        return (
-                          <GlowHoverCard
-                            key={p.id}
-                            className="group relative flex w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40"
-                            hoverScale={1.02}
-                            glowSize={260}
-                          >
+                    <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+                      <div className="flex w-max gap-4 sm:grid sm:w-full sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+                        {filteredProducts.slice(0, productsToShow).map((p) => {
+                          const isJustAdded = justAddedProductId === p.id;
+                          return (
+                            <GlowHoverCard
+                              key={p.id}
+                              className="group relative flex w-[240px] shrink-0 max-w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl shadow-black/40 sm:w-full"
+                              hoverScale={1.02}
+                              glowSize={260}
+                            >
                           <Link
                             href={`/s/${encodeURIComponent(tenant)}/product/${encodeURIComponent(String(p.id))}`}
                             className="block w-full"
                           >
-                            <div className="aspect-square w-full overflow-hidden bg-white/10 sm:aspect-[4/3] border-b border-white/5">
+                            <div className="h-44 w-full overflow-hidden bg-white/10 sm:h-auto sm:aspect-[4/3] border-b border-white/5">
                               {p.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                   src={p.imageUrl}
                                   alt={p.name}
-                                  className="block h-full w-full object-contain p-2 sm:object-cover sm:p-0"
+                                  className="block h-full w-full object-contain p-2"
                                   loading="lazy"
                                 />
                               ) : (
@@ -977,9 +978,10 @@ export default function StoreFront({ slug }: { slug: string }) {
                               </motion.button>
                             )}
                           </div>
-                          </GlowHoverCard>
-                        );
-                      })}
+                            </GlowHoverCard>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     {filteredProducts.length > 0 && productsToShow < filteredProducts.length && (
