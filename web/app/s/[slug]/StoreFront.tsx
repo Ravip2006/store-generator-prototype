@@ -883,7 +883,7 @@ export default function StoreFront({ slug }: { slug: string }) {
                                   loading="lazy"
                                 />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-xs text-white/60">
+                                <div className="flex h-full w-full items-center justify-center text-xs text-white/50">
                                   No image
                                 </div>
                               )}
