@@ -1,0 +1,232 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import AdminHeader from "@/components/AdminHeader";
+
+const spring = {
+  type: "spring" as const,
+  stiffness: 280,
+  damping: 22,
+  mass: 0.8,
+};
+
+type Category = {
+  id: string;
+  name: string;
+  createdAt: string;
+};
+
+export default function AdminCategoriesPage() {
+  const [stores, setStores] = useState<Array<{ id: string; name: string; slug: string }>>([]);
+  const [slug, setSlug] = useState("green-mart");
+  const [loadingStores, setLoadingStores] = useState(false);
+  const [name, setName] = useState("Snacks");
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const tenant = useMemo(() => slug.trim().toLowerCase(), [slug]);
+
+  // Fetch available stores on component mount
+  useEffect(() => {
+    const fetchStores = async () => {
+      setLoadingStores(true);
+      try {
+        const res = await fetch("/api/debug/stores", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setStores(Array.isArray(data.stores) ? data.stores : []);
+        }
+      } catch (e) {
+        console.error("Failed to fetch stores:", e);
+      } finally {
+        setLoadingStores(false);
+      }
+    };
+    fetchStores();
+  }, []);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/backend/categories`, {
+        headers: { "x-tenant-id": tenant },
+        cache: "no-store",
+      });
+
+      const data = await res.json().catch(() => []);
+      if (!res.ok) {
+        setCategories([]);
+        setError(data?.error || `Request failed (${res.status})`);
+        return;
+      }
+
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (e) {
+      setCategories([]);
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onCreate(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setError(null);
+
+    const cleanName = name.trim();
+    if (!tenant || !cleanName) {
+      setCreating(false);
+      setError("Please enter a valid store slug and category name.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/backend/categories`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-tenant-id": tenant,
+        },
+        body: JSON.stringify({ name: cleanName }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.error || `Request failed (${res.status})`);
+        return;
+      }
+
+      setName("");
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenant]);
+
+  return (
+    <motion.main
+      style={{ "--foreground": "#E5E7EB", "--background": "#05070b" } as Record<string, string>}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={spring}
+      className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_45%),radial-gradient(circle_at_20%_20%,_rgba(59,130,246,0.18),_transparent_40%),linear-gradient(180deg,_#05070b_0%,_#0a0d14_45%,_#0c0f16_100%)]"
+    >
+      <AdminHeader
+        title="Categories"
+        description="Manage store categories and organize products"
+        icon="🏷️"
+        breadcrumbs={[{ label: "Categories" }]}
+      />
+
+      <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:p-6">
+        <div className="rounded-2xl border border-blue-200/30 dark:border-blue-500/20 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-xl shadow-blue-500/10 dark:shadow-blue-900/20 p-6">
+
+          <form onSubmit={onCreate} className="mt-6 grid gap-3">
+            <div className="grid gap-3 p-4 rounded-2xl bg-gradient-to-r from-green-500/5 to-emerald-500/5 border border-green-200/40 dark:border-green-500/20">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold bg-gradient-to-r from-green-700 to-emerald-700 bg-clip-text text-transparent">🏬 Select Store</span>
+                <span className="ml-auto text-xs font-semibold px-3 py-1 rounded-full bg-green-600/15 text-emerald-700 dark:bg-green-500/20 dark:text-emerald-300">
+                  {slug ? "Active" : "Required"}
+                </span>
+              </div>
+              {loadingStores ? (
+                <div className="text-sm text-foreground/60">⏳ Loading stores...</div>
+              ) : stores.length === 0 ? (
+                <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
+                  📦 No stores found. <a href="/admin/create-store" className="underline font-semibold">Create one here</a>.
+                </div>
+              ) : (
+                <select
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  className="w-full rounded-xl border-2 border-green-200/60 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 text-sm font-medium text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 hover:border-emerald-300/70 transition-all"
+                >
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.slug}>
+                      {store.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <label className="grid gap-2">
+              <span className="text-sm text-foreground/70">Category name</span>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Snacks"
+                className="w-full rounded-xl border border-foreground/15 bg-background px-4 py-3 text-sm outline-none focus:border-foreground/30"
+              />
+            </label>
+
+            <button
+              type="submit"
+              disabled={creating}
+              className="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3 text-sm font-bold text-white hover:from-green-700 hover:to-emerald-700 disabled:opacity-60 transition-all"
+            >
+              {creating ? "Creating..." : "Create category"}
+            </button>
+          </form>
+
+          {error && (
+            <div className="mt-6 rounded-xl border border-foreground/15 bg-foreground/5 p-4 text-sm">
+              <b>Error:</b> {error}
+            </div>
+          )}
+
+          <div className="mt-8 flex items-center justify-between gap-3">
+            <h2 className="text-base font-semibold">List</h2>
+            <button
+              type="button"
+              onClick={load}
+              disabled={loading}
+              className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2.5 text-sm font-bold text-white hover:from-green-600 hover:to-emerald-600 transition-all hover:shadow-lg hover:shadow-green-500/20 disabled:opacity-60"
+            >
+              {loading ? "Refreshing..." : "Refresh"}
+            </button>
+          </div>
+
+          {categories.length === 0 ? (
+            <p className="mt-4 text-sm text-foreground/80">No categories yet.</p>
+          ) : (
+            <div className="mt-4 overflow-x-auto rounded-xl border border-foreground/10">
+              <table className="min-w-[520px] w-full border-collapse text-left text-sm">
+                <thead className="bg-foreground/5">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Name</th>
+                    <th className="px-4 py-3 font-medium">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((c) => (
+                    <tr key={c.id} className="border-t border-foreground/10">
+                      <td className="px-4 py-3">{c.name}</td>
+                      <td className="px-4 py-3 text-foreground/70">
+                        {new Date(c.createdAt).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.main>
+  );
+}
